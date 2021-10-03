@@ -141,7 +141,7 @@ def nbWithSpaces(nb):
 #df_incid_fra.loc[df_incid_fra.jour == "2021-04-05", "P"] = 45000
 
 
-# In[11]:
+# In[39]:
 
 
 df_incid_fra_corrige = df_incid_fra.copy()
@@ -156,13 +156,105 @@ df_incid_fra_corrige.loc[df_incid_fra.jour == "2021-05-24", "P"] = 0.7 * df_inci
 df_incid_fra_corrige.loc[df_incid_fra.jour == "2021-07-14", "P"] = 1.8 * df_incid_fra_corrige[df_incid_fra_corrige.jour == "2021-07-07"]["P"].values[0]
 
 
-# In[12]:
+# In[40]:
 
 
 df_incid_fra.loc[df_incid_fra.jour == "2021-05-01", "P"].values[0] * 0.7
 
 
-# In[13]:
+# In[15]:
+
+
+df_incid_fra
+
+
+# In[24]:
+
+
+fig = go.Figure()
+ira = pd.read_csv("../../../experimentations/data/infections-resp.csv")
+ira["day"] = pd.to_datetime(ira.week.astype('str')+"1", format="%Y%W%w")
+
+fig.add_trace(go.Scatter(
+    x = df_incid_fra.jour,
+    y = df_incid_fra.P.rolling(window=7).sum()/df_incid_fra["pop"]*100000,
+    name = "Incidence Covid",
+    line_width=3,
+    opacity=1,
+    showlegend=True
+))
+
+fig.add_trace(go.Scatter(
+    x = ira.day,
+    y = ira.inc100*1.8,
+    name = "Incidence IRA * 1,8",
+    line_width=3,
+    opacity=1,
+    showlegend=True
+))
+
+
+fig.update_layout(
+    bargap=0,
+    margin=dict(
+            l=50,
+            r=0,
+            b=0,
+            t=70,
+            pad=10
+        ),
+    legend_orientation="h",
+    barmode='group',
+    title={
+                'text': "Infections respiratoires aiguës",
+                'y':0.99,
+                'x':0.5,
+                'xanchor': 'center',
+                'yanchor': 'top'},
+    titlefont = dict(
+                size=30),
+    xaxis=dict(
+            title='',
+            tickformat='%d/%m'),
+
+    annotations = [
+                dict(
+                    x=0.5,
+                    y=0.99,
+                    xref='paper',
+                    yref='paper',
+                    font=dict(size=14),
+                    text="",#'Date : {}. Source : Santé publique France. Auteur : GRZ - covidtracker.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
+                    showarrow=False
+                ),
+                dict(
+                    x=0.5,
+                    y=1.08,
+                    xref='paper',
+                    yref='paper',
+                    font=dict(size=14),
+                    text="Données : réseau Sentinelles - @GuillaumeRozier",#'Date : {}. Source : Santé publique France. Auteur : GRZ - covidtracker.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
+                    showarrow=False
+                ),
+                ]
+                 )
+
+
+fig['layout']['annotations'] += (
+     dict(
+        x=0.5,
+        y=-0.1,
+        font=dict(size=10),
+        xref='paper',
+        yref='paper',
+        text="",#'Date : {}. Source : Santé publique France. Auteur : guillaumerozier.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
+        showarrow=False
+                ),)
+
+fig.show()
+
+
+# In[41]:
 
 
 """from sklearn.ensemble import IsolationForest
@@ -184,7 +276,7 @@ fig.add_trace(go.Scatter(
 fig.show()"""
 
 
-# In[14]:
+# In[42]:
 
 
 suffixe=""
@@ -489,7 +581,7 @@ for (date_deb, date_fin) in [("2020-09-18", last_day_plot_dashboard), (dates[-10
         suffixe="_recent"
 
 
-# In[15]:
+# In[43]:
 
 
 suffixe=""
@@ -676,7 +768,7 @@ for (date_deb, date_fin) in [("2020-09-18", last_day_plot_dashboard), (dates[-10
         suffixe="_recent"
 
 
-# In[16]:
+# In[44]:
 
 
 
@@ -775,13 +867,13 @@ if show_charts:
     fig.show()
 
 
-# In[17]:
+# In[45]:
 
 
 #Comparaison J-7
 name_fig = "cas_comp_j7"
 fig = go.Figure()
-df_temp = df_incid_fra[df_incid_fra.jour > dates[-400]]
+df_temp = df_incid_fra #[df_incid_fra.jour > dates[-400]]
 df_incid_france_cas_rolling = df_temp["P"] #.rolling(window=7, center=True).mean()
 croissance = ((df_incid_france_cas_rolling-df_incid_france_cas_rolling.shift(7))/df_incid_france_cas_rolling.shift(7)*100)
 croissance[croissance>200]=50
@@ -826,13 +918,13 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2,
 plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
-# In[18]:
+# In[46]:
 
 
 df_incid_fra
 
 
-# In[19]:
+# In[47]:
 
 
 #Comparaison J-7
@@ -883,7 +975,7 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2,
 plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
-# In[20]:
+# In[48]:
 
 
 
@@ -1093,7 +1185,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[21]:
+# In[49]:
 
 
 range_x, name_fig, range_y = ["2020-03-29", last_day_plot], "hosp_journ", [0, df_france["hosp"].max()*1.1]
@@ -1354,7 +1446,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[22]:
+# In[50]:
 
 
 range_x, name_fig, range_y = ["2020-03-29", last_day_plot], "dc_journ", [0, df_new_france["incid_dc"].max()]
@@ -1508,7 +1600,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[23]:
+# In[51]:
 
 
 
@@ -1718,7 +1810,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[24]:
+# In[52]:
 
 
 
@@ -1927,7 +2019,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[25]:
+# In[53]:
 
 
 for croiss in [""]:
@@ -1945,7 +2037,7 @@ for croiss in [""]:
     
 
 
-# In[26]:
+# In[54]:
 
 
 data.download_data_vue_ensemble()
@@ -1954,7 +2046,7 @@ df_vue_ensemble.loc[df_vue_ensemble.date >= "2021-05-21", "total_cas_confirmes"]
 #df_vue_ensemble=df_vue_ensemble.append({"date": "2021-03-30", "total_cas_confirmes": 4554683}, ignore_index=True)
 
 
-# In[27]:
+# In[55]:
 
 
 suffixe=""
@@ -2170,7 +2262,7 @@ for (date_deb, date_fin) in [("2020-01-18", datetime.strptime(df_vue_ensemble.da
         suffixe="_recent"
 
 
-# In[28]:
+# In[56]:
 
 
 #Comparaison J-7

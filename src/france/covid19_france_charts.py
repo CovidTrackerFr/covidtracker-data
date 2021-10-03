@@ -4441,7 +4441,7 @@ if show_charts:
 # In[56]:
 
 
-# TESTS
+"""# TESTS
 
 fig = make_subplots(specs=[[{"secondary_y": True}]])
 #fig = go.Figure()
@@ -4511,7 +4511,7 @@ fig.update_layout(
 plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 print("> " + name_fig)
 if show_charts:
-    fig.show()
+    fig.show()"""
 
 
 # ## Entrées/Sortires hosp et réa

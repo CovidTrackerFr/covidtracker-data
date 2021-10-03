@@ -30,6 +30,11 @@ def download_data_vue_ensemble():
     data = requests.get("https://www.data.gouv.fr/fr/datasets/r/d3a98a30-893f-47f7-96c5-2f4bcaaa0d71")        
     with open(PATH + 'data/france/synthese-fra.csv', 'wb') as f:
         f.write(data.content)
+        
+def download_data_education():
+    data = requests.get("https://www.data.gouv.fr/fr/datasets/r/e66efcc9-01dd-49ba-a774-88c753705ce0")
+    with open(PATH + 'data/france/sp-ti-tp-7j-18ans-fra.csv', 'wb') as f:
+        f.write(data.content)
 
 def download_data_variants():
     data = requests.get("https://www.data.gouv.fr/fr/datasets/r/848debc4-0e42-4e3b-a176-afc285ed5401") #https://www.data.gouv.fr/fr/datasets/r/c43d7f3f-c9f5-436b-9b26-728f80e0fd52
@@ -205,11 +210,16 @@ def import_data_hosp_fra_clage():
     df = df[df.cl_age90 != 0]
     return df
 
+def import_data_education():
+    df = pd.read_csv(PATH + 'data/france/sp-ti-tp-7j-18ans-fra.csv', sep=';')
+    return df
+
 def download_data():
     pbar = tqdm(total=8)
     download_data_vacsi_fra()
     download_data_vacsi_reg()
     download_data_vacsi_dep()
+    download_data_education()
     
     url_metadata = "https://www.data.gouv.fr/fr/organizations/sante-publique-france/datasets-resources.csv"
     url_geojson = "https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements.geojson"

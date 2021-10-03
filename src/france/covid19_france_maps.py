@@ -4,7 +4,7 @@
 # # COVID-19 French Maps
 # Guillaume Rozier, 2020
 
-# In[24]:
+# In[1]:
 
 
 """
@@ -24,7 +24,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[25]:
+# In[2]:
 
 
 import france_data_management as data
@@ -46,7 +46,7 @@ import subprocess
 
 # ## Data import
 
-# In[26]:
+# In[3]:
 
 
 # Import data from Santé publique France
@@ -54,7 +54,7 @@ df, df_confirmed, dates, _, _, df_deconf, df_sursaud, df_incid, _ = data.import_
 df_incid = df_incid[df_incid["cl_age90"] == 0]
 
 
-# In[27]:
+# In[4]:
 
 
 #df_incid["incidence"] = df_incid["P"]/df_incid["pop"]*100
@@ -64,7 +64,7 @@ for dep in pd.unique(df_incid["dep"].values):
 df_incid.loc[:,"incidence_color"] = ['Rouge (>50)' if x >= 50 else 'Orange (25-50)' if x >= 25 else 'Vert (<25)' for x in df_incid['incidence']]
 
 
-# In[28]:
+# In[5]:
 
 
 """# Download and import data from INSEE
@@ -86,7 +86,7 @@ df_insee['jour'] = df_insee['jour'].dt.strftime('%Y-%m-%d')
 dates_insee = list(dict.fromkeys(list(df_insee.dropna()['jour'].values))) """
 
 
-# In[29]:
+# In[6]:
 
 
 """df_insee_france = df_insee.groupby('jour').sum().reset_index()
@@ -98,14 +98,14 @@ df_insee_france["surmortalite20"] = (df_insee_france["dc20"] - df_insee_france["
 # 
 # ## Function definition
 
-# In[30]:
+# In[7]:
 
 
 with open(PATH+'data/france/dep.geojson') as response:
     depa = json.load(response)
 
 
-# In[31]:
+# In[8]:
 
 
 def map_gif(dates, imgs_folder, df, type_ppl, legend_title, min_scale, max_scale, colorscale, subtitle, clean_before=True, clean_after=False):
@@ -283,13 +283,13 @@ def build_gif(file_gif, imgs_folder, dates):
     os.remove(file_gif)
 
 
-# In[32]:
+# In[9]:
 
 
 #build_map(df_deconf, img_folder="images/charts/france/deconf_synthese/{}.png", title="Départements déconfinés le 11/05")
 
 
-# In[33]:
+# In[10]:
 
 
 def build_map_indic1(data_df, img_folder, legend_title="legend_title", title="title"):
@@ -371,7 +371,7 @@ def build_map_indic1(data_df, img_folder, legend_title="legend_title", title="ti
 # 
 # ## Function calls
 
-# In[34]:
+# In[11]:
 
 
 def dep_map():
@@ -383,7 +383,7 @@ def dep_map():
 #dep_map()
 
 
-# In[35]:
+# In[12]:
 
 
 def dep_map_dc_cum():
@@ -394,7 +394,7 @@ def dep_map_dc_cum():
     build_gif(file_gif = PATH+"images/charts/france/dep-map-dc-cum.gif", imgs_folder = PATH+"images/charts/france/dep-map-img-dc-cum", dates=dates[-30:])
 
 
-# In[36]:
+# In[13]:
 
 
 def dep_map_dc_journ():
@@ -405,7 +405,7 @@ def dep_map_dc_journ():
     build_gif(file_gif = PATH+"images/charts/france/dep-map-dc-journ.gif", imgs_folder = PATH+"images/charts/france/dep-map-img-dc-journ", dates=dates[-30:])
 
 
-# In[37]:
+# In[14]:
 
 
 def dep_map_incidence():
@@ -420,7 +420,7 @@ def dep_map_incidence():
 #dep_map_incidence()
 
 
-# In[38]:
+# In[15]:
 
 
 dep_map_incidence()
@@ -429,20 +429,22 @@ dep_map()
 dep_map_dc_journ()
 
 
-# In[39]:
+# In[16]:
 
 
 df_incid_departements = df_incid[df_incid["cl_age90"]==0].groupby(["jour", "departmentName", "dep"]).sum().reset_index()
 departements = list(dict.fromkeys(list(df_incid_departements['departmentName'].values))) 
 
 
-# In[40]:
+# In[34]:
 
 
-dep = "Savoie"
+
 df_incid_pred = pd.DataFrame()
 dates_dataframe, incid_dataframe, dep_dataframe = [], [], []
 dict_json={}
+dict_json_dep_m50={}
+
 import numpy as np
 
 for dep in departements:
@@ -461,7 +463,6 @@ for dep in departements:
 
     pred_incid = []
     for i in range(1, 8):
-        
         pred_incid += [incidence_dep[-1] * (sum(taux_incid)/len(taux_incid))**i]
 
     date_deb = (datetime.strptime(max(df_dep["jour"]), '%Y-%m-%d'))
@@ -477,6 +478,12 @@ for dep in departements:
     dict_json[dep]["incidence"] = list(np.nan_to_num(incidence_dep[-60:]))
     dict_json[dep]["pred_incidence"] = list(np.nan_to_num(pred_incid))
     
+    dep_num = str(df_dep["dep"].values[0])
+    dict_json_dep_m50[dep_num] = {}
+    dict_json_dep_m50[dep_num]["nomDepartement"] = dep
+    dict_json_dep_m50[dep_num]["aujourdhui"] = round(np.nan_to_num(incidence_dep[-1]), 2)
+    dict_json_dep_m50[dep_num]["prediction_j7"] = round(np.nan_to_num(pred_incid[6]), 2)
+    
 dict_json["dates"] = list(df_dep["jour"].values[-60:]) + x_pred_dates
 
 df_incid_pred["departementName"] = dep_dataframe
@@ -484,11 +491,14 @@ df_incid_pred["pred_incidence"] = incid_dataframe
 df_incid_pred["jour"] = dates_dataframe
 
 
-# In[41]:
+# In[35]:
 
 
 with open(PATH + 'data/france/stats/pred_dep_incid.json', 'w') as outfile:
     json.dump(dict_json, outfile)
+    
+with open(PATH + 'data/france/stats/dep_incidence_moins_50.json', 'w') as outfile:
+    json.dump(dict_json_dep_m50, outfile)
 
 
 # In[42]:

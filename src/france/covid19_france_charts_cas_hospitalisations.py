@@ -43,7 +43,7 @@ locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
 data.download_data()
 
 
-# In[43]:
+# In[4]:
 
 
 df_hosp_nouveaux_dep = data.import_data_new()
@@ -56,7 +56,7 @@ df_tests_viros_dep = df_tests_viros_dep[df_tests_viros_dep["dep"].str.len()<3].g
 df_metropole = df_tests_viros_dep.merge(df_hosp_nouveaux_dep, left_on="jour", right_on="jour")
 
 
-# In[46]:
+# In[5]:
 
 
 df_hosp_nouveaux_dep = data.import_data_new()
@@ -69,7 +69,7 @@ df_tests_viros_dep = df_tests_viros_dep[df_tests_viros_dep["dep"].str.len()==3].
 df_dromcom = df_tests_viros_dep.merge(df_hosp_nouveaux_dep, left_on="jour", right_on="jour")
 
 
-# In[5]:
+# In[6]:
 
 
 df_hosp = data.import_data_hosp_clage().groupby(["jour", "cl_age90"]).sum().reset_index()
@@ -81,7 +81,7 @@ df_tests_viro = data.import_data_tests_sexe()
 df_tests_viro = df_tests_viro[df_tests_viro.cl_age90 == 0].groupby("jour").sum().reset_index()
 
 
-# In[6]:
+# In[7]:
 
 
 df = df_tests_viro.merge(df_hosp_nouveaux, left_on="jour", right_on="jour")
@@ -91,7 +91,7 @@ df["hosp_cas_ratio"] = df.incid_hosp.rolling(window=7).mean()/df.P.rolling(windo
 df["dc_cas_ratio"] = df.incid_dc.rolling(window=7).mean()/df.P.rolling(window=7).mean().shift(14) * 100
 
 
-# In[7]:
+# In[8]:
 
 
 y1 = df.P.rolling(window=7).mean()/67000000*100000
@@ -151,7 +151,7 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2,
         
 
 
-# In[70]:
+# In[9]:
 
 
 
@@ -213,7 +213,7 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2,
         
 
 
-# In[69]:
+# In[10]:
 
 
 pop = df_dromcom["pop"].values[0]
@@ -274,7 +274,7 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2,
         
 
 
-# In[9]:
+# In[11]:
 
 
 y1 = df.P.rolling(window=7).mean()/67000000*100000
@@ -334,7 +334,7 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2,
         
 
 
-# In[21]:
+# In[12]:
 
 
 y1 = df_metropole.P.rolling(window=7).mean()/67000000*100000
@@ -394,7 +394,7 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2,
         
 
 
-# In[10]:
+# In[13]:
 
 
 y1 = df.P.rolling(window=7).mean()/67000000*100000
@@ -454,7 +454,7 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2,
         
 
 
-# In[22]:
+# In[14]:
 
 
 y1 = df_metropole.P.rolling(window=7).mean()/67000000*100000
@@ -514,7 +514,7 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2,
         
 
 
-# In[11]:
+# In[15]:
 
 
 
@@ -588,14 +588,14 @@ fig.update_layout(
         
 
 
-# In[12]:
+# In[16]:
 
 
 date_old_wave = "2020-07-25"
 date_new_wave = "2021-06-10"
 
 
-# In[13]:
+# In[17]:
 
 
 df_old_wave = df[df["jour"] >= date_old_wave]
@@ -655,7 +655,7 @@ plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.
         
 
 
-# In[14]:
+# In[18]:
 
 
 y2 = df_new_wave.incid_rea.rolling(window=7).mean().dropna()
@@ -712,7 +712,7 @@ plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.
         
 
 
-# In[15]:
+# In[19]:
 
 
 y2 = df_new_wave.incid_dc.rolling(window=7).mean().dropna()
@@ -769,7 +769,7 @@ plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.
         
 
 
-# In[16]:
+# In[20]:
 
 
 y2 = df_new_wave["P"].rolling(window=7).mean().dropna()
@@ -826,7 +826,7 @@ plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.
         
 
 
-# In[17]:
+# In[21]:
 
 
 df_2021 = df[df["jour"] >= "2021-01-01"]
@@ -898,7 +898,7 @@ plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.
         
 
 
-# In[18]:
+# In[22]:
 
 
 df_2021 = df[df["jour"] >= "2021-01-01"]
@@ -970,7 +970,7 @@ plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.
         
 
 
-# In[19]:
+# In[23]:
 
 
 im1 = cv2.imread(PATH + 'images/charts/france/comparaison_vagues_cas.jpeg')
