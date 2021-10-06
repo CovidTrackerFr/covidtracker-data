@@ -212,6 +212,9 @@ def import_data_hosp_fra_clage():
 
 def import_data_education():
     df = pd.read_csv(PATH + 'data/france/sp-ti-tp-7j-18ans-fra.csv', sep=';')
+    df["jour"] = df["sg"].apply(lambda x: x.split(" - ")[1])
+    df["jour"] = pd.to_datetime(df["jour"])
+    df = df.sort_values(by="jour")
     return df
 
 def download_data():

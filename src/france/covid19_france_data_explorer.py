@@ -337,15 +337,30 @@ def generate_data_age(data_incid, data_hosp, data_adm_hosp_clage=pd.DataFrame(),
  
 
 
-# In[ ]:
+# In[22]:
 
 
 def generate_data_education(df_education):
+    clage_noms = [2, 5, 10, 14, 17, 18]
+    clage_disp = ["0 - 2 ans", "3 - 5 ans", "6 - 10 ans", "11 - 14 ans", "15 - 17 ans", "Plus 18 ans"]
+    
     dict_data = {}
+    dict_data["tranches_noms"] = clage_noms
+    dict_data["tranches_noms_affichage"] = clage_disp
+    
+    for clage in clage_noms:
+        dict_data[clage] = {}
+        
+        df_temp = df_education[df_education["age_18ans"]==clage]
+        
+        dict_data[clage]["ti"] = df_temp["ti"].fillna(0).tolist()
+        dict_data[clage]["tp"] = df_temp["tp"].fillna(0).tolist()
+        dict_data[clage]["td"] = df_temp["td"].fillna(0).tolist()
+        
     return dict_data
 
 
-# In[20]:
+# In[18]:
 
 
 def export_data(data, suffix=""):
@@ -445,10 +460,11 @@ def dataexplorer_age():
     return dict_data
 
 
-# In[ ]:
+# In[20]:
 
 
 def dataexplorer_education():
+    dict_data = {}
     dict_data["france"] = generate_data_education(df_education=df_education)
     export_data(dict_data, suffix="_education")
 
@@ -465,7 +481,7 @@ dataexplorer()
 dict_data = dataexplorer_age()
 
 
-# In[ ]:
+# In[23]:
 
 
 dataexplorer_education()
