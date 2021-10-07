@@ -162,16 +162,10 @@ df_incid_fra_corrige.loc[df_incid_fra.jour == "2021-07-14", "P"] = 1.8 * df_inci
 df_incid_fra.loc[df_incid_fra.jour == "2021-05-01", "P"].values[0] * 0.7
 
 
-# In[37]:
-
-
-df_incid_fra
-
-
 # In[38]:
 
 
-fig = go.Figure()
+"""fig = go.Figure()
 ira = pd.read_csv("../../../experimentations/data/infections-resp.csv")
 ira["day"] = pd.to_datetime(ira.week.astype('str')+"1", format="%Y%W%w")
 
@@ -251,28 +245,6 @@ fig['layout']['annotations'] += (
         showarrow=False
                 ),)
 
-fig.show()
-
-
-# In[39]:
-
-
-"""from sklearn.ensemble import IsolationForest
-model=IsolationForest(n_estimators=50, max_samples='auto', contamination=float(0.1),max_features=1.0)
-model.fit(df_incid_fra[["P"]])
-df_incid_fra["anomaly"] = model.predict(df_incid_fra[["P"]])
-
-fig = go.Figure()
-fig.add_trace(go.Scatter(
-    x=df_incid_fra.loc[df_incid_fra['anomaly']==1].jour,
-    y=df_incid_fra.loc[df_incid_fra['anomaly']==1].P,
-    mode="markers",
-    marker_color="red"))
-fig.add_trace(go.Scatter(
-    x=df_incid_fra.loc[df_incid_fra['anomaly']==-1].jour,
-    y=df_incid_fra.loc[df_incid_fra['anomaly']==-1].P,
-    mode="markers",
-    marker_color="blue"))
 fig.show()"""
 
 
@@ -2046,7 +2018,7 @@ df_vue_ensemble.loc[df_vue_ensemble.date >= "2021-05-21", "total_cas_confirmes"]
 #df_vue_ensemble=df_vue_ensemble.append({"date": "2021-03-30", "total_cas_confirmes": 4554683}, ignore_index=True)
 
 
-# In[ ]:
+# In[53]:
 
 
 suffixe=""
@@ -2262,7 +2234,7 @@ for (date_deb, date_fin) in [("2020-01-18", datetime.strptime(df_vue_ensemble.da
         suffixe="_recent"
 
 
-# In[ ]:
+# In[54]:
 
 
 #Comparaison J-7
