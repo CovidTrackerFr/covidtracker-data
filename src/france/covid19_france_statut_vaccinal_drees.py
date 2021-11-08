@@ -51,6 +51,9 @@ COULEUR_PARTIELLEMENT_VACCINES = "#4777d6"
 
 
 df_drees = pd.read_csv("https://data.drees.solidarites-sante.gouv.fr/explore/dataset/covid-19-resultats-issus-des-appariements-entre-si-vic-si-dep-et-vac-si/download/?format=csv&timezone=Europe/Berlin&lang=fr&use_labels_for_header=true&csv_separator=%3B", sep=";")
+#df_drees = pd.read_csv("https://data.drees.solidarites-sante.gouv.fr/explore/dataset/covid-19-anciens-resultats-nationaux-issus-des-appariements-entre-si-vic-si-dep-/download/?format=csv&timezone=Europe/Berlin&lang=fr&use_labels_for_header=true&csv_separator=%3B", sep=";")
+#df_drees = df_drees[df_drees["date"]<="2021-09-26"] #TODO SUPPR
+
 df_drees = df_drees.sort_values(by="date")
 df_drees = df_drees[df_drees["vac_statut"]!="Ensemble"]
 
@@ -59,6 +62,9 @@ df_drees = df_drees[df_drees["vac_statut"]!="Ensemble"]
 
 
 df_drees_age = pd.read_csv("https://data.drees.solidarites-sante.gouv.fr/explore/dataset/covid-19-resultats-par-age-issus-des-appariements-entre-si-vic-si-dep-et-vac-si/download/?format=csv&timezone=Europe/Berlin&lang=fr&use_labels_for_header=true&csv_separator=%3B", sep=";")
+#df_drees_age = pd.read_csv("https://data.drees.solidarites-sante.gouv.fr/explore/dataset/covid-19-anciens-resultats-par-age-issus-des-appariements-entre-si-vic-si-dep-et/download/?format=csv&timezone=Europe/Berlin&lang=fr&use_labels_for_header=true&csv_separator=%3B", sep=";")
+#df_drees_age = df_drees_age[df_drees_age["date"]<="2021-09-26"] #TODO SUPPR
+
 df_drees_age_all = df_drees_age.groupby(["date", "vac_statut", "age"]).sum().reset_index()
 df_drees_age = df_drees_age.sort_values(by="date")
 df_drees_age = df_drees_age[df_drees_age["vac_statut"]!="Ensemble"]
@@ -1175,6 +1181,142 @@ for idx, age in enumerate(ages):
                                                 datetime.strptime(df_drees.date.max(), '%Y-%m-%d') + timedelta(days=2)])
     name_fig = f"hc_proportion_selon_statut_vaccinal_{age}"
     fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
+    plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
+
+
+# In[100]:
+
+
+ages_str = ["0 à 19 ans", "20 à 39 ans", "40 à 59 ans", "60 à 79 ans", "plus 80 ans"]
+for idx, age in enumerate(ages):
+    data_completement_vaccines = df_drees_age[(df_drees_age.age==age) & (df_drees_age.vac_statut=="Vaccination complète")].sort_values(by="date")
+    data_non_vaccines = df_drees_age[(df_drees_age.age==age) & (df_drees_age.vac_statut=="Non-vaccinés")].sort_values(by="date")
+    
+    fig = go.Figure()
+    
+    y_non_vaccines=(data_non_vaccines["HC"].rolling(window=7).mean() / data_non_vaccines["effectif J-7"] * 10000000).values
+    y_completement_vaccines=(data_completement_vaccines["HC"].rolling(window=7).mean() / data_completement_vaccines["effectif J-7"] * 10000000).values
+    y=y_non_vaccines / y_completement_vaccines
+    
+    fig.add_trace(
+        go.Scatter(
+            x=data_non_vaccines["date"].values,
+            y=y,
+            name="Ratio",
+            line_color="black",
+            line_width=4,
+            yaxis="y2",
+        )
+    )
+    
+    fig.add_trace(
+        go.Scatter(
+            x=data_non_vaccines["date"].values,
+            y=y_non_vaccines,
+            name="Taux adm. non vaccinées",
+            marker_color="rgba(198, 81, 2, 0.2)",
+            #fill="tozeroy",
+            fillcolor="rgba(198, 81, 2, 0.2)",
+            yaxis="y"
+        )
+    )
+    
+    fig.add_trace(
+        go.Scatter(
+            x=data_non_vaccines["date"].values,
+            y=y_completement_vaccines,
+            name="Taux adm. complètement vaccinées",
+            marker_color="rgba(0, 48, 143, 0.2)",
+            #fill="tozeroy",
+            fillcolor="rgba(0, 48, 143, 0.2)",
+            yaxis="y"
+        )
+    )
+    
+
+    fig.update_layout(
+        yaxis=dict(
+            title="Admissions / jour / 100k hab.<br>",
+            titlefont=dict(
+                color="#ff7f0e"
+            ),
+            tickfont=dict(
+                color="#ff7f0e"
+            )
+        ),
+        yaxis2=dict(
+            title="Ratio : adm. non vaccinées / adm. complètement vaccinées",
+            titlefont=dict(
+                color="black"
+            ),
+            tickfont=dict(
+                color="black"
+            ),
+            anchor="free",
+            overlaying="y",
+            side="left",
+            position=0
+        ),
+        legend=dict(
+            yanchor="top",
+            y=0.99,
+            xanchor="left",
+            x=0.01,
+            bgcolor="rgba(256,256,256,0.8)"
+        ),
+         margin=dict(
+            r=160,
+            l=20
+        ),
+        title={
+                            'text': f"Vaccin : réduction du risque d'admission à l'hôpital [{ages_str[idx]}]",
+                            'y':0.97,
+                            'x':0.5,
+                            'xanchor': 'center',
+                            'yanchor': 'top'},
+        titlefont = dict(
+                        size=25),
+        annotations = [
+                            dict(
+                                x=0.55,
+                                y=1.12,
+                                xref='paper',
+                                yref='paper',
+                                font=dict(size=14),
+                                text="et admissions selon le statut vaccinal pour 10 Mio hab. de chaque groupe - {}<br>Données DREES - @GuillaumeRozier - covidtracker.fr".format(datetime.strptime(df_drees.date.max(), '%Y-%m-%d').strftime('%d %B %Y')),#'Date : {}. Source : Santé publique France. Auteur : GRZ - covidtracker.fr.'.format(),                    showarrow = False
+                                showarrow=False
+                            ),
+                            ]
+    )
+    
+    fig.add_annotation(
+        x=df_drees.date.max(),
+        y=y[-1],
+        text="<b>" + str(int(round(y[-1]))) + " x plus d'admissions<br>chez les non vaccinés<br></b>par rapport aux<br>vaccinés complètement",
+        font=dict(color="black"),
+        showarrow=False,
+        align="left",
+        xshift=90,
+        yshift=0,
+        yref="y2"
+    )
+
+    fig.add_annotation(
+        x=0.5,
+        y=-0.225,
+        xref='paper',
+        yref='paper',
+        text="<i>Une personne est considérée comme vaccinée après avoir terminé son schéma vaccinal.<br>Hospitalisations pour suspicion Covid19.</i>",
+        font=dict(size=9),
+        showarrow=False,
+        xshift=0,
+        yshift=30
+    )
+    fig.update_xaxes(tickformat="%d/%m", range=[datetime.strptime(df_drees.date.min(), '%Y-%m-%d') + timedelta(days=5), 
+                                                datetime.strptime(df_drees.date.max(), '%Y-%m-%d') + timedelta(days=2)])
+    name_fig = f"hc_rapport_selon_statut_vaccinal_{age}"
+    fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
+    plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
 # In[16]:
@@ -1284,7 +1426,7 @@ fig.add_annotation(
     showarrow=False,
     align="left",
     xshift=100,
-    yshift=0
+    yshift=50
 )
 y=df_drees_completement_vaccines["SC"].rolling(window=7).mean().values[-1] / df_drees_completement_vaccines["effectif J-7"].values[-1] * 10000000
 fig.add_annotation(
@@ -1439,7 +1581,7 @@ for idx, age in enumerate(ages):
         showarrow=False,
         align="left",
         xshift=100,
-        yshift=0
+        yshift=70
     )
 
     y=data_completement_vaccines["SC"].rolling(window=7).mean().values[-1] / data_completement_vaccines["effectif J-7"].values[-1] * 10000000
@@ -1576,8 +1718,8 @@ fig.add_annotation(
     font=dict(color=COULEUR_NON_VACCINES),
     showarrow=False,
     align="left",
-    xshift=100,
-    yshift=0
+    xshift=80,
+    yshift=50
 )
 y=df_drees_completement_vaccines["DC"].rolling(window=7).mean().values[-1] / df_drees_completement_vaccines["effectif J-7"].values[-1] * 10000000
 fig.add_annotation(

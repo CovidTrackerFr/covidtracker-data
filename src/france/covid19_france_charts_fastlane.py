@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[25]:
+# In[67]:
 
 
 """
@@ -23,7 +23,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[26]:
+# In[68]:
 
 
 from multiprocessing import Pool
@@ -53,14 +53,14 @@ PATH = "../../"
 now = datetime.now()
 
 
-# In[27]:
+# In[69]:
 
 
 #time.sleep(300)
 data.download_data()
 
 
-# In[28]:
+# In[70]:
 
 
 import time
@@ -83,7 +83,7 @@ while not success:
         continue
 
 
-# In[29]:
+# In[71]:
 
 
 
@@ -94,7 +94,7 @@ df_incid_fra = df_incid_fra_clage[df_incid_fra_clage["cl_age90"]==0]
 dates_incid = list(dict.fromkeys(list(df_incid_fra['jour'].values))) 
 
 
-# In[30]:
+# In[72]:
 
 
 df_new = data.import_data_new()
@@ -103,7 +103,7 @@ df_new_france = df_new.groupby("jour").sum().reset_index()
 dates_new = sorted(list(dict.fromkeys(list(df_new_france['jour'].values))))
 
 
-# In[31]:
+# In[73]:
 
 
 df = data.import_data_df()
@@ -112,7 +112,7 @@ dates = sorted(list(dict.fromkeys(list(df['jour'].values))))
 df_france = df.groupby("jour").sum().reset_index()
 
 
-# In[32]:
+# In[74]:
 
 
 last_day_plot_dashboard = (datetime.strptime(max(dates), '%Y-%m-%d') + timedelta(days=3)).strftime("%Y-%m-%d")
@@ -120,7 +120,7 @@ first_day_plot_adm = (datetime.strptime(max(dates), '%Y-%m-%d') - timedelta(days
 last_day_plot = (datetime.strptime(max(dates), '%Y-%m-%d') + timedelta(days=1)).strftime("%Y-%m-%d")
 
 
-# In[33]:
+# In[75]:
 
 
 def nbWithSpaces(nb):
@@ -135,13 +135,7 @@ def nbWithSpaces(nb):
         return str_nb
 
 
-# In[34]:
-
-
-#df_incid_fra.loc[df_incid_fra.jour == "2021-04-05", "P"] = 45000
-
-
-# In[35]:
+# In[76]:
 
 
 df_incid_fra_corrige = df_incid_fra.copy()
@@ -154,15 +148,10 @@ df_incid_fra_corrige.loc[df_incid_fra.jour == "2021-05-08", "P"] = df_incid_fra_
 df_incid_fra_corrige.loc[df_incid_fra.jour == "2021-05-13", "P"] = 0.7 * df_incid_fra_corrige[df_incid_fra_corrige.jour == "2021-05-06"]["P"].values[0]
 df_incid_fra_corrige.loc[df_incid_fra.jour == "2021-05-24", "P"] = 0.7 * df_incid_fra_corrige[df_incid_fra_corrige.jour == "2021-05-17"]["P"].values[0]
 df_incid_fra_corrige.loc[df_incid_fra.jour == "2021-07-14", "P"] = 1.8 * df_incid_fra_corrige[df_incid_fra_corrige.jour == "2021-07-07"]["P"].values[0]
+df_incid_fra_corrige.loc[df_incid_fra.jour == "2021-11-01", "P"] = 1.1 * df_incid_fra_corrige[df_incid_fra_corrige.jour == "2021-10-25"]["P"].values[0]
 
 
-# In[36]:
-
-
-df_incid_fra.loc[df_incid_fra.jour == "2021-05-01", "P"].values[0] * 0.7
-
-
-# In[38]:
+# In[77]:
 
 
 """fig = go.Figure()
@@ -248,7 +237,7 @@ fig['layout']['annotations'] += (
 fig.show()"""
 
 
-# In[40]:
+# In[78]:
 
 
 suffixe=""
@@ -481,8 +470,7 @@ for (date_deb, date_fin) in [("2020-09-18", last_day_plot_dashboard), (dates[-10
                 x = dates_incid[-4], y = y, # annotation point
                 xref='x1', 
                 yref='y2',
-                text=" <b>{} {}".format('%s' % nbWithSpaces(df_incid_france_cas_rolling.values[-4]), "cas quotidiens<br></b>en moyenne<br>prélevés du {} au {}.<br> {} % en 7 jours<br>".format(datetime.strptime(dates_incid[-7], '%Y-%m-%d').strftime('%d'), datetime.strptime(dates_incid[-1], '%Y-%m-%d').strftime('%d %b'), croissance, nbWithSpaces(df_incid_france_cas_rolling_corrige.values[-4]), croissance_corrige)),
-                #<br><span style='color:red;'>Avec correction :<br> {} cas en moyenne<br>{} % en 7 jours</span>
+                text=" <b>{} {}".format('%s' % nbWithSpaces(df_incid_france_cas_rolling.values[-4]), "cas quotidiens<br></b>en moyenne<br>prélevés du {} au {}.<br> {} % en 7 jours<br><br><span style='color:red;'>Avec correction :<br> {} cas en moyenne<br>{} % en 7 jours</span>".format(datetime.strptime(dates_incid[-7], '%Y-%m-%d').strftime('%d'), datetime.strptime(dates_incid[-1], '%Y-%m-%d').strftime('%d %b'), croissance, nbWithSpaces(df_incid_france_cas_rolling_corrige.values[-4]), croissance_corrige)),
                 xshift=-2,
                 yshift=0,
                 xanchor="center",
@@ -553,7 +541,7 @@ for (date_deb, date_fin) in [("2020-09-18", last_day_plot_dashboard), (dates[-10
         suffixe="_recent"
 
 
-# In[41]:
+# In[79]:
 
 
 suffixe=""
@@ -740,7 +728,7 @@ for (date_deb, date_fin) in [("2020-09-18", last_day_plot_dashboard), (dates[-10
         suffixe="_recent"
 
 
-# In[42]:
+# In[80]:
 
 
 
@@ -839,7 +827,7 @@ if show_charts:
     fig.show()
 
 
-# In[43]:
+# In[81]:
 
 
 #Comparaison J-7
@@ -890,13 +878,13 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2,
 plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
-# In[44]:
+# In[82]:
 
 
 df_incid_fra
 
 
-# In[45]:
+# In[83]:
 
 
 #Comparaison J-7
@@ -947,7 +935,7 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2,
 plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
-# In[46]:
+# In[84]:
 
 
 
@@ -1157,7 +1145,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[47]:
+# In[85]:
 
 
 range_x, name_fig, range_y = ["2020-03-29", last_day_plot], "hosp_journ", [0, df_france["hosp"].max()*1.1]
@@ -1418,7 +1406,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[48]:
+# In[86]:
 
 
 range_x, name_fig, range_y = ["2020-03-29", last_day_plot], "dc_journ", [0, df_new_france["incid_dc"].max()]
@@ -1572,7 +1560,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[49]:
+# In[87]:
 
 
 
@@ -1782,7 +1770,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[50]:
+# In[88]:
 
 
 
@@ -1991,7 +1979,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[51]:
+# In[89]:
 
 
 for croiss in [""]:
@@ -2009,7 +1997,7 @@ for croiss in [""]:
     
 
 
-# In[52]:
+# In[90]:
 
 
 data.download_data_vue_ensemble()
@@ -2018,7 +2006,7 @@ df_vue_ensemble.loc[df_vue_ensemble.date >= "2021-05-21", "total_cas_confirmes"]
 #df_vue_ensemble=df_vue_ensemble.append({"date": "2021-03-30", "total_cas_confirmes": 4554683}, ignore_index=True)
 
 
-# In[53]:
+# In[91]:
 
 
 suffixe=""
@@ -2234,7 +2222,7 @@ for (date_deb, date_fin) in [("2020-01-18", datetime.strptime(df_vue_ensemble.da
         suffixe="_recent"
 
 
-# In[54]:
+# In[92]:
 
 
 #Comparaison J-7

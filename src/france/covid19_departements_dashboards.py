@@ -993,6 +993,7 @@ def comparaison_cas_dc(departement):
         fillcolor="rgba(0,0,0,0.3)",
         name="Décès hospitaliers<br>décalés de 12 j.<br>pour {} Mio".format(round(coef_normalisation/1000000)),
         fill='tozeroy'))
+    
     fig.update_yaxes(range=[-max_y, max_y], tickvals=[-max_y, -max_y/2, 0, max_y/2, max_y], ticktext=[max_y, max_y/2, 0, max_y/2, max_y])
     fig.update_layout(
         title={

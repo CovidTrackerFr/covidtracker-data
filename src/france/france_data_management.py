@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[3]:
+# In[1]:
 
 
 import requests
@@ -12,7 +12,7 @@ PATH = '../../'
 PATH_STATS = "../../data/france/stats/"
 
 
-# In[5]:
+# In[6]:
 
 
 # Download data from Santé publique France and export it to local files
@@ -332,6 +332,7 @@ def import_data():
     df.dep = df.dep.astype(str)
     df_sursaud = pd.read_csv(PATH + 'data/france/sursaud-covid19-departement.csv', sep=";")
     df_sursaud["dep"] = df_sursaud["dep"].astype('str').str.replace(r"^([1-9])$", lambda m: "0"+m.group(0), regex=True)
+    df_sursaud["sursaud_cl_age_corona"] = df_sursaud["sursaud_cl_age_corona"].astype("str")
     
     df_new = pd.read_csv(PATH + 'data/france/donnes-hospitalieres-covid19-nouveaux.csv', sep=";")
     df_tests = pd.read_csv(PATH + 'data/france/donnes-tests-covid19-quotidien.csv', sep=";")
@@ -445,13 +446,6 @@ def import_data():
 #import_data_opencovid()
 #download_data()
 #df, df_confirmed, dates, df_new, df_tests, df_deconf, df_sursaud, df_incid, df_tests_viro = import_data()
-
-
-# In[11]:
-
-
-#df = pd.read_csv(PATH + 'data/france/donnes-hospitalieres-covid19.csv', sep=";")
-#df[df.dep=="59"]
 
 
 # In[35]:
