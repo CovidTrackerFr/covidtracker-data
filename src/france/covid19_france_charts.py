@@ -4,7 +4,7 @@
 # # COVID-19 French Charts
 # Guillaume Rozier, 2020
 
-# In[1]:
+# In[169]:
 
 
 """
@@ -26,7 +26,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[2]:
+# In[170]:
 
 
 from multiprocessing import Pool
@@ -55,7 +55,7 @@ PATH = "../../"
 now = datetime.now()
 
 
-# In[3]:
+# In[171]:
 
 
 try:
@@ -71,7 +71,7 @@ except:
 
 # # Data download and import
 
-# In[4]:
+# In[172]:
 
 
 import time
@@ -96,13 +96,13 @@ while not success:
 
 # ## Data transformations
 
-# In[5]:
+# In[173]:
 
 
 df, df_confirmed, dates, df_new, df_tests, df_deconf, df_sursaud, df_incid, df_tests_viros = data.import_data()
 
 
-# In[6]:
+# In[ ]:
 
 
 data.download_data_vue_ensemble()
@@ -112,14 +112,14 @@ df_vue_ensemble.loc[df_vue_ensemble.date >= "2021-05-21", "total_cas_confirmes"]
 df_opencovid = data.import_data_opencovid()
 
 
-# In[7]:
+# In[ ]:
 
 
 df_sexes = data.import_data_df()
 df_sexes_tot = df_sexes[df_sexes.sexe==0]
 
 
-# In[8]:
+# In[ ]:
 
 
 df_incid_fra_clage = data.import_data_tests_sexe()
@@ -5254,7 +5254,7 @@ print("> " + name_fig)
 
 # ## Indicateur 1 - France
 
-# In[64]:
+# In[62]:
 
 
 locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
@@ -5508,7 +5508,7 @@ print("> " + name_fig)
 #fig.show()
 
 
-# In[ ]:
+# In[63]:
 
 
 """
@@ -5654,7 +5654,7 @@ locale.setlocale(locale.LC_ALL, '')
 
 # ## Tests France
 
-# In[ ]:
+# In[64]:
 
 
 locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
@@ -5825,7 +5825,7 @@ locale.setlocale(locale.LC_ALL, '')
 
 # ## Titre composition tests
 
-# In[ ]:
+# In[65]:
 
 
 fig = go.Figure()
@@ -5913,7 +5913,7 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2,
 
 # ## R_effectif
 
-# In[ ]:
+# In[66]:
 
 
 #### Calcul du R_effectif
@@ -6117,7 +6117,7 @@ if show_charts:
     fig.show()
 
 
-# In[ ]:
+# In[67]:
 
 
 def traitement_val(valeur, plus_sign=False):
@@ -6212,7 +6212,7 @@ with open(PATH_STATS + 'stats.json', 'w') as outfile:
     json.dump(data_json, outfile)
 
 
-# In[ ]:
+# In[68]:
 
 
 with open(PATH_STATS + 'cas_sidep.json', 'w') as outfile:
@@ -6220,7 +6220,7 @@ with open(PATH_STATS + 'cas_sidep.json', 'w') as outfile:
         json.dump(dict_data, outfile)
 
 
-# In[ ]:
+# In[69]:
 
 
 df_tests_viros_france = df_tests_viros.groupby(['jour', 'cl_age90']).sum().reset_index()
@@ -6260,13 +6260,13 @@ dates_heatmap_lastday = tranche.index + timedelta(days=6)
 dates_heatmap = [str(dates_heatmap_firstday[i])[8:10] + "/" + str(dates_heatmap_firstday[i])[5:7] + "<br>" + str(dates_heatmap_lastday[i])[8:10] + "/" + str(dates_heatmap_lastday[i])[5:7] for i, val in enumerate(dates_heatmap_firstday)]
 
 
-# In[ ]:
+# In[70]:
 
 
 temp = df_tests_viros_france.groupby(["jour"]).sum().reset_index()
 
 
-# In[ ]:
+# In[71]:
 
 
 for (val, valname) in [('P', 'positifs'), ('T', '')]:
@@ -6385,7 +6385,68 @@ for (val, valname) in [('P', 'positifs'), ('T', '')]:
     plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
-# In[ ]:
+# In[133]:
+
+
+#colors_hosp
+
+
+# In[168]:
+
+
+
+fig = go.Figure()
+clage_str = ["0-9 ans", "10-19 ans", "20-29 ans", "30-39 ans", "40-49 ans", "50-59 ans", "60-69 ans", "70-79 ans", "80-89 ans", "+ 90 ans"]
+colors_hosp = ["rgba(125, 125, 125, 0.4)", "rgba(125, 125, 125, 0.5)", "rgba(125, 125, 125, 0.6)", "rgba(125, 125, 125, 0.7)", "rgba(125, 125, 125, 0.8)", "rgba(125, 125, 125, 0.9)"]+              ["rgba(230, 0, 0, 1)", "rgba(210, 0, 0, 1)", "rgba(190, 0, 0, 1)", "rgba(170, 0, 0, 1)", "rgba(150, 0, 0, 1)", "rgba(130, 0, 0, 1)", "rgba(110, 0, 0, 1)", "rgba(90, 0, 0, 1)"]
+for (idx, clage) in enumerate([9, 19, 29, 39, 49, 59, 69, 79, 89, 90]):
+    df_temp = df_clage_france[df_clage_france["cl_age90"]==clage].sort_values(by="jour")
+    fig.add_trace(go.Scatter(
+        x=df_temp["jour"], y=df_temp["hosp"],
+        mode='lines',
+        stackgroup="one",
+        name=clage_str[idx],
+        line=dict(width=0.7, color="rgba(0, 0, 0, 0.1)"),
+        fillcolor=colors_hosp[idx]
+    ))
+
+
+fig.update_layout(
+    annotations = [
+                dict(
+                    x=0,
+                    y=1.05,
+                    xref='paper',
+                    yref='paper',
+                    text='Date : {}. Source : Santé publique France. Auteur : GRZ - covidtracker.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
+                )],
+    margin=dict(
+                l=20,
+                r=100,
+                b=20,
+                t=65,
+                pad=0
+            ),
+    showlegend=True,
+     title={
+            'text': "Répartition des hospitalisations en fonction de l'âge",
+            'y':0.98,
+            'x':0.5,
+            'xanchor': 'center',
+            'yanchor': 'top'},
+    titlefont = dict(
+            size=20),
+    xaxis=dict(
+        tickformat='%d/%m',
+        ),)
+
+#fig.show()
+name_fig = "repartition_sc{}".format(valname)
+fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=3, width=900, height=550)
+#fig.show()
+plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
+
+
+# In[72]:
 
 
 import plotly.figure_factory as ff
@@ -6487,7 +6548,7 @@ for (name, array, title, scale_txt, data_example, digits) in [("cas", array_posi
     plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
-# In[ ]:
+# In[73]:
 
 
 """#OLD HEATMAP
@@ -6582,7 +6643,7 @@ for (name, data, title, scale_txt, data_example, digits) in [("cas", 'P', "Nombr
     plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)"""
 
 
-# In[ ]:
+# In[74]:
 
 
 locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
@@ -6753,7 +6814,7 @@ locale.setlocale(locale.LC_ALL, '')
 #fig.show()
 
 
-# In[ ]:
+# In[75]:
 
 
 """
@@ -6859,7 +6920,7 @@ print("> " + name_fig)
 #fig.show()"""
 
 
-# In[ ]:
+# In[76]:
 
 
 locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
@@ -7027,7 +7088,7 @@ print("> " + name_fig)
 #fig.show()
 
 
-# In[ ]:
+# In[77]:
 
 
 
@@ -7106,7 +7167,7 @@ print("> " + name_fig)
 # ## Situation cas (bar chart)
 # Où en sont les personnes atteintes du Covid (retour à domicile, décédées, en réa, hosp ou autre)
 
-# In[ ]:
+# In[78]:
 
 
 
@@ -7194,7 +7255,7 @@ if show_charts:
 
 # ## Décès hospitalisations et réanimations (line chart)
 
-# In[ ]:
+# In[79]:
 
 
 df_france = df.groupby('jour').sum().reset_index()
@@ -7260,7 +7321,7 @@ print("> " + name_fig)
 
 # ## Décès cumulés (line chart)
 
-# In[ ]:
+# In[80]:
 
 
 
@@ -7296,7 +7357,7 @@ if show_charts:
     fig.show()
 
 
-# In[ ]:
+# In[81]:
 
 
 
@@ -7334,7 +7395,7 @@ if show_charts:
 
 # ## Hospitalisations
 
-# In[ ]:
+# In[82]:
 
 
 
@@ -7372,7 +7433,7 @@ if show_charts:
 
 # ## Hospitalisations (entrées - sorties) (line chart)
 
-# In[ ]:
+# In[83]:
 
 
 
@@ -7410,7 +7471,7 @@ if show_charts:
 
 # ## Admissions en hospitalisation (line chart)
 
-# In[ ]:
+# In[84]:
 
 
 
@@ -7447,7 +7508,7 @@ if show_charts:
     fig.show()
 
 
-# In[ ]:
+# In[85]:
 
 
 locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
@@ -7531,7 +7592,7 @@ for graph, data_name in [("", "cas"), ("pop", "cas pour 100 k. hab.")]:
         fig.show()
 
 
-# In[ ]:
+# In[86]:
 
 
 def prep_course():
@@ -7548,7 +7609,7 @@ def prep_course():
     """(df_incid_reg, "incidence_rolling", dates_incid, "Incidence", "course_incidence", "regionName"),    (df_incid_reg, "P_rolling", dates_incid, "Cas de Covid19", "course_cas", "regionName"),    (df_region, "dc_pop_new_rolling", dates, "Décès pour 1M hab.", "course_dc", "regionName")]:"""
 
 
-# In[ ]:
+# In[87]:
 
 
 #COURSE
@@ -7640,7 +7701,7 @@ for (dataset, column, dates_to_use, title, folder) in [    (df_incid_reg, "incid
             fig.write_image(PATH + "images/charts/france/{}/{}.jpeg".format(folder, i), scale=2, width=650, height=450)
 
 
-# In[ ]:
+# In[88]:
 
 
 #COURSE REA
@@ -7720,7 +7781,7 @@ for (dataset, column, dates_to_use, title, folder) in [    (df_clage_france, "re
             fig.write_image(PATH + "images/charts/france/{}/{}.jpeg".format(folder, i), scale=2, width=650, height=450)
 
 
-# In[ ]:
+# In[89]:
 
 
 """
@@ -7740,7 +7801,7 @@ with imageio.get_writer(PATH + "images/charts/france/course_incidence/course.gif
 """
 
 
-# In[ ]:
+# In[90]:
 
 
 #import glob
@@ -7783,7 +7844,7 @@ for (folder, n, fps) in [("course_rea_clage_rolling", n2, 7), ("course_hosp_clag
         print("error conversion h265")
 
 
-# In[ ]:
+# In[91]:
 
 
 locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')

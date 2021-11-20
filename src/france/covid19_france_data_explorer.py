@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[141]:
+# In[1]:
 
 
 """
@@ -22,7 +22,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[142]:
+# In[2]:
 
 
 import pandas as pd
@@ -35,13 +35,13 @@ PATH_STATS = "../../data/france/stats/"
 PATH = "../../"
 
 
-# In[143]:
+# In[3]:
 
 
 df_regions_meta = pd.read_csv(PATH+"data/france/population_grandes_regions.csv")
 
 
-# In[144]:
+# In[4]:
 
 
 data.download_data_obepine()
@@ -49,7 +49,7 @@ df_obepine = data.import_data_obepine()
 df_obepine_france = df_obepine.groupby("Date").mean().reset_index()
 
 
-# In[145]:
+# In[5]:
 
 
 df_adm_hosp_clage = data.import_data_hosp_ad_age()
@@ -57,38 +57,38 @@ df_adm_hosp_clage["jour"] = pd.to_datetime(df_adm_hosp_clage.Semaine+"-6", forma
 df_adm_hosp_clage_france = df_adm_hosp_clage.groupby(["jour", "cl_age90"]).sum().fillna(0).reset_index()
 
 
-# In[146]:
+# In[6]:
 
 
 data.download_data()
 
 
-# In[147]:
+# In[7]:
 
 
 df, df_confirmed, dates, df_new, df_tests, df_deconf, df_sursaud, df_incid, df_tests_viros = data.import_data()
 
 
-# In[148]:
+# In[8]:
 
 
 df_new_france = data.import_data_new().groupby("jour").sum().reset_index()
 
 
-# In[149]:
+# In[9]:
 
 
 data.download_data_vue_ensemble()
 df_vue_ensemble = data.import_data_vue_ensemble()
 
 
-# In[150]:
+# In[10]:
 
 
 df_education = data.import_data_education()
 
 
-# In[151]:
+# In[11]:
 
 
 #df_vacsi_a = data.import_data_vacsi_a_fra()
@@ -103,7 +103,7 @@ df_vacsi_dep = data.import_data_vacsi_dep().rename({"n_tot_dose1": "n_cum_dose1"
 #df_vacsi_a_dep.groupby(["jour", "dep"]).sum().reset_index().rename({"n_tot_dose1": "n_cum_dose1"}, axis=1)
 
 
-# In[152]:
+# In[12]:
 
 
 df_metro = data.import_data_metropoles()
@@ -114,14 +114,14 @@ df_metro_0 = df_metro[df_metro["clage_65"] == 0]
 metropoles = list(dict.fromkeys(list(df_metro['Metropole'].dropna().values))) 
 
 
-# In[153]:
+# In[13]:
 
 
 df_tests_viros_enrichi = data.import_data_tests_viros()
 df_tests_viros_enrichi = df_tests_viros_enrichi.drop("regionName_y", axis=1).rename({"regionName_x": "regionName"}, axis=1)
 
 
-# In[154]:
+# In[14]:
 
 
 df_incid_clage = df_incid.copy()
@@ -138,20 +138,20 @@ df_sursaud_regions = df_sursaud.groupby(["date_de_passage", "regionName"]).sum()
 df_new_regions = df_new.groupby(["jour", "regionName"]).sum().reset_index()
 
 
-# In[155]:
+# In[15]:
 
 
 df_incid_clage_regions = df_incid_clage.groupby(["regionName", "jour", "cl_age90"]).sum().reset_index()
 
 
-# In[156]:
+# In[16]:
 
 
 df_tests_viros_regions = df_tests_viros_enrichi.groupby(["regionName", "jour", "cl_age90"]).sum().reset_index()
 df_tests_viros_france = df_tests_viros_enrichi.groupby(["jour", "cl_age90"]).sum().reset_index()
 
 
-# In[157]:
+# In[17]:
 
 
 df_hosp_clage = data.import_data_hosp_clage()
@@ -159,7 +159,7 @@ df_hosp_clage_france = df_hosp_clage.groupby(["jour", "cl_age90"]).sum().reset_i
 df_hosp_clage_regions = df_hosp_clage.groupby(["regionName", "jour", "cl_age90"]).sum().reset_index()
 
 
-# In[158]:
+# In[18]:
 
 
 departements = list(dict.fromkeys(list(df_incid['dep'].values)))
@@ -177,7 +177,7 @@ zone_c = ["zone_c", "09", "11", "12", "30", "31", "32", "34", "46", "48", "65", 
 confines_mars_2021 = ["confines_mars_2021", "02", "06", "27", "59", "60", "62", "75", "76", "77", "78", "80", "91", "92", "93", "94", "95"]
 
 
-# In[159]:
+# In[29]:
 
 
 def generate_data(data_incid=pd.DataFrame(), data_hosp=pd.DataFrame(), data_sursaud=pd.DataFrame(), data_new=pd.DataFrame(), data_vue_ensemble=pd.DataFrame(), data_metropole=pd.DataFrame(), data_vacsi=pd.DataFrame(), data_obepine=pd.DataFrame(), mode="", export_jour=False, taux_croissance=False):## Incidence
@@ -269,9 +269,15 @@ def generate_data(data_incid=pd.DataFrame(), data_hosp=pd.DataFrame(), data_surs
     
         cas = data_incid["P"].rolling(window=7).mean().fillna(0)
         dict_data["cas"] = {"jour_nom": "jour_incid", "valeur": list(round(cas, 1))}
+        
+        cas_total = data_incid["P"].sum()
+        dict_data["cas_total"] = {"jour_nom": "jour_incid", "valeur": int(cas_total)}
     
         tests = data_incid["T"].rolling(window=7).mean().fillna(0)
         dict_data["tests"] = {"jour_nom": "jour_incid", "valeur": list(round(tests, 1))}
+        
+        tests_total = data_incid["T"].sum()
+        dict_data["tests_total"] = {"jour_nom": "jour_incid", "valeur": int(tests_total)}
         
     if (len(data_metropole)>0) & (mode=="metropoles"):
         taux_incidence = data_metropole["ti"].fillna(0)
@@ -290,9 +296,15 @@ def generate_data(data_incid=pd.DataFrame(), data_hosp=pd.DataFrame(), data_surs
     if len(data_new)>0:
         incid_hospitalisations = data_new.incid_hosp.rolling(window=7).mean().fillna(0)
         dict_data["incid_hospitalisations"] = {"jour_nom": "jour_new", "valeur": list(round(incid_hospitalisations, 1))}
+        
+        incid_hospitalisations_total = data_new.incid_hosp.sum()
+        dict_data["incid_hospitalisations_total"] = {"jour_nom": "jour_new", "valeur": int(incid_hospitalisations_total)}
 
         incid_reanimations = data_new.incid_rea.rolling(window=7).mean().fillna(0)
         dict_data["incid_reanimations"] = {"jour_nom": "jour_new", "valeur": list(round(incid_reanimations, 1))}
+        
+        incid_reanimations_total = data_new.incid_rea.sum()
+        dict_data["incid_reanimations_total"] = {"jour_nom": "jour_new", "valeur": int(incid_reanimations_total)}
     
     if len(data_sursaud)>0:
         nbre_acte_corona = data_sursaud.nbre_acte_corona.rolling(window=7).mean().fillna(0)
@@ -312,6 +324,8 @@ def generate_data(data_incid=pd.DataFrame(), data_hosp=pd.DataFrame(), data_surs
         dict_data["croissance_deces_hospitaliers"] = {"jour_nom": "jour_new", "valeur": list(round(taux_croissance_deces_hospitaliers, 1))}
         dict_data["croissance_deces_hospitaliers_rolling7"] = {"jour_nom": "jour_new", "valeur": list(round(taux_croissance_deces_hospitaliers_rolling, 1))}
         
+        deces_hospitaliers_total = data_new.incid_dc.sum()
+        dict_data["deces_hospitaliers_total"] = {"jour_nom": "jour_new", "valeur": int(deces_hospitaliers_total)}
     
     if len(data_incid)>0:
         population = data_incid["pop"].values[0]
@@ -321,7 +335,7 @@ def generate_data(data_incid=pd.DataFrame(), data_hosp=pd.DataFrame(), data_surs
  
 
 
-# In[160]:
+# In[20]:
 
 
 def generate_data_age(data_incid, data_hosp, data_adm_hosp_clage=pd.DataFrame(), export_jour=False):## Incidence
@@ -389,7 +403,7 @@ def generate_data_age(data_incid, data_hosp, data_adm_hosp_clage=pd.DataFrame(),
  
 
 
-# In[161]:
+# In[21]:
 
 
 def generate_data_education(df_education):
@@ -412,7 +426,7 @@ def generate_data_education(df_education):
     return dict_data
 
 
-# In[162]:
+# In[22]:
 
 
 def export_data(data, suffix=""):
@@ -420,7 +434,7 @@ def export_data(data, suffix=""):
         json.dump(data, outfile)
 
 
-# In[163]:
+# In[23]:
 
 
 def dataexplorer():
@@ -479,7 +493,7 @@ def dataexplorer():
     export_data(dict_data, suffix="_compr")
 
 
-# In[164]:
+# In[24]:
 
 
 def dataexplorer_age():
@@ -512,7 +526,7 @@ def dataexplorer_age():
     return dict_data
 
 
-# In[165]:
+# In[25]:
 
 
 def dataexplorer_education():
@@ -521,19 +535,19 @@ def dataexplorer_education():
     export_data(dict_data, suffix="_education")
 
 
-# In[166]:
+# In[30]:
 
 
 dataexplorer()
 
 
-# In[167]:
+# In[ ]:
 
 
 dict_data = dataexplorer_age()
 
 
-# In[168]:
+# In[ ]:
 
 
 dataexplorer_education()
