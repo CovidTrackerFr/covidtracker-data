@@ -588,188 +588,21 @@ fig.update_layout(
         
 
 
-# In[16]:
+# In[95]:
 
 
-date_old_wave = "2020-07-25"
-date_new_wave = "2021-06-10"
-
-
-# In[17]:
-
-
+date_old_wave = "2021-06-23"
+date_new_wave = "2021-10-12"
 df_old_wave = df[df["jour"] >= date_old_wave]
 df_new_wave = df[df["jour"] >= date_new_wave]
 
-y2 = df_new_wave.incid_hosp.rolling(window=7).mean()
-y1 = df_old_wave.incid_hosp.rolling(window=7).mean().values[:len(y2)+150]
-x = [i for i in range(max(len(y1), len(y2)))]
-
-fig = go.Figure()
-fig.add_trace(go.Scatter(
-    x=x,
-    y=y1,
-    name="Vague 2020",
-    line_width=4,
-    marker_color="rgba(0, 0, 0, 0.4)",
-    fillcolor="rgba(0, 0, 0, 0.05)",
-    fill='tozeroy'))
-fig.add_trace(go.Scatter(
-    x=x,
-    y=y2,
-    name="Vague 2021",
-    line_width=4,
-    marker_color='rgba(209, 102, 21, 1)',
-    fillcolor='rgba(209, 102, 21, 0.3)',
-    fill='tozeroy'))
-
-fig.update_yaxes()
-fig.update_layout(
-    xaxis=dict(
-        title="Numéro de jour à partir du <span style='color: rgba(0, 0, 0, 0.6);'>25 juillet 2020</span> • <span style='color: rgba(209, 102, 21, 1);'>10 juin 2021</span>"
-    ),
-    title={
-                'text': "Admissions hôpital",
-                'y':0.97,
-                'x':0.5,
-                'xanchor': 'center',
-                'yanchor': 'top'},
-    titlefont = dict(
-                    size=30),
-    annotations = [
-                        dict(
-                            x=0.5,
-                            y=1.12,
-                            xref='paper',
-                            yref='paper',
-                            font=dict(size=14),
-                            text="Vague 2020 à partir du 25 juillet 2020, vague 2021 à partir du 10 juin 2021 <br>{} - @GuillaumeRozier - covidtracker.fr".format(datetime.strptime(df.jour.max(), '%Y-%m-%d').strftime('%d %B %Y')),#'Date : {}. Source : Santé publique France. Auteur : GRZ - covidtracker.fr.'.format(),                    showarrow = False
-                            showarrow=False
-                        ),
-                        ]
-)
-
-name_fig = "comparaison_vagues_hosp"
-fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
-plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
-        
+nom_vague_1 = "juillet 2021"
+vague_1_description = "23 juin 2021"
+nom_vague_2 = "actuelle"
+vague_2_description = "12 octobre 2021"
 
 
-# In[18]:
-
-
-y2 = df_new_wave.incid_rea.rolling(window=7).mean().dropna()
-y1 = df_old_wave.incid_rea.rolling(window=7).mean().dropna().values[:len(y2)+150]
-x = [i for i in range(max(len(y1), len(y2)))]
-
-fig = go.Figure()
-fig.add_trace(go.Scatter(
-    x=x,
-    y=y1,
-    name="Vague 2020",
-    line_width=4,
-    marker_color="rgba(0, 0, 0, 0.4)",
-    fillcolor="rgba(0, 0, 0, 0.05)",
-    fill='tozeroy'))
-fig.add_trace(go.Scatter(
-    x=x,
-    y=y2,
-    name="Vague 2021",
-    line_width=4,
-    marker_color="rgba(201, 4, 4, 1)",
-    fillcolor="rgba(201, 4, 4, 0.3)",
-    fill='tozeroy'))
-
-fig.update_yaxes()
-fig.update_layout(
-    xaxis=dict(
-        title="Numéro de jour à partir du <span style='color: rgba(0, 0, 0, 0.6);'>25 juillet 2020</span> • <span style='color: rgba(201, 4, 4, 1);'>10 juin 2021</span>"
-    ),
-    title={
-                'text': "Admissions soins critiques",
-                'y':0.97,
-                'x':0.5,
-                'xanchor': 'center',
-                'yanchor': 'top'},
-    titlefont = dict(
-                    size=30),
-    annotations = [
-                        dict(
-                            x=0.5,
-                            y=1.12,
-                            xref='paper',
-                            yref='paper',
-                            font=dict(size=14),
-                            text="Vague 2020 à partir du 25 juillet 2020, vague 2021 à partir du 10 juin 2021 <br>{} - @GuillaumeRozier - covidtracker.fr".format(datetime.strptime(df.jour.max(), '%Y-%m-%d').strftime('%d %B %Y')),#'Date : {}. Source : Santé publique France. Auteur : GRZ - covidtracker.fr.'.format(),                    showarrow = False
-                            showarrow=False
-                        ),
-                        ]
-)
-
-name_fig = "comparaison_vagues_sc"
-fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
-plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
-        
-
-
-# In[19]:
-
-
-y2 = df_new_wave.incid_dc.rolling(window=7).mean().dropna()
-y1 = df_old_wave.incid_dc.rolling(window=7).mean().dropna().values[:len(y2)+150]
-x = [i for i in range(max(len(y1), len(y2)))]
-
-fig = go.Figure()
-fig.add_trace(go.Scatter(
-    x=x,
-    y=y1,
-    name="Vague 2020",
-    line_width=4,
-    marker_color="rgba(0, 0, 0, 0.4)",
-    fillcolor="rgba(0, 0, 0, 0.05)",
-    fill='tozeroy'))
-fig.add_trace(go.Scatter(
-    x=x,
-    y=y2,
-    name="Vague 2021",
-    line_width=4,
-    marker_color="rgba(0, 0, 0, 1)",
-    fillcolor="rgba(0, 0, 0, 0.3)",
-    fill='tozeroy'))
-
-fig.update_yaxes()
-fig.update_layout(
-    xaxis=dict(
-        title="Numéro de jour à partir du <span style='color: rgba(0, 0, 0, 0.4);'>25 juillet 2020</span> • <span style='color: rgba(0, 0, 0, 1);'>10 juin 2021</span>"
-    ),
-    title={
-                'text': "Décès hospitaliers",
-                'y':0.97,
-                'x':0.5,
-                'xanchor': 'center',
-                'yanchor': 'top'},
-    titlefont = dict(
-                    size=30),
-    annotations = [
-                        dict(
-                            x=0.5,
-                            y=1.12,
-                            xref='paper',
-                            yref='paper',
-                            font=dict(size=14),
-                            text="Vague 2020 à partir du 25 juillet 2020, vague 2021 à partir du 10 juin 2021 <br>{} - @GuillaumeRozier - covidtracker.fr".format(datetime.strptime(df.jour.max(), '%Y-%m-%d').strftime('%d %B %Y')),#'Date : {}. Source : Santé publique France. Auteur : GRZ - covidtracker.fr.'.format(),                    showarrow = False
-                            showarrow=False
-                        ),
-                        ]
-)
-
-name_fig = "comparaison_vagues_dc"
-fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
-plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
-        
-
-
-# In[20]:
+# In[96]:
 
 
 y2 = df_new_wave["P"].rolling(window=7).mean().dropna()
@@ -780,7 +613,7 @@ fig = go.Figure()
 fig.add_trace(go.Scatter(
     x=x,
     y=y1,
-    name="Vague 2020",
+    name=f"Vague A<br>{nom_vague_1}",
     line_width=4,
     marker_color="rgba(0, 0, 0, 0.4)",
     fillcolor="rgba(0, 0, 0, 0.05)",
@@ -788,7 +621,7 @@ fig.add_trace(go.Scatter(
 fig.add_trace(go.Scatter(
     x=x,
     y=y2,
-    name="Vague 2021",
+    name=f"Vague B<br>{nom_vague_2}",
     line_width=4,
     marker_color='rgb(8, 115, 191)',
     fillcolor="rgba(8, 115, 191, 0.3)",
@@ -797,7 +630,7 @@ fig.add_trace(go.Scatter(
 fig.update_yaxes()
 fig.update_layout(
     xaxis=dict(
-        title="Numéro de jour à partir du <span style='color: rgba(0, 0, 0, 0.6);'>25 juillet 2020</span> • <span style='color: rgba(209, 102, 21, 1);'>10 juin 2021</span>"
+        title=f"Numéro de jour à partir du <span style='color: rgba(0, 0, 0, 0.6);'>{vague_1_description}</span> • <span style='color: rgb(8, 115, 191);'>{vague_2_description}</span>"
     ),
     title={
                         'text': "Cas positifs au Covid",
@@ -814,7 +647,7 @@ fig.update_layout(
                             xref='paper',
                             yref='paper',
                             font=dict(size=14),
-                            text="Vague 2020 à partir du 25 juillet 2020, vague 2021 à partir du 10 juin 2021. <br>{} - @GuillaumeRozier - covidtracker.fr".format(datetime.strptime(df.jour.max(), '%Y-%m-%d').strftime('%d %B %Y')),#'Date : {}. Source : Santé publique France. Auteur : GRZ - covidtracker.fr.'.format(),                    showarrow = False
+                            text=f"Vague A à partir du {vague_1_description}, vague B à partir du {vague_2_description}. <br>{datetime.strptime(df.jour.max(), '%Y-%m-%d').strftime('%d %B %Y')} - @GuillaumeRozier - covidtracker.fr", 
                             showarrow=False
                         ),
                         ]
@@ -826,7 +659,180 @@ plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.
         
 
 
-# In[21]:
+# In[97]:
+
+
+
+
+y2 = df_new_wave.incid_hosp.rolling(window=7).mean()
+y1 = df_old_wave.incid_hosp.rolling(window=7).mean().values[:len(y2)+150]
+x = [i for i in range(max(len(y1), len(y2)))]
+
+fig = go.Figure()
+fig.add_trace(go.Scatter(
+    x=x,
+    y=y1,
+    name=f"Vague A<br>{nom_vague_1}",
+    line_width=4,
+    marker_color="rgba(0, 0, 0, 0.4)",
+    fillcolor="rgba(0, 0, 0, 0.05)",
+    fill='tozeroy'))
+fig.add_trace(go.Scatter(
+    x=x,
+    y=y2,
+    name=f"Vague B<br>{nom_vague_2}",
+    line_width=4,
+    marker_color='rgba(209, 102, 21, 1)',
+    fillcolor='rgba(209, 102, 21, 0.3)',
+    fill='tozeroy'))
+
+fig.update_yaxes()
+fig.update_layout(
+    xaxis=dict(
+        title=f"Numéro de jour à partir du <span style='color: rgba(0, 0, 0, 0.6);'>{vague_1_description}</span> • <span style='color: rgb(8, 115, 191);'>{vague_2_description}</span>"
+    ),
+    title={
+                'text': "Admissions hôpital",
+                'y':0.97,
+                'x':0.5,
+                'xanchor': 'center',
+                'yanchor': 'top'},
+    titlefont = dict(
+                    size=30),
+    annotations = [
+                        dict(
+                            x=0.5,
+                            y=1.12,
+                            xref='paper',
+                            yref='paper',
+                            font=dict(size=14),
+                            text=f"Vague A à partir du {vague_1_description}, vague B à partir du {vague_2_description}. <br>{datetime.strptime(df.jour.max(), '%Y-%m-%d').strftime('%d %B %Y')} - @GuillaumeRozier - covidtracker.fr", 
+                            showarrow=False
+                        ),
+                        ]
+)
+
+name_fig = "comparaison_vagues_hosp"
+fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
+plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
+        
+
+
+# In[98]:
+
+
+y2 = df_new_wave.incid_rea.rolling(window=7).mean().dropna()
+y1 = df_old_wave.incid_rea.rolling(window=7).mean().dropna().values[:len(y2)+150]
+x = [i for i in range(max(len(y1), len(y2)))]
+
+fig = go.Figure()
+fig.add_trace(go.Scatter(
+    x=x,
+    y=y1,
+    name=f"Vague A<br>{nom_vague_1}",
+    line_width=4,
+    marker_color="rgba(0, 0, 0, 0.4)",
+    fillcolor="rgba(0, 0, 0, 0.05)",
+    fill='tozeroy'))
+fig.add_trace(go.Scatter(
+    x=x,
+    y=y2,
+    name=f"Vague B<br>{nom_vague_2}",
+    line_width=4,
+    marker_color="rgba(201, 4, 4, 1)",
+    fillcolor="rgba(201, 4, 4, 0.3)",
+    fill='tozeroy'))
+
+fig.update_yaxes()
+fig.update_layout(
+    xaxis=dict(
+        title=f"Numéro de jour à partir du <span style='color: rgba(0, 0, 0, 0.6);'>{vague_1_description}</span> • <span style='color: rgb(8, 115, 191);'>{vague_2_description}</span>"
+    ),
+    title={
+                'text': "Admissions soins critiques",
+                'y':0.97,
+                'x':0.5,
+                'xanchor': 'center',
+                'yanchor': 'top'},
+    titlefont = dict(
+                    size=30),
+    annotations = [
+                        dict(
+                            x=0.5,
+                            y=1.12,
+                            xref='paper',
+                            yref='paper',
+                            font=dict(size=14),
+                            text=f"Vague A à partir du {vague_1_description}, vague B à partir du {vague_2_description}. <br>{datetime.strptime(df.jour.max(), '%Y-%m-%d').strftime('%d %B %Y')} - @GuillaumeRozier - covidtracker.fr", 
+                            showarrow=False
+                        ),
+                        ]
+)
+
+name_fig = "comparaison_vagues_sc"
+fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
+plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
+        
+
+
+# In[99]:
+
+
+y2 = df_new_wave.incid_dc.rolling(window=7).mean().dropna()
+y1 = df_old_wave.incid_dc.rolling(window=7).mean().dropna().values[:len(y2)+150]
+x = [i for i in range(max(len(y1), len(y2)))]
+
+fig = go.Figure()
+fig.add_trace(go.Scatter(
+    x=x,
+    y=y1,
+    name=f"Vague A<br>{nom_vague_1}",
+    line_width=4,
+    marker_color="rgba(0, 0, 0, 0.4)",
+    fillcolor="rgba(0, 0, 0, 0.05)",
+    fill='tozeroy'))
+fig.add_trace(go.Scatter(
+    x=x,
+    y=y2,
+    name=f"Vague B<br>{nom_vague_2}",
+    line_width=4,
+    marker_color="rgba(0, 0, 0, 1)",
+    fillcolor="rgba(0, 0, 0, 0.3)",
+    fill='tozeroy'))
+
+fig.update_yaxes()
+fig.update_layout(
+    xaxis=dict(
+        title=f"Numéro de jour à partir du <span style='color: rgba(0, 0, 0, 0.6);'>{vague_1_description}</span> • <span style='color: rgb(8, 115, 191);'>{vague_2_description}</span>"
+    ),
+    title={
+                'text': "Décès hospitaliers",
+                'y':0.97,
+                'x':0.5,
+                'xanchor': 'center',
+                'yanchor': 'top'},
+    titlefont = dict(
+                    size=30),
+    annotations = [
+                        dict(
+                            x=0.5,
+                            y=1.12,
+                            xref='paper',
+                            yref='paper',
+                            font=dict(size=14),
+                            text=f"Vague A à partir du {vague_1_description}, vague B à partir du {vague_2_description}. <br>{datetime.strptime(df.jour.max(), '%Y-%m-%d').strftime('%d %B %Y')} - @GuillaumeRozier - covidtracker.fr", 
+                            showarrow=False
+                        ),
+                        ]
+)
+
+name_fig = "comparaison_vagues_dc"
+fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
+plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
+        
+
+
+# In[100]:
 
 
 df_2021 = df[df["jour"] >= "2021-01-01"]
@@ -898,7 +904,7 @@ plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.
         
 
 
-# In[22]:
+# In[101]:
 
 
 df_2021 = df[df["jour"] >= "2021-01-01"]
@@ -970,7 +976,7 @@ plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.
         
 
 
-# In[23]:
+# In[102]:
 
 
 im1 = cv2.imread(PATH + 'images/charts/france/comparaison_vagues_cas.jpeg')
@@ -983,10 +989,4 @@ im_bas = cv2.hconcat([im3, im4])
 
 im_totale = cv2.vconcat([im_haut, im_bas])
 cv2.imwrite(PATH + 'images/charts/france/comparaison_vagues_dashboard.jpeg', im_totale)
-
-
-# In[ ]:
-
-
-
 

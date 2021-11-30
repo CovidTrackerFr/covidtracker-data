@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[192]:
+# In[33]:
 
 
 """
@@ -22,7 +22,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[193]:
+# In[34]:
 
 
 import pandas as pd
@@ -39,15 +39,16 @@ import locale
 locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
 
 
-# In[194]:
+# In[54]:
 
 
 COULEUR_NON_VACCINES = "#C65102"
 COULEUR_COMPLETEMENT_VACCINES = "#00308F"
+COULEUR_COMPLETEMENT_VACCINES_RAPPEL = "black"
 COULEUR_PARTIELLEMENT_VACCINES = "#4777d6"
 
 
-# In[195]:
+# In[36]:
 
 
 df_drees = pd.read_csv("https://data.drees.solidarites-sante.gouv.fr/explore/dataset/covid-19-resultats-issus-des-appariements-entre-si-vic-si-dep-et-vac-si/download/?format=csv&timezone=Europe/Berlin&lang=fr&use_labels_for_header=true&csv_separator=%3B", sep=";")
@@ -58,7 +59,7 @@ df_drees = df_drees.sort_values(by="date")
 df_drees = df_drees[df_drees["vac_statut"]!="Ensemble"]
 
 
-# In[196]:
+# In[37]:
 
 
 df_drees_age = pd.read_csv("https://data.drees.solidarites-sante.gouv.fr/explore/dataset/covid-19-resultats-par-age-issus-des-appariements-entre-si-vic-si-dep-et-vac-si/download/?format=csv&timezone=Europe/Berlin&lang=fr&use_labels_for_header=true&csv_separator=%3B", sep=";")
@@ -71,23 +72,55 @@ df_drees_age = df_drees_age[df_drees_age["vac_statut"]!="Ensemble"]
 df_drees_age_lastday = df_drees_age[df_drees_age["date"] == df_drees_age["date"].max()]
 
 
-# In[197]:
+# In[40]:
+
+
+df_drees.vac_statut.unique()
+
+
+# In[41]:
 
 
 df_drees_non_vaccines = df_drees[df_drees["vac_statut"]=="Non-vaccinés"]
-df_drees_non_vaccines["effectif J-7"] = df_drees_non_vaccines["effectif J-7"].rolling(window=7).mean()
+df_drees_non_vaccines["effectif"] = df_drees_non_vaccines["effectif"].rolling(window=7).mean()
 
-df_drees_completement_vaccines = df_drees[df_drees["vac_statut"].isin(["Vaccination complète",])].groupby("date").sum().reset_index()
-df_drees_completement_vaccines["effectif J-7"] = df_drees_completement_vaccines["effectif J-7"].rolling(window=7).mean()
+df_drees_completement_vaccines = df_drees[df_drees["vac_statut"].isin(["Complet de moins de 3 mois - sans rappel", "Complet entre 3 mois et 6 mois - sans rappel", "Complet de 6 mois et plus - sans rappel"])].groupby("date").sum().reset_index()
+df_drees_completement_vaccines["effectif"] = df_drees_completement_vaccines["effectif"].rolling(window=7).mean()
+
+df_drees_completement_vaccines_rappel = df_drees[df_drees["vac_statut"].isin(["Complet de moins de 3 mois - avec rappel", "Complet entre 3 mois et 6 mois - avec rappel", "Complet de 6 mois et plus - avec rappel"])].groupby("date").sum().reset_index()
+df_drees_completement_vaccines_rappel["effectif"] = df_drees_completement_vaccines_rappel["effectif"].rolling(window=7).mean()
 
 df_drees_partiellement_vaccines = df_drees[df_drees["vac_statut"].isin(["Primo dose récente", "Primo dose efficace"])].groupby("date").sum().reset_index()
-df_drees_partiellement_vaccines["effectif J-7"] = df_drees_partiellement_vaccines["effectif J-7"].rolling(window=7).mean()
+df_drees_partiellement_vaccines["effectif"] = df_drees_partiellement_vaccines["effectif"].rolling(window=7).mean()
 
 #df_drees_ensemble = df_drees[df_drees["vac_statut"]=="Ensemble"]
 df_drees_ensemble = df_drees.groupby("date").sum().reset_index()
 
 
-# In[198]:
+# In[48]:
+
+
+def get_df_by_vaccine_status(df):
+    df_drees_non_vaccines = df[df["vac_statut"]=="Non-vaccinés"]
+    df_drees_non_vaccines["effectif"] = df_drees_non_vaccines["effectif"].rolling(window=7).mean()
+
+    df_drees_completement_vaccines = df[df["vac_statut"].isin(["Complet de moins de 3 mois - sans rappel", "Complet entre 3 mois et 6 mois - sans rappel", "Complet de 6 mois et plus - sans rappel"])].groupby("date").sum().reset_index()
+    df_drees_completement_vaccines["effectif"] = df_drees_completement_vaccines["effectif"].rolling(window=7).mean()
+
+    df_drees_completement_vaccines_rappel = df[df["vac_statut"].isin(["Complet de moins de 3 mois - avec rappel", "Complet entre 3 mois et 6 mois - avec rappel", "Complet de 6 mois et plus - avec rappel"])].groupby("date").sum().reset_index()
+    df_drees_completement_vaccines_rappel["effectif"] = df_drees_completement_vaccines_rappel["effectif"].rolling(window=7).mean()
+
+    df_drees_partiellement_vaccines = df[df["vac_statut"].isin(["Primo dose récente", "Primo dose efficace"])].groupby("date").sum().reset_index()
+    df_drees_partiellement_vaccines["effectif"] = df_drees_partiellement_vaccines["effectif"].rolling(window=7).mean()
+
+    #df_drees_ensemble = df_drees[df_drees["vac_statut"]=="Ensemble"]
+    df_drees_ensemble = df.groupby("date").sum().reset_index()
+    
+    return df_drees_non_vaccines, df_drees_completement_vaccines, df_drees_completement_vaccines_rappel, df_drees_partiellement_vaccines, df_drees_ensemble
+    
+
+
+# In[56]:
 
 
 fig = go.Figure()
@@ -96,8 +129,8 @@ ages_str = ["0 à 19 ans", "20 à 39 ans", "40 à 59 ans", "60 à 79 ans", "plus
 
 y=[]
 for age in ages:
-    data=df_drees_age[(df_drees_age.vac_statut=="Non-vaccinés")                       & (df_drees_age.age==age)]
-    y+=[data["HC"].rolling(window=7).mean().values[-1]/data["effectif J-7"].values[-1]*10000000]
+    data, _, _, _, _ = get_df_by_vaccine_status(df_drees_age[df_drees_age.age==age])
+    y+=[data["HC"].rolling(window=7).mean().values[-1]/data["effectif"].values[-1]*10000000]
 
 fig.add_trace(go.Bar(
     x=ages_str,
@@ -110,9 +143,9 @@ fig.add_trace(go.Bar(
 
 y=[]
 for age in ages:
-    data=df_drees_age[df_drees_age.vac_statut.isin(["Primo dose récente", "Primo dose efficace"])].groupby(["date", "age"]).sum().reset_index()
-    data=data[(data.age==age)]
-    y+=[data["HC"].rolling(window=7).mean().values[-1]/data["effectif J-7"].values[-1]*10000000]
+    #data=df_drees_age[df_drees_age.vac_statut.isin(["Primo dose récente", "Primo dose efficace"])].groupby(["date", "age"]).sum().reset_index()
+    _, _, _, data, _ = get_df_by_vaccine_status(df_drees_age[df_drees_age.age==age])
+    y+=[data["HC"].rolling(window=7).mean().values[-1]/data["effectif"].values[-1]*10000000]
 
 fig.add_trace(go.Bar(
     x=ages_str,
@@ -125,8 +158,8 @@ fig.add_trace(go.Bar(
 
 y=[]
 for age in ages:
-    data=df_drees_age[(df_drees_age.vac_statut=="Vaccination complète") &                             (df_drees_age.age==age)]
-    y+=[data["HC"].rolling(window=7).mean().values[-1]/data["effectif J-7"].values[-1]*10000000]
+    _, data, _, _, _ = get_df_by_vaccine_status(df_drees_age[df_drees_age.age==age])
+    y+=[data["HC"].rolling(window=7).mean().values[-1]/data["effectif"].values[-1]*10000000]
 
 fig.add_trace(go.Bar(
     x=ages_str,
@@ -135,6 +168,20 @@ fig.add_trace(go.Bar(
     text=[int(round(val)) for val in y],
     textposition='outside',
     name="Totalement vaccinés"
+))
+
+y=[]
+for age in ages:
+    _, _, data, _, _ = get_df_by_vaccine_status(df_drees_age[df_drees_age.age==age])
+    y+=[data["HC"].rolling(window=7).mean().values[-1]/data["effectif"].values[-1]*10000000]
+
+fig.add_trace(go.Bar(
+    x=ages_str,
+    y=y,
+    marker=dict(color=COULEUR_COMPLETEMENT_VACCINES_RAPPEL),
+    text=[int(round(val)) for val in y],
+    textposition='outside',
+    name="Totalement vaccinés (avec rappel)"
 ))
     
 fig.update_layout(
@@ -176,10 +223,9 @@ fig.update_yaxes(title="Admissions à l'hôpital pour 10 Mio")
 fig.update_xaxes(title="Âge")
 name_fig = "hc_statut_vaccinal_age"
 fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
-fig.show()
 
 
-# In[199]:
+# In[57]:
 
 
 import numpy as np
@@ -190,19 +236,18 @@ ages_str = ["0 à 19 ans", "20 à 39 ans", "40 à 59 ans", "60 à 79 ans", "plus
 
 y_non_vaccines=[]
 for age in ages:
-    data=df_drees_age[(df_drees_age.vac_statut=="Non-vaccinés")                       & (df_drees_age.age==age)]
-    y_non_vaccines+=[data["HC"].rolling(window=7).mean().values[-1]/data["effectif J-7"].values[-1]*10000000]
+    data, _, _, _, _ = get_df_by_vaccine_status(df_drees_age[df_drees_age.age==age])
+    y_non_vaccines+=[data["HC"].rolling(window=7).mean().values[-1]/data["effectif"].values[-1]*10000000]
 
 y_partiellement_vaccines=[]
 for age in ages:
-    data=df_drees_age[df_drees_age.vac_statut.isin(["Primo dose récente", "Primo dose efficace"])].groupby(["date", "age"]).sum().reset_index()
-    data=data[(data.age==age)]
-    y_partiellement_vaccines+=[data["HC"].rolling(window=7).mean().values[-1]/data["effectif J-7"].values[-1]*10000000]
+    _, _, _, data, _ = get_df_by_vaccine_status(df_drees_age[df_drees_age.age==age])
+    y_partiellement_vaccines+=[data["HC"].rolling(window=7).mean().values[-1]/data["effectif"].values[-1]*10000000]
 
 y_completement_vaccines=[]
 for age in ages:
-    data=df_drees_age[(df_drees_age.vac_statut=="Vaccination complète") &                             (df_drees_age.age==age)]
-    y_completement_vaccines+=[data["HC"].rolling(window=7).mean().values[-1]/data["effectif J-7"].values[-1]*10000000]
+    _, data, _, _, _ = get_df_by_vaccine_status(df_drees_age[df_drees_age.age==age])
+    y_completement_vaccines+=[data["HC"].rolling(window=7).mean().values[-1]/data["effectif"].values[-1]*10000000]
 
 y=(np.array(y_non_vaccines)-np.array(y_completement_vaccines))/np.array(y_non_vaccines)
 fig.add_trace(go.Bar(
@@ -265,7 +310,7 @@ name_fig = "hc_statut_vaccinal_age_diminution_risque"
 fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
 
 
-# In[200]:
+# In[59]:
 
 
 import numpy as np
@@ -276,19 +321,18 @@ ages_str = ["0 à 19 ans", "20 à 39 ans", "40 à 59 ans", "60 à 79 ans", "plus
 
 y_non_vaccines=[]
 for age in ages:
-    data=df_drees_age[(df_drees_age.vac_statut=="Non-vaccinés")                       & (df_drees_age.age==age)]
-    y_non_vaccines+=[data["SC"].rolling(window=7).mean().values[-1]/data["effectif J-7"].values[-1]*10000000]
+    data, _, _, _, _ = get_df_by_vaccine_status(df_drees_age[df_drees_age.age==age])
+    y_non_vaccines+=[data["SC"].rolling(window=7).mean().values[-1]/data["effectif"].values[-1]*10000000]
 
 y_partiellement_vaccines=[]
 for age in ages:
-    data=df_drees_age[df_drees_age.vac_statut.isin(["Primo dose récente", "Primo dose efficace"])].groupby(["date", "age"]).sum().reset_index()
-    data=data[(data.age==age)]
-    y_partiellement_vaccines+=[data["SC"].rolling(window=7).mean().values[-1]/data["effectif J-7"].values[-1]*10000000]
+    _, _, _, data, _ = get_df_by_vaccine_status(df_drees_age[df_drees_age.age==age])
+    y_partiellement_vaccines+=[data["SC"].rolling(window=7).mean().values[-1]/data["effectif"].values[-1]*10000000]
 
 y_completement_vaccines=[]
 for age in ages:
-    data=df_drees_age[(df_drees_age.vac_statut=="Vaccination complète") &                             (df_drees_age.age==age)]
-    y_completement_vaccines+=[data["SC"].rolling(window=7).mean().values[-1]/data["effectif J-7"].values[-1]*10000000]
+    _, data, _, _, _ = get_df_by_vaccine_status(df_drees_age[df_drees_age.age==age])
+    y_completement_vaccines+=[data["SC"].rolling(window=7).mean().values[-1]/data["effectif"].values[-1]*10000000]
 
 y=(np.array(y_non_vaccines)-np.array(y_completement_vaccines))/np.array(y_non_vaccines)
 fig.add_trace(go.Bar(
@@ -351,7 +395,7 @@ name_fig = "sc_statut_vaccinal_age_diminution_risque"
 fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
 
 
-# In[201]:
+# In[62]:
 
 
 import ast 
@@ -362,8 +406,8 @@ ages_str = ["0 à 19 ans", "20 à 39 ans", "40 à 59 ans", "60 à 79 ans", "plus
 
 y=[]
 for age in ages:
-    data=df_drees_age[(df_drees_age.vac_statut=="Non-vaccinés")                       & (df_drees_age.age==age)]
-    y+=[data["SC"].rolling(window=7).mean().values[-1]/data["effectif J-7"].values[-1]*10000000]
+    data, _, _, _, _ = get_df_by_vaccine_status(df_drees_age[df_drees_age.age==age])
+    y+=[data["SC"].rolling(window=7).mean().values[-1]/data["effectif"].values[-1]*10000000]
 
 fig.add_trace(go.Bar(
     x=ages_str,
@@ -376,9 +420,8 @@ fig.add_trace(go.Bar(
 
 y=[]
 for age in ages:
-    data=df_drees_age[df_drees_age.vac_statut.isin(["Primo dose récente", "Primo dose efficace"])].groupby(["date", "age"]).sum().reset_index()
-    data=data[(data.age==age)]
-    y+=[data["SC"].rolling(window=7).mean().values[-1]/data["effectif J-7"].values[-1]*10000000]
+    _, _, _, data, _ = get_df_by_vaccine_status(df_drees_age[df_drees_age.age==age])
+    y+=[data["SC"].rolling(window=7).mean().values[-1]/data["effectif"].values[-1]*10000000]
 
 fig.add_trace(go.Bar(
     x=ages_str,
@@ -391,8 +434,8 @@ fig.add_trace(go.Bar(
 
 y=[]
 for age in ages:
-    data=df_drees_age[(df_drees_age.vac_statut=="Vaccination complète") &                             (df_drees_age.age==age)]
-    y+=[data["SC"].rolling(window=7).mean().values[-1]/data["effectif J-7"].values[-1]*10000000]
+    _, data, _, _, _ = get_df_by_vaccine_status(df_drees_age[df_drees_age.age==age])
+    y+=[data["SC"].rolling(window=7).mean().values[-1]/data["effectif"].values[-1]*10000000]
 
 fig.add_trace(go.Bar(
     x=ages_str,
@@ -401,6 +444,20 @@ fig.add_trace(go.Bar(
     text=[int(round(val)) for val in y],
     textposition='outside',
     name="Totalement vaccinés"
+))
+
+y=[]
+for age in ages:
+    _, _, data, _, _ = get_df_by_vaccine_status(df_drees_age[df_drees_age.age==age])
+    y+=[data["SC"].rolling(window=7).mean().values[-1]/data["effectif"].values[-1]*10000000]
+
+fig.add_trace(go.Bar(
+    x=ages_str,
+    y=y,
+    marker=dict(color=COULEUR_COMPLETEMENT_VACCINES_RAPPEL),
+    text=[int(round(val)) for val in y],
+    textposition='outside',
+    name="Totalement vaccinés (avec rappel)"
 ))
     
 fig.update_layout(
@@ -445,7 +502,7 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2,
 #fig.show()
 
 
-# In[202]:
+# In[73]:
 
 
 locale.setlocale(locale.LC_TIME, 'fr_FR')
@@ -454,7 +511,7 @@ fig = go.Figure()
 fig.add_trace(
     go.Scatter(
         x=df_drees_non_vaccines["date"].values,
-        y=df_drees_non_vaccines["nb_PCR+_sympt"].rolling(window=7).mean() / df_drees_non_vaccines["effectif J-7"] * 10000000,
+        y=df_drees_non_vaccines["nb_PCR+_sympt"].rolling(window=7).mean() / df_drees_non_vaccines["effectif"] * 10000000,
         name="Non vaccinés",
         line_color="#C65102",
         line_width=4
@@ -463,7 +520,7 @@ fig.add_trace(
 fig.add_trace(
     go.Scatter(
         x=[df_drees_non_vaccines["date"].values[-1]],
-        y=[(df_drees_non_vaccines["nb_PCR+_sympt"].rolling(window=7).mean() / df_drees_non_vaccines["effectif J-7"] * 10000000).values[-1]],
+        y=[(df_drees_non_vaccines["nb_PCR+_sympt"].rolling(window=7).mean() / df_drees_non_vaccines["effectif"] * 10000000).values[-1]],
         name="Non vaccinés",
         line_color="#C65102",
         marker_size=10,
@@ -473,7 +530,7 @@ fig.add_trace(
 fig.add_trace(
     go.Scatter(
         x=df_drees_completement_vaccines["date"].values,
-        y=df_drees_completement_vaccines["nb_PCR+_sympt"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif J-7"] * 10000000,
+        y=df_drees_completement_vaccines["nb_PCR+_sympt"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif"] * 10000000,
         name="Vaccinés",
         line_color="#00308F",
         line_width=4
@@ -482,7 +539,7 @@ fig.add_trace(
 fig.add_trace(
     go.Scatter(
         x=[df_drees_completement_vaccines["date"].values[-1]],
-        y=[(df_drees_completement_vaccines["nb_PCR+_sympt"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif J-7"] * 10000000).values[-1]],
+        y=[(df_drees_completement_vaccines["nb_PCR+_sympt"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif"] * 10000000).values[-1]],
         name="Vaccinés",
         line_color="#00308F",
         marker_size=10,
@@ -492,8 +549,28 @@ fig.add_trace(
 
 fig.add_trace(
     go.Scatter(
+        x=df_drees_completement_vaccines_rappel["date"].values,
+        y=df_drees_completement_vaccines_rappel["nb_PCR+_sympt"].rolling(window=7).mean() / df_drees_completement_vaccines_rappel["effectif"] * 10000000,
+        name="Vaccinés (rappel)",
+        line_color="black",
+        line_width=4
+    )
+)
+fig.add_trace(
+    go.Scatter(
+        x=[df_drees_completement_vaccines_rappel["date"].values[-1]],
+        y=[(df_drees_completement_vaccines_rappel["nb_PCR+_sympt"].rolling(window=7).mean() / df_drees_completement_vaccines_rappel["effectif"] * 10000000).values[-1]],
+        name="Vaccinés (rappel)",
+        line_color="black",
+        marker_size=10,
+        showlegend=False
+    )
+)
+
+fig.add_trace(
+    go.Scatter(
         x=df_drees_partiellement_vaccines["date"].values,
-        y=df_drees_partiellement_vaccines["nb_PCR+_sympt"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif J-7"] * 10000000,
+        y=df_drees_partiellement_vaccines["nb_PCR+_sympt"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif"] * 10000000,
         name="Partiellement vaccinés",
         line_color="#4777d6",
         line_width=4
@@ -502,7 +579,7 @@ fig.add_trace(
 fig.add_trace(
     go.Scatter(
         x=[df_drees_partiellement_vaccines["date"].values[-1]],
-        y=[(df_drees_partiellement_vaccines["nb_PCR+_sympt"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif J-7"] * 10000000).values[-1]],
+        y=[(df_drees_partiellement_vaccines["nb_PCR+_sympt"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif"] * 10000000).values[-1]],
         name="Partiellement vaccinés",
         line_color="#4777d6",
         marker_size=10,
@@ -542,7 +619,7 @@ fig.update_layout(
                         ),
                         ]
 )
-y=df_drees_non_vaccines["nb_PCR+_sympt"].rolling(window=7).mean().values[-1] / df_drees_non_vaccines["effectif J-7"].values[-1] * 10000000
+y=df_drees_non_vaccines["nb_PCR+_sympt"].rolling(window=7).mean().values[-1] / df_drees_non_vaccines["effectif"].values[-1] * 10000000
 fig.add_annotation(
     x=df_drees.date.max(),
     y=y,
@@ -550,10 +627,10 @@ fig.add_annotation(
     font=dict(color=COULEUR_NON_VACCINES),
     showarrow=False,
     align="left",
-    xshift=100,
-    yshift=0
+    xshift=95,
+    yshift=100
 )
-y=df_drees_completement_vaccines["nb_PCR+_sympt"].rolling(window=7).mean().values[-1] / df_drees_completement_vaccines["effectif J-7"].values[-1] * 10000000
+y=df_drees_completement_vaccines["nb_PCR+_sympt"].rolling(window=7).mean().values[-1] / df_drees_completement_vaccines["effectif"].values[-1] * 10000000
 fig.add_annotation(
     x=df_drees.date.max(),
     y=y,
@@ -561,8 +638,20 @@ fig.add_annotation(
     font=dict(color=COULEUR_COMPLETEMENT_VACCINES),
     showarrow=False,
     align="left",
+    yshift=50,
+    xshift=95
+)
+
+y=df_drees_completement_vaccines_rappel["nb_PCR+_sympt"].rolling(window=7).mean().values[-1] / df_drees_completement_vaccines_rappel["effectif"].values[-1] * 10000000
+fig.add_annotation(
+    x=df_drees.date.max(),
+    y=y,
+    text="<b>" + str(int(round(y))) + " cas sympto.<br>vaccinés (rappel)</b><br>pour 10 Mio<br>de vaccinés (rappel)",
+    font=dict(color=COULEUR_COMPLETEMENT_VACCINES_RAPPEL),
+    showarrow=False,
+    align="left",
     yshift=0,
-    xshift=100
+    xshift=105
 )
 
 fig.add_annotation(
@@ -584,7 +673,7 @@ name_fig = "pcr_plus_sympt_proportion_selon_statut_vaccinal"
 fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
 
 
-# In[203]:
+# In[75]:
 
 
 locale.setlocale(locale.LC_TIME, 'fr_FR')
@@ -593,7 +682,7 @@ fig = go.Figure()
 fig.add_trace(
     go.Scatter(
         x=df_drees_non_vaccines["date"].values,
-        y=df_drees_non_vaccines["nb_PCR+"].rolling(window=7).mean() / df_drees_non_vaccines["effectif J-7"] * 10000000,
+        y=df_drees_non_vaccines["nb_PCR+"].rolling(window=7).mean() / df_drees_non_vaccines["effectif"] * 10000000,
         name="Non vaccinés",
         line_color="#C65102",
         line_width=4
@@ -602,17 +691,18 @@ fig.add_trace(
 fig.add_trace(
     go.Scatter(
         x=[df_drees_non_vaccines["date"].values[-1]],
-        y=[(df_drees_non_vaccines["nb_PCR+"].rolling(window=7).mean() / df_drees_non_vaccines["effectif J-7"] * 10000000).values[-1]],
+        y=[(df_drees_non_vaccines["nb_PCR+"].rolling(window=7).mean() / df_drees_non_vaccines["effectif"] * 10000000).values[-1]],
         name="Non vaccinés",
         line_color="#C65102",
         marker_size=10,
         showlegend=False
     )
 )
+
 fig.add_trace(
     go.Scatter(
         x=df_drees_completement_vaccines["date"].values,
-        y=df_drees_completement_vaccines["nb_PCR+"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif J-7"] * 10000000,
+        y=df_drees_completement_vaccines["nb_PCR+"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif"] * 10000000,
         name="Vaccinés",
         line_color="#00308F",
         line_width=4
@@ -621,7 +711,7 @@ fig.add_trace(
 fig.add_trace(
     go.Scatter(
         x=[df_drees_completement_vaccines["date"].values[-1]],
-        y=[(df_drees_completement_vaccines["nb_PCR+"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif J-7"] * 10000000).values[-1]],
+        y=[(df_drees_completement_vaccines["nb_PCR+"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif"] * 10000000).values[-1]],
         name="Vaccinés",
         line_color="#00308F",
         marker_size=10,
@@ -631,8 +721,28 @@ fig.add_trace(
 
 fig.add_trace(
     go.Scatter(
+        x=df_drees_completement_vaccines_rappel["date"].values,
+        y=df_drees_completement_vaccines_rappel["nb_PCR+"].rolling(window=7).mean() / df_drees_completement_vaccines_rappel["effectif"] * 10000000,
+        name="Vaccinés (rappel)",
+        line_color="black",
+        line_width=4
+    )
+)
+fig.add_trace(
+    go.Scatter(
+        x=[df_drees_completement_vaccines_rappel["date"].values[-1]],
+        y=[(df_drees_completement_vaccines_rappel["nb_PCR+"].rolling(window=7).mean() / df_drees_completement_vaccines_rappel["effectif"] * 10000000).values[-1]],
+        name="Vaccinés (rappel)",
+        line_color="black",
+        marker_size=10,
+        showlegend=False
+    )
+)
+
+fig.add_trace(
+    go.Scatter(
         x=df_drees_partiellement_vaccines["date"].values,
-        y=df_drees_partiellement_vaccines["nb_PCR+"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif J-7"] * 10000000,
+        y=df_drees_partiellement_vaccines["nb_PCR+"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif"] * 10000000,
         name="Partiellement vaccinés",
         line_color="#4777d6",
         line_width=4
@@ -641,7 +751,7 @@ fig.add_trace(
 fig.add_trace(
     go.Scatter(
         x=[df_drees_partiellement_vaccines["date"].values[-1]],
-        y=[(df_drees_partiellement_vaccines["nb_PCR+"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif J-7"] * 10000000).values[-1]],
+        y=[(df_drees_partiellement_vaccines["nb_PCR+"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif"] * 10000000).values[-1]],
         name="Partiellement vaccinés",
         line_color="#4777d6",
         marker_size=10,
@@ -681,7 +791,7 @@ fig.update_layout(
                         ),
                         ]
 )
-y=df_drees_non_vaccines["nb_PCR+"].rolling(window=7).mean().values[-1] / df_drees_non_vaccines["effectif J-7"].values[-1] * 10000000
+y=df_drees_non_vaccines["nb_PCR+"].rolling(window=7).mean().values[-1] / df_drees_non_vaccines["effectif"].values[-1] * 10000000
 fig.add_annotation(
     x=df_drees.date.max(),
     y=y,
@@ -692,7 +802,7 @@ fig.add_annotation(
     xshift=100,
     yshift=0
 )
-y=df_drees_completement_vaccines["nb_PCR+"].rolling(window=7).mean().values[-1] / df_drees_completement_vaccines["effectif J-7"].values[-1] * 10000000
+y=df_drees_completement_vaccines["nb_PCR+"].rolling(window=7).mean().values[-1] / df_drees_completement_vaccines["effectif"].values[-1] * 10000000
 fig.add_annotation(
     x=df_drees.date.max(),
     y=y,
@@ -723,21 +833,19 @@ name_fig = "pcr_plus_proportion_selon_statut_vaccinal"
 fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
 
 
-# In[204]:
+# In[83]:
 
 
 ages_str = ["0 à 19 ans", "20 à 39 ans", "40 à 59 ans", "60 à 79 ans", "plus 80 ans"]
 for idx, age in enumerate(ages):
-    data_completement_vaccines = df_drees_age[(df_drees_age.age==age) & (df_drees_age.vac_statut=="Vaccination complète")]
-    data_non_vaccines = df_drees_age[(df_drees_age.age==age) & (df_drees_age.vac_statut=="Non-vaccinés")]
-    data_partiellement_vaccines = df_drees_age[(df_drees_age.age==age) & (df_drees_age.vac_statut.isin(["Primo dose récente", "Primo dose efficace"]))].groupby(["date", "age"]).sum().reset_index()
+    data_non_vaccines, data_completement_vaccines, data_completement_vaccines_rappel, data_partiellement_vaccines, _  = get_df_by_vaccine_status(df_drees_age[(df_drees_age.age==age)])
     
     fig = go.Figure()
 
     fig.add_trace(
         go.Scatter(
             x=data_non_vaccines["date"].values,
-            y=data_non_vaccines["nb_PCR+"].rolling(window=7).mean() / data_non_vaccines["effectif J-7"] * 10000000,
+            y=data_non_vaccines["nb_PCR+"].rolling(window=7).mean() / data_non_vaccines["effectif"] * 10000000,
             name="Non vaccinés",
             line_color="#C65102",
             line_width=4
@@ -746,7 +854,7 @@ for idx, age in enumerate(ages):
     fig.add_trace(
         go.Scatter(
             x=[data_non_vaccines["date"].values[-1]],
-            y=[(data_non_vaccines["nb_PCR+"].rolling(window=7).mean() / data_non_vaccines["effectif J-7"] * 10000000).values[-1]],
+            y=[(data_non_vaccines["nb_PCR+"].rolling(window=7).mean() / data_non_vaccines["effectif"] * 10000000).values[-1]],
             name="Non vaccinés",
             line_color="#C65102",
             marker_size=10,
@@ -757,7 +865,7 @@ for idx, age in enumerate(ages):
     fig.add_trace(
         go.Scatter(
             x=data_partiellement_vaccines["date"].values,
-            y=data_partiellement_vaccines["nb_PCR+"].rolling(window=7).mean() / data_partiellement_vaccines["effectif J-7"] * 10000000,
+            y=data_partiellement_vaccines["nb_PCR+"].rolling(window=7).mean() / data_partiellement_vaccines["effectif"] * 10000000,
             name="Partiellement vaccinés",
             line_color="#4777d6",
             line_width=4
@@ -766,7 +874,7 @@ for idx, age in enumerate(ages):
     fig.add_trace(
         go.Scatter(
             x=[data_partiellement_vaccines["date"].values[-1]],
-            y=[(data_partiellement_vaccines["nb_PCR+"].rolling(window=7).mean() / data_partiellement_vaccines["effectif J-7"] * 10000000).values[-1]],
+            y=[(data_partiellement_vaccines["nb_PCR+"].rolling(window=7).mean() / data_partiellement_vaccines["effectif"] * 10000000).values[-1]],
             name="Partiellement vaccinés",
             line_color="#4777d6",
             marker_size=10,
@@ -777,7 +885,7 @@ for idx, age in enumerate(ages):
     fig.add_trace(
         go.Scatter(
             x=data_completement_vaccines["date"].values,
-            y=data_completement_vaccines["nb_PCR+"].rolling(window=7).mean() / data_completement_vaccines["effectif J-7"] * 10000000,
+            y=data_completement_vaccines["nb_PCR+"].rolling(window=7).mean() / data_completement_vaccines["effectif"] * 10000000,
             name="Vaccinés",
             line_color="#00308F",
             line_width=4
@@ -787,24 +895,34 @@ for idx, age in enumerate(ages):
     fig.add_trace(
         go.Scatter(
             x=[data_completement_vaccines["date"].values[-1]],
-            y=[(data_completement_vaccines["nb_PCR+"].rolling(window=7).mean() / data_completement_vaccines["effectif J-7"] * 10000000).values[-1]],
+            y=[(data_completement_vaccines["nb_PCR+"].rolling(window=7).mean() / data_completement_vaccines["effectif"] * 10000000).values[-1]],
             name="Vaccinés",
             line_color="#00308F",
             marker_size=10,
             showlegend=False
         )
     )
-
-
-    """fig.add_trace(
+    
+    fig.add_trace(
         go.Scatter(
-            x=df_drees_partiellement_vaccines["date"].values,
-            y=df_drees_partiellement_vaccines["HC"].rolling(window=7).mean() / df_drees_partiellement_vaccines["n_dose1"].rolling(window=30).sum() * 1000000,
-            name="Partiellement vaccinés",
-            line_color="#1E90FF",
-            line_width=3
+            x=data_completement_vaccines_rappel["date"].values,
+            y=data_completement_vaccines_rappel["nb_PCR+"].rolling(window=7).mean() / data_completement_vaccines_rappel["effectif"] * 10000000,
+            name="Vaccinés",
+            line_color="black",
+            line_width=4
         )
-    )"""
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=[data_completement_vaccines_rappel["date"].values[-1]],
+            y=[(data_completement_vaccines_rappel["nb_PCR+"].rolling(window=7).mean() / data_completement_vaccines_rappel["effectif"] * 10000000).values[-1]],
+            name="Vaccinés",
+            line_color="black",
+            marker_size=10,
+            showlegend=False
+        )
+    )
 
     fig.update_layout(
         legend=dict(
@@ -837,7 +955,7 @@ for idx, age in enumerate(ages):
                             ),
                             ]
     )
-    y=data_non_vaccines["nb_PCR+"].rolling(window=7).mean().values[-1] / data_non_vaccines["effectif J-7"].values[-1] * 10000000
+    y=data_non_vaccines["nb_PCR+"].rolling(window=7).mean().values[-1] / data_non_vaccines["effectif"].values[-1] * 10000000
     fig.add_annotation(
         x=df_drees.date.max(),
         y=y,
@@ -849,12 +967,24 @@ for idx, age in enumerate(ages):
         yshift=0
     )
 
-    y=data_completement_vaccines["nb_PCR+"].rolling(window=7).mean().values[-1] / data_completement_vaccines["effectif J-7"].values[-1] * 10000000
+    y=data_completement_vaccines["nb_PCR+"].rolling(window=7).mean().values[-1] / data_completement_vaccines["effectif"].values[-1] * 10000000
     fig.add_annotation(
         x=df_drees.date.max(),
         y=y,
-        text="<b>" + str(int(round(y))) + " cas posigtifs<br>vaccinés</b><br>pour 10 Mio<br>de vaccinés",
+        text="<b>" + str(int(round(y))) + " cas positifs<br>vaccinés</b><br>pour 10 Mio<br>de vaccinés",
         font=dict(color=COULEUR_COMPLETEMENT_VACCINES),
+        showarrow=False,
+        align="left",
+        yshift=0,
+        xshift=100,
+    )
+    
+    y=data_completement_vaccines_rappel["nb_PCR+"].rolling(window=7).mean().values[-1] / data_completement_vaccines_rappel["effectif"].values[-1] * 10000000
+    fig.add_annotation(
+        x=df_drees.date.max(),
+        y=y,
+        text="<b>" + str(int(round(y))) + " cas positifs<br>vaccinés (rappel)</b><br>pour 10 Mio<br>de vaccinés (rappel)",
+        font=dict(color=COULEUR_COMPLETEMENT_VACCINES_RAPPEL),
         showarrow=False,
         align="left",
         yshift=0,
@@ -879,7 +1009,7 @@ for idx, age in enumerate(ages):
     fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
 
 
-# In[205]:
+# In[107]:
 
 
 fig = go.Figure()
@@ -887,7 +1017,7 @@ fig = go.Figure()
 fig.add_trace(
     go.Scatter(
         x=df_drees_non_vaccines["date"].values,
-        y=df_drees_non_vaccines["HC"].rolling(window=7).mean() / df_drees_non_vaccines["effectif J-7"] * 10000000,
+        y=df_drees_non_vaccines["HC"].rolling(window=7).mean() / df_drees_non_vaccines["effectif"] * 10000000,
         name="Non vaccinés",
         line_color="#C65102",
         line_width=4
@@ -896,7 +1026,7 @@ fig.add_trace(
 fig.add_trace(
     go.Scatter(
         x=[df_drees_non_vaccines["date"].values[-1]],
-        y=[(df_drees_non_vaccines["HC"].rolling(window=7).mean() / df_drees_non_vaccines["effectif J-7"] * 10000000).values[-1]],
+        y=[(df_drees_non_vaccines["HC"].rolling(window=7).mean() / df_drees_non_vaccines["effectif"] * 10000000).values[-1]],
         name="Non vaccinés",
         line_color="#C65102",
         marker_size=10,
@@ -907,7 +1037,7 @@ fig.add_trace(
 fig.add_trace(
     go.Scatter(
         x=df_drees_partiellement_vaccines["date"].values,
-        y=df_drees_partiellement_vaccines["HC"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif J-7"] * 10000000,
+        y=df_drees_partiellement_vaccines["HC"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif"] * 10000000,
         name="Partiellement vaccinés",
         line_color="#4777d6",
         line_width=4
@@ -916,7 +1046,7 @@ fig.add_trace(
 fig.add_trace(
     go.Scatter(
         x=[df_drees_partiellement_vaccines["date"].values[-1]],
-        y=[(df_drees_partiellement_vaccines["HC"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif J-7"] * 10000000).values[-1]],
+        y=[(df_drees_partiellement_vaccines["HC"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif"] * 10000000).values[-1]],
         name="Partiellement vaccinés",
         line_color="#4777d6",
         marker_size=10,
@@ -927,7 +1057,7 @@ fig.add_trace(
 fig.add_trace(
     go.Scatter(
         x=df_drees_completement_vaccines["date"].values,
-        y=df_drees_completement_vaccines["HC"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif J-7"] * 10000000,
+        y=df_drees_completement_vaccines["HC"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif"] * 10000000,
         name="Vaccinés",
         line_color="#00308F",
         line_width=4
@@ -937,7 +1067,7 @@ fig.add_trace(
 fig.add_trace(
     go.Scatter(
         x=[df_drees_completement_vaccines["date"].values[-1]],
-        y=[(df_drees_completement_vaccines["HC"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif J-7"] * 10000000).values[-1]],
+        y=[(df_drees_completement_vaccines["HC"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif"] * 10000000).values[-1]],
         name="Vaccinés",
         line_color="#00308F",
         marker_size=10,
@@ -945,16 +1075,27 @@ fig.add_trace(
     )
 )
 
-
-"""fig.add_trace(
+fig.add_trace(
     go.Scatter(
-        x=df_drees_partiellement_vaccines["date"].values,
-        y=df_drees_partiellement_vaccines["HC"].rolling(window=7).mean() / df_drees_partiellement_vaccines["n_dose1"].rolling(window=30).sum() * 1000000,
-        name="Partiellement vaccinés",
-        line_color="#1E90FF",
-        line_width=3
+        x=df_drees_completement_vaccines_rappel["date"].values,
+        y=df_drees_completement_vaccines_rappel["HC"].rolling(window=7).mean() / df_drees_completement_vaccines_rappel["effectif"] * 10000000,
+        name="Vaccinés (rappel)",
+        line_color="black",
+        line_width=4
     )
-)"""
+)
+
+fig.add_trace(
+    go.Scatter(
+        x=[df_drees_completement_vaccines_rappel["date"].values[-1]],
+        y=[(df_drees_completement_vaccines_rappel["HC"].rolling(window=7).mean() / df_drees_completement_vaccines_rappel["effectif"] * 10000000).values[-1]],
+        name="Vaccinés (rappel)",
+        line_color="black",
+        marker_size=10,
+        showlegend=False
+    )
+)
+
 
 fig.update_layout(
     legend=dict(
@@ -987,22 +1128,19 @@ fig.update_layout(
                         ),
                         ]
 )
-y=df_drees_non_vaccines["HC"].rolling(window=7).mean().values[-1] / df_drees_non_vaccines["effectif J-7"].values[-1] * 10000000
-fig.add_annotation(
-    x=df_drees.date.max(),
-    y=y,
-    text="<b>" + str(int(round(y))) + " admissions<br>non vaccinées</b><br>pour 10 Mio<br>de non vaccinés",
-    font=dict(color=COULEUR_NON_VACCINES),
-    showarrow=False,
-    align="left",
-    xshift=100
-)
 
-y=df_drees_completement_vaccines["HC"].rolling(window=7).mean().values[-1] / df_drees_completement_vaccines["effectif J-7"].values[-1] * 10000000
+y_non_vaccines=df_drees_non_vaccines["HC"].rolling(window=7).mean().values[-1] / df_drees_non_vaccines["effectif"].values[-1] * 10000000
+y_vaccines=df_drees_completement_vaccines["HC"].rolling(window=7).mean().values[-1] / df_drees_completement_vaccines["effectif"].values[-1] * 10000000
+y_vaccines_rappel=df_drees_completement_vaccines_rappel["HC"].rolling(window=7).mean().values[-1] / df_drees_completement_vaccines_rappel["effectif"].values[-1] * 10000000
+
+text = f"<span style='color: {COULEUR_NON_VACCINES};'><b>{str(int(round(y_non_vaccines)))} admissions<br>non vaccinées</b><br>pour 10 Mio<br>de non vaccinés<br><br></span>"
+text += f"<span style='color: {COULEUR_COMPLETEMENT_VACCINES};'><b>{str(int(round(y_vaccines)))} admissions<br>vaccinées</b><br>pour 10 Mio<br>de vaccinés<br><br></span>"
+text += f"<span style='color: {COULEUR_COMPLETEMENT_VACCINES_RAPPEL};'><b>{str(int(round(y_vaccines_rappel)))} admissions<br>vaccinées (rappel)</b><br>pour 10 Mio<br>de vaccinés (rappel)</span>"
+
 fig.add_annotation(
     x=df_drees.date.max(),
-    y=y,
-    text="<b>" + str(int(round(y))) + " admissions<br>vaccinées</b><br>pour 10 Mio<br>de vaccinés",
+    y=y_vaccines_rappel,
+    text=text,
     font=dict(color=COULEUR_COMPLETEMENT_VACCINES),
     showarrow=False,
     align="left",
@@ -1027,21 +1165,19 @@ name_fig = "hc_proportion_selon_statut_vaccinal"
 fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
 
 
-# In[206]:
+# In[119]:
 
 
 ages_str = ["0 à 19 ans", "20 à 39 ans", "40 à 59 ans", "60 à 79 ans", "plus 80 ans"]
 for idx, age in enumerate(ages):
-    data_completement_vaccines = df_drees_age[(df_drees_age.age==age) & (df_drees_age.vac_statut=="Vaccination complète")]
-    data_non_vaccines = df_drees_age[(df_drees_age.age==age) & (df_drees_age.vac_statut=="Non-vaccinés")]
-    data_partiellement_vaccines = df_drees_age[(df_drees_age.age==age) & (df_drees_age.vac_statut.isin(["Primo dose récente", "Primo dose efficace"]))].groupby(["date", "age"]).sum().reset_index()
+    data_non_vaccines, data_completement_vaccines, data_completement_vaccines_rappel, data_partiellement_vaccines, _  = get_df_by_vaccine_status(df_drees_age[(df_drees_age.age==age)])
     
     fig = go.Figure()
 
     fig.add_trace(
         go.Scatter(
             x=data_non_vaccines["date"].values,
-            y=data_non_vaccines["HC"].rolling(window=7).mean() / data_non_vaccines["effectif J-7"] * 10000000,
+            y=data_non_vaccines["HC"].rolling(window=7).mean() / data_non_vaccines["effectif"] * 10000000,
             name="Non vaccinés",
             line_color="#C65102",
             line_width=4
@@ -1050,7 +1186,7 @@ for idx, age in enumerate(ages):
     fig.add_trace(
         go.Scatter(
             x=[data_non_vaccines["date"].values[-1]],
-            y=[(data_non_vaccines["HC"].rolling(window=7).mean() / data_non_vaccines["effectif J-7"] * 10000000).values[-1]],
+            y=[(data_non_vaccines["HC"].rolling(window=7).mean() / data_non_vaccines["effectif"] * 10000000).values[-1]],
             name="Non vaccinés",
             line_color="#C65102",
             marker_size=10,
@@ -1061,7 +1197,7 @@ for idx, age in enumerate(ages):
     fig.add_trace(
         go.Scatter(
             x=data_partiellement_vaccines["date"].values,
-            y=data_partiellement_vaccines["HC"].rolling(window=7).mean() / data_partiellement_vaccines["effectif J-7"] * 10000000,
+            y=data_partiellement_vaccines["HC"].rolling(window=7).mean() / data_partiellement_vaccines["effectif"] * 10000000,
             name="Partiellement vaccinés",
             line_color="#4777d6",
             line_width=4
@@ -1070,7 +1206,7 @@ for idx, age in enumerate(ages):
     fig.add_trace(
         go.Scatter(
             x=[data_partiellement_vaccines["date"].values[-1]],
-            y=[(data_partiellement_vaccines["HC"].rolling(window=7).mean() / data_partiellement_vaccines["effectif J-7"] * 10000000).values[-1]],
+            y=[(data_partiellement_vaccines["HC"].rolling(window=7).mean() / data_partiellement_vaccines["effectif"] * 10000000).values[-1]],
             name="Partiellement vaccinés",
             line_color="#4777d6",
             marker_size=10,
@@ -1081,7 +1217,7 @@ for idx, age in enumerate(ages):
     fig.add_trace(
         go.Scatter(
             x=data_completement_vaccines["date"].values,
-            y=data_completement_vaccines["HC"].rolling(window=7).mean() / data_completement_vaccines["effectif J-7"] * 10000000,
+            y=data_completement_vaccines["HC"].rolling(window=7).mean() / data_completement_vaccines["effectif"] * 10000000,
             name="Vaccinés",
             line_color="#00308F",
             line_width=4
@@ -1091,24 +1227,35 @@ for idx, age in enumerate(ages):
     fig.add_trace(
         go.Scatter(
             x=[data_completement_vaccines["date"].values[-1]],
-            y=[(data_completement_vaccines["HC"].rolling(window=7).mean() / data_completement_vaccines["effectif J-7"] * 10000000).values[-1]],
+            y=[(data_completement_vaccines["HC"].rolling(window=7).mean() / data_completement_vaccines["effectif"] * 10000000).values[-1]],
             name="Vaccinés",
             line_color="#00308F",
             marker_size=10,
             showlegend=False
         )
     )
-
-
-    """fig.add_trace(
+    
+    fig.add_trace(
         go.Scatter(
-            x=df_drees_partiellement_vaccines["date"].values,
-            y=df_drees_partiellement_vaccines["HC"].rolling(window=7).mean() / df_drees_partiellement_vaccines["n_dose1"].rolling(window=30).sum() * 1000000,
-            name="Partiellement vaccinés",
-            line_color="#1E90FF",
-            line_width=3
+            x=data_completement_vaccines_rappel["date"].values,
+            y=data_completement_vaccines_rappel["HC"].rolling(window=7).mean() / data_completement_vaccines_rappel["effectif"] * 10000000,
+            name="Vaccinés (rappel)",
+            line_color="black",
+            line_width=4
         )
-    )"""
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=[data_completement_vaccines_rappel["date"].values[-1]],
+            y=[(data_completement_vaccines_rappel["HC"].rolling(window=7).mean() / data_completement_vaccines_rappel["effectif"] * 10000000).values[-1]],
+            name="Vaccinés (rappel)",
+            line_color="black",
+            marker_size=10,
+            showlegend=False
+        )
+    )
+
 
     fig.update_layout(
         legend=dict(
@@ -1141,24 +1288,20 @@ for idx, age in enumerate(ages):
                             ),
                             ]
     )
-    y=data_non_vaccines["HC"].rolling(window=7).mean().values[-1] / data_non_vaccines["effectif J-7"].values[-1] * 10000000
-    fig.add_annotation(
-        x=df_drees.date.max(),
-        y=y,
-        text="<b>" + str(int(round(y))) + " admissions<br>non vaccinées</b><br>pour 10 Mio<br>de non vaccinés",
-        font=dict(color=COULEUR_NON_VACCINES),
-        showarrow=False,
-        align="left",
-        xshift=100,
-        yshift=0
-    )
+    
+    y_non_vaccines=data_non_vaccines["HC"].rolling(window=7).mean().values[-1] / data_non_vaccines["effectif"].values[-1] * 10000000
+    y_vaccines=data_completement_vaccines["HC"].rolling(window=7).mean().values[-1] / data_completement_vaccines["effectif"].values[-1] * 10000000
+    y_vaccines_rappel=data_completement_vaccines_rappel["HC"].rolling(window=7).mean().values[-1] / data_completement_vaccines_rappel["effectif"].values[-1] * 10000000
 
-    y=data_completement_vaccines["HC"].rolling(window=7).mean().values[-1] / data_completement_vaccines["effectif J-7"].values[-1] * 10000000
+    text = f"<span style='color: {COULEUR_NON_VACCINES};'><b>{str(int(round(y_non_vaccines)))} admissions<br>non vaccinées</b><br>pour 10 Mio<br>de non vaccinés<br><br></span>"
+    text += f"<span style='color: {COULEUR_COMPLETEMENT_VACCINES};'><b>{str(int(round(y_vaccines)))} admissions<br>vaccinées</b><br>pour 10 Mio<br>de vaccinés<br><br></span>"
+    text += f"<span style='color: {COULEUR_COMPLETEMENT_VACCINES_RAPPEL};'><b>{str(int(round(y_vaccines_rappel)))} admissions<br>vaccinées (rappel)</b><br>pour 10 Mio<br>de vaccinés (rappel)</span>"
+
     fig.add_annotation(
-        x=df_drees.date.max(),
-        y=y,
-        text="<b>" + str(int(round(y))) + " admissions<br>vaccinées</b><br>pour 10 Mio<br>de vaccinés",
-        font=dict(color=COULEUR_COMPLETEMENT_VACCINES),
+        x=data_completement_vaccines_rappel.date.max(),
+        y=y_vaccines_rappel,
+        text=text,
+        yanchor="bottom",
         showarrow=False,
         align="left",
         yshift=0,
@@ -1184,18 +1327,17 @@ for idx, age in enumerate(ages):
     plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
-# In[207]:
+# In[121]:
 
 
 ages_str = ["0 à 19 ans", "20 à 39 ans", "40 à 59 ans", "60 à 79 ans", "plus 80 ans"]
 for idx, age in enumerate(ages):
-    data_completement_vaccines = df_drees_age[(df_drees_age.age==age) & (df_drees_age.vac_statut=="Vaccination complète")].sort_values(by="date")
-    data_non_vaccines = df_drees_age[(df_drees_age.age==age) & (df_drees_age.vac_statut=="Non-vaccinés")].sort_values(by="date")
+    data_non_vaccines, data_completement_vaccines, data_completement_vaccines_rappel, _, _ = get_df_by_vaccine_status(df_drees_age[df_drees_age.age==age])
     
     fig = go.Figure()
     
-    y_non_vaccines=(data_non_vaccines["HC"].rolling(window=7).mean() / data_non_vaccines["effectif J-7"] * 10000000).values
-    y_completement_vaccines=(data_completement_vaccines["HC"].rolling(window=7).mean() / data_completement_vaccines["effectif J-7"] * 10000000).values
+    y_non_vaccines=(data_non_vaccines["HC"].rolling(window=7).mean() / data_non_vaccines["effectif"] * 10000000).values
+    y_completement_vaccines=(data_completement_vaccines["HC"].rolling(window=7).mean() / data_completement_vaccines["effectif"] * 10000000).values
     y=y_non_vaccines / y_completement_vaccines
     
     fig.add_trace(
@@ -1321,7 +1463,7 @@ for idx, age in enumerate(ages):
     plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
-# In[208]:
+# In[128]:
 
 
 fig = go.Figure()
@@ -1329,7 +1471,7 @@ fig = go.Figure()
 fig.add_trace(
     go.Scatter(
         x=df_drees_non_vaccines["date"].values,
-        y=df_drees_non_vaccines["SC"].rolling(window=7).mean() / df_drees_non_vaccines["effectif J-7"] * 10000000,
+        y=df_drees_non_vaccines["SC"].rolling(window=7).mean() / df_drees_non_vaccines["effectif"] * 10000000,
         name="Non vaccinés",
         line_color="#C65102",
         line_width=4
@@ -1338,7 +1480,7 @@ fig.add_trace(
 fig.add_trace(
     go.Scatter(
         x=[df_drees_non_vaccines["date"].values[-1]],
-        y=[(df_drees_non_vaccines["SC"].rolling(window=7).mean() / df_drees_non_vaccines["effectif J-7"] * 10000000).values[-1]],
+        y=[(df_drees_non_vaccines["SC"].rolling(window=7).mean() / df_drees_non_vaccines["effectif"] * 10000000).values[-1]],
         name="Non vaccinés",
         line_color="#C65102",
         mode="markers",
@@ -1346,10 +1488,11 @@ fig.add_trace(
         showlegend=False
     )
 )
+
 fig.add_trace(
     go.Scatter(
         x=df_drees_completement_vaccines["date"].values,
-        y=df_drees_completement_vaccines["SC"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif J-7"] * 10000000,
+        y=df_drees_completement_vaccines["SC"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif"] * 10000000,
         name="Vaccinés",
         line_color="#00308F",
         line_width=4
@@ -1358,9 +1501,30 @@ fig.add_trace(
 fig.add_trace(
     go.Scatter(
         x=[df_drees_completement_vaccines["date"].values[-1]],
-        y=[(df_drees_completement_vaccines["SC"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif J-7"] * 10000000).values[-1]],
+        y=[(df_drees_completement_vaccines["SC"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif"] * 10000000).values[-1]],
         name="Vaccinés",
         line_color="#00308F",
+        mode="markers",
+        marker_size=10,
+        showlegend=False
+    )
+)
+
+fig.add_trace(
+    go.Scatter(
+        x=df_drees_completement_vaccines_rappel["date"].values,
+        y=df_drees_completement_vaccines_rappel["SC"].rolling(window=7).mean() / df_drees_completement_vaccines_rappel["effectif"] * 10000000,
+        name="Vaccinés (rappel)",
+        line_color="black",
+        line_width=4
+    )
+)
+fig.add_trace(
+    go.Scatter(
+        x=[df_drees_completement_vaccines_rappel["date"].values[-1]],
+        y=[(df_drees_completement_vaccines_rappel["SC"].rolling(window=7).mean() / df_drees_completement_vaccines_rappel["effectif"] * 10000000).values[-1]],
+        name="Vaccinés (rappel)",
+        line_color="black",
         mode="markers",
         marker_size=10,
         showlegend=False
@@ -1370,7 +1534,7 @@ fig.add_trace(
 fig.add_trace(
     go.Scatter(
         x=df_drees_partiellement_vaccines["date"].values,
-        y=df_drees_partiellement_vaccines["SC"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif J-7"] * 10000000,
+        y=df_drees_partiellement_vaccines["SC"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif"] * 10000000,
         name="Partiellement vaccinés",
         line_color="#4777d6",
         line_width=4
@@ -1379,7 +1543,7 @@ fig.add_trace(
 fig.add_trace(
     go.Scatter(
         x=[df_drees_partiellement_vaccines["date"].values[-1]],
-        y=[(df_drees_partiellement_vaccines["SC"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif J-7"] * 10000000).values[-1]],
+        y=[(df_drees_partiellement_vaccines["SC"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif"] * 10000000).values[-1]],
         name="Partiellement vaccinés",
         line_color="#4777d6",
         marker_size=10,
@@ -1419,27 +1583,25 @@ fig.update_layout(
                         ),
                         ]
 )
-y=df_drees_non_vaccines["SC"].rolling(window=7).mean().values[-1] / df_drees_non_vaccines["effectif J-7"].values[-1] * 10000000
+
+y_non_vaccines=df_drees_non_vaccines["SC"].rolling(window=7).mean().values[-1] / df_drees_non_vaccines["effectif"].values[-1] * 10000000
+y_vaccines=df_drees_completement_vaccines["SC"].rolling(window=7).mean().values[-1] / df_drees_completement_vaccines["effectif"].values[-1] * 10000000
+y_vaccines_rappel=df_drees_completement_vaccines_rappel["SC"].rolling(window=7).mean().values[-1] / df_drees_completement_vaccines_rappel["effectif"].values[-1] * 10000000
+
+text = f"<span style='color: {COULEUR_NON_VACCINES};'><b>{str(int(round(y_non_vaccines)))} admissions<br>non vaccinées</b><br>pour 10 Mio<br>de non vaccinés<br><br></span>"
+text += f"<span style='color: {COULEUR_COMPLETEMENT_VACCINES};'><b>{str(int(round(y_vaccines)))} admissions<br>vaccinées</b><br>pour 10 Mio<br>de vaccinés<br><br></span>"
+text += f"<span style='color: {COULEUR_COMPLETEMENT_VACCINES_RAPPEL};'><b>{str(int(round(y_vaccines_rappel)))} admissions<br>vaccinées (rappel)</b><br>pour 10 Mio<br>de vaccinés (rappel)</span>"
+
 fig.add_annotation(
     x=df_drees.date.max(),
-    y=y,
-    text="<b>" + str(int(round(y))) + " admissions<br>non vaccinées</b><br>pour 10 Mio<br>de non vaccinés",
-    font=dict(color=COULEUR_NON_VACCINES),
-    showarrow=False,
-    align="left",
-    xshift=100,
-    yshift=50
-)
-y=df_drees_completement_vaccines["SC"].rolling(window=7).mean().values[-1] / df_drees_completement_vaccines["effectif J-7"].values[-1] * 10000000
-fig.add_annotation(
-    x=df_drees.date.max(),
-    y=y,
-    text="<b>" + str(int(round(y))) + " admissions<br>vaccinées</b><br>pour 10 Mio<br>de vaccinés",
+    y=y_vaccines_rappel,
+    text=text,
     font=dict(color=COULEUR_COMPLETEMENT_VACCINES),
     showarrow=False,
+    yanchor="bottom",
     align="left",
     yshift=0,
-    xshift=100
+    xshift=100,
 )
 
 fig.add_annotation(
@@ -1460,21 +1622,19 @@ name_fig = "sc_proportion_selon_statut_vaccinal"
 fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
 
 
-# In[209]:
+# In[133]:
 
 
 ages_str = ["0 à 19 ans", "20 à 39 ans", "40 à 59 ans", "60 à 79 ans", "plus 80 ans"]
 for idx, age in enumerate(ages):
-    data_completement_vaccines = df_drees_age[(df_drees_age.age==age) & (df_drees_age.vac_statut=="Vaccination complète")]
-    data_non_vaccines = df_drees_age[(df_drees_age.age==age) & (df_drees_age.vac_statut=="Non-vaccinés")]
-    data_partiellement_vaccines = df_drees_age[(df_drees_age.age==age) & (df_drees_age.vac_statut.isin(["Primo dose récente", "Primo dose efficace"]))].groupby(["date", "age"]).sum().reset_index()
-    
+    data_non_vaccines, data_completement_vaccines, data_completement_vaccines_rappel, data_partiellement_vaccines, _  = get_df_by_vaccine_status(df_drees_age[(df_drees_age.age==age)])
+
     fig = go.Figure()
 
     fig.add_trace(
         go.Scatter(
             x=data_non_vaccines["date"].values,
-            y=data_non_vaccines["SC"].rolling(window=7).mean() / data_non_vaccines["effectif J-7"] * 10000000,
+            y=data_non_vaccines["SC"].rolling(window=7).mean() / data_non_vaccines["effectif"] * 10000000,
             name="Non vaccinés",
             line_color="#C65102",
             line_width=4
@@ -1483,7 +1643,7 @@ for idx, age in enumerate(ages):
     fig.add_trace(
         go.Scatter(
             x=[data_non_vaccines["date"].values[-1]],
-            y=[(data_non_vaccines["SC"].rolling(window=7).mean() / data_non_vaccines["effectif J-7"] * 10000000).values[-1]],
+            y=[(data_non_vaccines["SC"].rolling(window=7).mean() / data_non_vaccines["effectif"] * 10000000).values[-1]],
             name="Non vaccinés",
             line_color="#C65102",
             marker_size=10,
@@ -1494,7 +1654,7 @@ for idx, age in enumerate(ages):
     fig.add_trace(
         go.Scatter(
             x=data_partiellement_vaccines["date"].values,
-            y=data_partiellement_vaccines["SC"].rolling(window=7).mean() / data_partiellement_vaccines["effectif J-7"] * 10000000,
+            y=data_partiellement_vaccines["SC"].rolling(window=7).mean() / data_partiellement_vaccines["effectif"] * 10000000,
             name="Partiellement vaccinés",
             line_color="#4777d6",
             line_width=4
@@ -1503,7 +1663,7 @@ for idx, age in enumerate(ages):
     fig.add_trace(
         go.Scatter(
             x=[data_partiellement_vaccines["date"].values[-1]],
-            y=[(data_partiellement_vaccines["SC"].rolling(window=7).mean() / data_partiellement_vaccines["effectif J-7"] * 10000000).values[-1]],
+            y=[(data_partiellement_vaccines["SC"].rolling(window=7).mean() / data_partiellement_vaccines["effectif"] * 10000000).values[-1]],
             name="Partiellement vaccinés",
             line_color="#4777d6",
             marker_size=10,
@@ -1514,7 +1674,7 @@ for idx, age in enumerate(ages):
     fig.add_trace(
         go.Scatter(
             x=data_completement_vaccines["date"].values,
-            y=data_completement_vaccines["SC"].rolling(window=7).mean() / data_completement_vaccines["effectif J-7"] * 10000000,
+            y=data_completement_vaccines["SC"].rolling(window=7).mean() / data_completement_vaccines["effectif"] * 10000000,
             name="Vaccinés",
             line_color="#00308F",
             line_width=4
@@ -1524,24 +1684,35 @@ for idx, age in enumerate(ages):
     fig.add_trace(
         go.Scatter(
             x=[data_completement_vaccines["date"].values[-1]],
-            y=[(data_completement_vaccines["SC"].rolling(window=7).mean() / data_completement_vaccines["effectif J-7"] * 10000000).values[-1]],
+            y=[(data_completement_vaccines["SC"].rolling(window=7).mean() / data_completement_vaccines["effectif"] * 10000000).values[-1]],
             name="Vaccinés",
             line_color="#00308F",
             marker_size=10,
             showlegend=False
         )
     )
-
-
-    """fig.add_trace(
+    
+    fig.add_trace(
         go.Scatter(
-            x=df_drees_partiellement_vaccines["date"].values,
-            y=df_drees_partiellement_vaccines["HC"].rolling(window=7).mean() / df_drees_partiellement_vaccines["n_dose1"].rolling(window=30).sum() * 1000000,
-            name="Partiellement vaccinés",
-            line_color="#1E90FF",
-            line_width=3
+            x=data_completement_vaccines_rappel["date"].values,
+            y=data_completement_vaccines_rappel["SC"].rolling(window=7).mean() / data_completement_vaccines_rappel["effectif"] * 10000000,
+            name="Vaccinés (rappel)",
+            line_color="black",
+            line_width=4
         )
-    )"""
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=[data_completement_vaccines_rappel["date"].values[-1]],
+            y=[(data_completement_vaccines_rappel["SC"].rolling(window=7).mean() / data_completement_vaccines_rappel["effectif"] * 10000000).values[-1]],
+            name="Vaccinés (rappel)",
+            line_color="black",
+            marker_size=10,
+            showlegend=False
+        )
+    )
+
 
     fig.update_layout(
         legend=dict(
@@ -1574,29 +1745,27 @@ for idx, age in enumerate(ages):
                             ),
                             ]
     )
-    y=data_non_vaccines["SC"].rolling(window=7).mean().values[-1] / data_non_vaccines["effectif J-7"].values[-1] * 10000000
-    fig.add_annotation(
-        x=df_drees.date.max(),
-        y=y,
-        text="<b>" + str(int(round(y))) + " admissions<br>non vaccinées</b><br>pour 10 Mio<br>de non vaccinés",
-        font=dict(color=COULEUR_NON_VACCINES),
-        showarrow=False,
-        align="left",
-        xshift=100,
-        yshift=70
-    )
+    
+    y_non_vaccines=data_non_vaccines["SC"].rolling(window=7).mean().values[-1] / data_non_vaccines["effectif"].values[-1] * 10000000
+    y_vaccines=data_completement_vaccines["SC"].rolling(window=7).mean().values[-1] / data_completement_vaccines["effectif"].values[-1] * 10000000
+    y_vaccines_rappel=data_completement_vaccines_rappel["SC"].rolling(window=7).mean().values[-1] / data_completement_vaccines_rappel["effectif"].values[-1] * 10000000
 
-    y=data_completement_vaccines["SC"].rolling(window=7).mean().values[-1] / data_completement_vaccines["effectif J-7"].values[-1] * 10000000
+    text = f"<span style='color: {COULEUR_NON_VACCINES};'><b>{str(int(round(y_non_vaccines)))} admissions<br>non vaccinées</b><br>pour 10 Mio<br>de non vaccinés<br><br></span>"
+    text += f"<span style='color: {COULEUR_COMPLETEMENT_VACCINES};'><b>{str(int(round(y_vaccines)))} admissions<br>vaccinées</b><br>pour 10 Mio<br>de vaccinés<br><br></span>"
+    text += f"<span style='color: {COULEUR_COMPLETEMENT_VACCINES_RAPPEL};'><b>{str(int(round(y_vaccines_rappel)))} admissions<br>vaccinées (rappel)</b><br>pour 10 Mio<br>de vaccinés (rappel)</span>"
+
     fig.add_annotation(
         x=df_drees.date.max(),
-        y=y,
-        text="<b>" + str(int(round(y))) + " admissions<br>vaccinées</b><br>pour 10 Mio<br>de vaccinés",
+        y=y_vaccines_rappel,
+        text=text,
         font=dict(color=COULEUR_COMPLETEMENT_VACCINES),
         showarrow=False,
+        yanchor="bottom",
         align="left",
         yshift=0,
         xshift=100,
     )
+    
 
     fig.add_annotation(
         x=0.5,
@@ -1616,7 +1785,7 @@ for idx, age in enumerate(ages):
     fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
 
 
-# In[210]:
+# In[135]:
 
 
 fig = go.Figure()
@@ -1624,7 +1793,7 @@ fig = go.Figure()
 fig.add_trace(
     go.Scatter(
         x=df_drees_non_vaccines["date"].values,
-        y=df_drees_non_vaccines["DC"].rolling(window=7).mean() / df_drees_non_vaccines["effectif J-7"] * 10000000,
+        y=df_drees_non_vaccines["DC"].rolling(window=7).mean() / df_drees_non_vaccines["effectif"] * 10000000,
         name="Non vaccinés",
         line_color=COULEUR_NON_VACCINES,
         line_width=4
@@ -1633,17 +1802,18 @@ fig.add_trace(
 fig.add_trace(
     go.Scatter(
         x=[df_drees_non_vaccines["date"].values[-1]],
-        y=[(df_drees_non_vaccines["DC"].rolling(window=7).mean() / df_drees_non_vaccines["effectif J-7"] * 10000000).values[-1]],
+        y=[(df_drees_non_vaccines["DC"].rolling(window=7).mean() / df_drees_non_vaccines["effectif"] * 10000000).values[-1]],
         name="Non vaccinés",
         line_color=COULEUR_NON_VACCINES,
         marker_size=10,
         showlegend=False
     )
 )
+
 fig.add_trace(
     go.Scatter(
         x=df_drees_completement_vaccines["date"].values,
-        y=df_drees_completement_vaccines["DC"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif J-7"] * 10000000,
+        y=df_drees_completement_vaccines["DC"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif"] * 10000000,
         name="Vaccinés",
         line_color="#00308F",
         line_width=4
@@ -1652,7 +1822,7 @@ fig.add_trace(
 fig.add_trace(
     go.Scatter(
         x=[df_drees_completement_vaccines["date"].values[-1]],
-        y=[(df_drees_completement_vaccines["DC"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif J-7"] * 10000000).values[-1]],
+        y=[(df_drees_completement_vaccines["DC"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif"] * 10000000).values[-1]],
         name="Vaccinés",
         line_color="#00308F",
         marker_size=10,
@@ -1662,8 +1832,28 @@ fig.add_trace(
 
 fig.add_trace(
     go.Scatter(
+        x=df_drees_completement_vaccines_rappel["date"].values,
+        y=df_drees_completement_vaccines_rappel["DC"].rolling(window=7).mean() / df_drees_completement_vaccines_rappel["effectif"] * 10000000,
+        name="Vaccinés (rappel)",
+        line_color="black",
+        line_width=4
+    )
+)
+fig.add_trace(
+    go.Scatter(
+        x=[df_drees_completement_vaccines_rappel["date"].values[-1]],
+        y=[(df_drees_completement_vaccines_rappel["DC"].rolling(window=7).mean() / df_drees_completement_vaccines_rappel["effectif"] * 10000000).values[-1]],
+        name="Vaccinés (rappel)",
+        line_color="black",
+        marker_size=10,
+        showlegend=False
+    )
+)
+
+fig.add_trace(
+    go.Scatter(
         x=df_drees_partiellement_vaccines["date"].values,
-        y=df_drees_partiellement_vaccines["DC"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif J-7"] * 10000000,
+        y=df_drees_partiellement_vaccines["DC"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif"] * 10000000,
         name="Partiellement vaccinés",
         line_color="#4777d6",
         line_width=4
@@ -1672,7 +1862,7 @@ fig.add_trace(
 fig.add_trace(
     go.Scatter(
         x=[df_drees_partiellement_vaccines["date"].values[-1]],
-        y=[(df_drees_partiellement_vaccines["DC"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif J-7"] * 10000000).values[-1]],
+        y=[(df_drees_partiellement_vaccines["DC"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif"] * 10000000).values[-1]],
         name="Partiellement vaccinés",
         line_color="#4777d6",
         marker_size=10,
@@ -1712,7 +1902,7 @@ fig.update_layout(
                         ),
                         ]
 )
-y=df_drees_non_vaccines["DC"].rolling(window=7).mean().values[-1] / df_drees_non_vaccines["effectif J-7"].values[-1] * 10000000
+y=df_drees_non_vaccines["DC"].rolling(window=7).mean().values[-1] / df_drees_non_vaccines["effectif"].values[-1] * 10000000
 fig.add_annotation(
     x=df_drees.date.max(),
     y=y,
@@ -1723,7 +1913,7 @@ fig.add_annotation(
     xshift=80,
     yshift=50
 )
-y=df_drees_completement_vaccines["DC"].rolling(window=7).mean().values[-1] / df_drees_completement_vaccines["effectif J-7"].values[-1] * 10000000
+y=df_drees_completement_vaccines["DC"].rolling(window=7).mean().values[-1] / df_drees_completement_vaccines["effectif"].values[-1] * 10000000
 fig.add_annotation(
     x=df_drees.date.max(),
     y=y,
@@ -1752,11 +1942,11 @@ name_fig = "dc_proportion_selon_statut_vaccinal"
 fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
 
 
-# In[211]:
+# In[136]:
 
 
 positif_vax = round((df_drees_completement_vaccines["nb_PCR+_sympt"].values[-1]/df_drees_ensemble["nb_PCR+_sympt"].values[-1])*100)
-pop_vax = round((df_drees_completement_vaccines["effectif J-7"].values[-1]/df_drees_ensemble["effectif J-7"].values[-1])*100)
+pop_vax = round((df_drees_completement_vaccines["effectif"].values[-1]/df_drees_ensemble["effectif"].values[-1])*100)
 
 stages = ["<b>Population générale</b>", "<b>Cas positifs symptomatiques</b>"]
 df_mtl = pd.DataFrame(dict(number=[pop_vax, positif_vax], stage=stages))
@@ -1770,7 +1960,7 @@ fig = px.funnel(df, y='number', x='stage', color='État vaccinal', height=700, w
 fig.show()
 
 
-# In[212]:
+# In[ ]:
 
 
 taux_positif_vax = round((df_drees_completement_vaccines["nb_PCR+_sympt"].values[-1]/df_drees_completement_vaccines["nb_PCR_sympt"].values[-1])*100)
@@ -1786,7 +1976,7 @@ fig = px.funnel(df, y='number', x='stage', color='Résultat', height=700, width=
 fig.show()
 
 
-# In[213]:
+# In[ ]:
 
 
 #df = pd.concat([df_completement_vaccine, df_partiellement_vaccine, df_non_vaccine], axis=0)
@@ -1840,7 +2030,7 @@ name_fig = "popgen_hosp_statut_vaccinal"
 fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=600, height=600)
 
 
-# In[214]:
+# In[ ]:
 
 
 ages_str = ["0 à 19 ans", "20 à 39 ans", "40 à 59 ans", "60 à 79 ans", "plus 80 ans"]
@@ -1900,7 +2090,7 @@ for (idx, age) in enumerate(ages):
     fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=600, height=600)
 
 
-# In[215]:
+# In[ ]:
 
 
 df_drees_age_lastday_completement_vaccines = df_drees_age_lastday[df_drees_age_lastday.vac_statut=="Vaccination complète"][["age", "HC", "effectif J-7"]]

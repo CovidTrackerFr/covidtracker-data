@@ -63,32 +63,32 @@ df_adm_hosp_clage_france = df_adm_hosp_clage.groupby(["jour", "cl_age90"]).sum()
 data.download_data()
 
 
-# In[7]:
+# In[ ]:
 
 
 df, df_confirmed, dates, df_new, df_tests, df_deconf, df_sursaud, df_incid, df_tests_viros = data.import_data()
 
 
-# In[8]:
+# In[59]:
 
 
 df_new_france = data.import_data_new().groupby("jour").sum().reset_index()
 
 
-# In[9]:
+# In[60]:
 
 
 data.download_data_vue_ensemble()
 df_vue_ensemble = data.import_data_vue_ensemble()
 
 
-# In[10]:
+# In[61]:
 
 
 df_education = data.import_data_education()
 
 
-# In[11]:
+# In[62]:
 
 
 #df_vacsi_a = data.import_data_vacsi_a_fra()
@@ -103,7 +103,7 @@ df_vacsi_dep = data.import_data_vacsi_dep().rename({"n_tot_dose1": "n_cum_dose1"
 #df_vacsi_a_dep.groupby(["jour", "dep"]).sum().reset_index().rename({"n_tot_dose1": "n_cum_dose1"}, axis=1)
 
 
-# In[12]:
+# In[63]:
 
 
 df_metro = data.import_data_metropoles()
@@ -114,14 +114,14 @@ df_metro_0 = df_metro[df_metro["clage_65"] == 0]
 metropoles = list(dict.fromkeys(list(df_metro['Metropole'].dropna().values))) 
 
 
-# In[13]:
+# In[64]:
 
 
 df_tests_viros_enrichi = data.import_data_tests_viros()
 df_tests_viros_enrichi = df_tests_viros_enrichi.drop("regionName_y", axis=1).rename({"regionName_x": "regionName"}, axis=1)
 
 
-# In[14]:
+# In[65]:
 
 
 df_incid_clage = df_incid.copy()
@@ -138,20 +138,20 @@ df_sursaud_regions = df_sursaud.groupby(["date_de_passage", "regionName"]).sum()
 df_new_regions = df_new.groupby(["jour", "regionName"]).sum().reset_index()
 
 
-# In[15]:
+# In[66]:
 
 
 df_incid_clage_regions = df_incid_clage.groupby(["regionName", "jour", "cl_age90"]).sum().reset_index()
 
 
-# In[16]:
+# In[67]:
 
 
 df_tests_viros_regions = df_tests_viros_enrichi.groupby(["regionName", "jour", "cl_age90"]).sum().reset_index()
 df_tests_viros_france = df_tests_viros_enrichi.groupby(["jour", "cl_age90"]).sum().reset_index()
 
 
-# In[17]:
+# In[68]:
 
 
 df_hosp_clage = data.import_data_hosp_clage()
@@ -159,7 +159,7 @@ df_hosp_clage_france = df_hosp_clage.groupby(["jour", "cl_age90"]).sum().reset_i
 df_hosp_clage_regions = df_hosp_clage.groupby(["regionName", "jour", "cl_age90"]).sum().reset_index()
 
 
-# In[18]:
+# In[69]:
 
 
 departements = list(dict.fromkeys(list(df_incid['dep'].values)))
@@ -177,7 +177,7 @@ zone_c = ["zone_c", "09", "11", "12", "30", "31", "32", "34", "46", "48", "65", 
 confines_mars_2021 = ["confines_mars_2021", "02", "06", "27", "59", "60", "62", "75", "76", "77", "78", "80", "91", "92", "93", "94", "95"]
 
 
-# In[29]:
+# In[70]:
 
 
 def generate_data(data_incid=pd.DataFrame(), data_hosp=pd.DataFrame(), data_sursaud=pd.DataFrame(), data_new=pd.DataFrame(), data_vue_ensemble=pd.DataFrame(), data_metropole=pd.DataFrame(), data_vacsi=pd.DataFrame(), data_obepine=pd.DataFrame(), mode="", export_jour=False, taux_croissance=False):## Incidence
@@ -317,7 +317,7 @@ def generate_data(data_incid=pd.DataFrame(), data_hosp=pd.DataFrame(), data_surs
         deces_hospitaliers = data_new.incid_dc
         taux_croissance_deces_hospitaliers = ((deces_hospitaliers-deces_hospitaliers.shift(7))/deces_hospitaliers.shift(7).replace(0, None)).fillna(0) * 100
         
-        deces_hospitaliers_rolling = data_new.incid_dc.rolling(window=7).mean().fillna(0)
+        deces_hospitaliers_rolling = data_new.incid_dc.rolling(window=7, center=True).mean().fillna(0)
         taux_croissance_deces_hospitaliers_rolling = ((deces_hospitaliers_rolling-deces_hospitaliers_rolling.shift(7))/deces_hospitaliers_rolling.shift(7).replace(0, None)).fillna(0) * 100
         
         dict_data["deces_hospitaliers"] = {"jour_nom": "jour_new", "valeur": list(round(deces_hospitaliers_rolling, 1))}
@@ -335,7 +335,7 @@ def generate_data(data_incid=pd.DataFrame(), data_hosp=pd.DataFrame(), data_surs
  
 
 
-# In[20]:
+# In[71]:
 
 
 def generate_data_age(data_incid, data_hosp, data_adm_hosp_clage=pd.DataFrame(), export_jour=False):## Incidence
@@ -403,7 +403,7 @@ def generate_data_age(data_incid, data_hosp, data_adm_hosp_clage=pd.DataFrame(),
  
 
 
-# In[21]:
+# In[72]:
 
 
 def generate_data_education(df_education):
@@ -426,7 +426,7 @@ def generate_data_education(df_education):
     return dict_data
 
 
-# In[22]:
+# In[73]:
 
 
 def export_data(data, suffix=""):
@@ -434,7 +434,7 @@ def export_data(data, suffix=""):
         json.dump(data, outfile)
 
 
-# In[23]:
+# In[74]:
 
 
 def dataexplorer():
@@ -493,7 +493,7 @@ def dataexplorer():
     export_data(dict_data, suffix="_compr")
 
 
-# In[24]:
+# In[75]:
 
 
 def dataexplorer_age():
@@ -526,7 +526,7 @@ def dataexplorer_age():
     return dict_data
 
 
-# In[25]:
+# In[76]:
 
 
 def dataexplorer_education():
@@ -535,19 +535,19 @@ def dataexplorer_education():
     export_data(dict_data, suffix="_education")
 
 
-# In[30]:
+# In[77]:
 
 
 dataexplorer()
 
 
-# In[ ]:
+# In[78]:
 
 
 dict_data = dataexplorer_age()
 
 
-# In[ ]:
+# In[79]:
 
 
 dataexplorer_education()

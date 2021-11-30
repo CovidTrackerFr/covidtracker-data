@@ -12,20 +12,14 @@ from datetime import datetime
 PATH = "../../"
 
 
-# In[2]:
+# In[6]:
 
 
-df_mortalite = pd.read_csv(PATH+'data/france/deces_quotidiens_departement_csv.csv', sep=";", encoding="'windows-1252'")
+df_mortalite = pd.read_csv('https://www.insee.fr/fr/statistiques/fichier/4487988/2021-11-19_deces_quotidiens_departement_csv.zip', sep=";", encoding="'windows-1252'")
 df_mortalite_2018 = pd.read_csv(PATH+'data/france/deces_quotidiens_departement_csv_avec_2018.csv', sep=";", encoding="'windows-1252'")
 
 
-# In[3]:
-
-
-#df_mortalite = df_mortalite.merge(df_mortalite_2018[["Date_evenement", "Total_deces_2018"]], left_on="Date_evenement", right_on="Date_evenement", how="left")
-
-
-# In[4]:
+# In[7]:
 
 
 
@@ -40,13 +34,7 @@ df_mortalite_france.loc[:,"Total_deces_2020_diff"] = df_mortalite_france["Total_
 df_mortalite_france.loc[:,"Total_deces_2021_diff"] = df_mortalite_france["Total_deces_2021"].diff().rolling(window=window, center=True).mean()
 
 
-# In[5]:
-
-
-df_mortalite_france_2018
-
-
-# In[6]:
+# In[10]:
 
 
 #### Construction du graphique

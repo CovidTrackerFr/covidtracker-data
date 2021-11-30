@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[94]:
+# In[1]:
 
 
 """
@@ -23,7 +23,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[95]:
+# In[2]:
 
 
 from multiprocessing import Pool
@@ -53,14 +53,14 @@ PATH = "../../"
 now = datetime.now()
 
 
-# In[96]:
+# In[3]:
 
 
 #time.sleep(300)
 data.download_data()
 
 
-# In[97]:
+# In[4]:
 
 
 import time
@@ -83,7 +83,7 @@ while not success:
         continue
 
 
-# In[98]:
+# In[5]:
 
 
 
@@ -94,7 +94,7 @@ df_incid_fra = df_incid_fra_clage[df_incid_fra_clage["cl_age90"]==0]
 dates_incid = list(dict.fromkeys(list(df_incid_fra['jour'].values))) 
 
 
-# In[99]:
+# In[6]:
 
 
 df_new = data.import_data_new()
@@ -103,7 +103,7 @@ df_new_france = df_new.groupby("jour").sum().reset_index()
 dates_new = sorted(list(dict.fromkeys(list(df_new_france['jour'].values))))
 
 
-# In[100]:
+# In[7]:
 
 
 df = data.import_data_df()
@@ -112,7 +112,7 @@ dates = sorted(list(dict.fromkeys(list(df['jour'].values))))
 df_france = df.groupby("jour").sum().reset_index()
 
 
-# In[101]:
+# In[8]:
 
 
 last_day_plot_dashboard = (datetime.strptime(max(dates), '%Y-%m-%d') + timedelta(days=3)).strftime("%Y-%m-%d")
@@ -120,7 +120,7 @@ first_day_plot_adm = (datetime.strptime(max(dates), '%Y-%m-%d') - timedelta(days
 last_day_plot = (datetime.strptime(max(dates), '%Y-%m-%d') + timedelta(days=1)).strftime("%Y-%m-%d")
 
 
-# In[102]:
+# In[9]:
 
 
 def nbWithSpaces(nb):
@@ -135,7 +135,7 @@ def nbWithSpaces(nb):
         return str_nb
 
 
-# In[103]:
+# In[10]:
 
 
 df_incid_fra_corrige = df_incid_fra.copy()
@@ -152,7 +152,7 @@ df_incid_fra_corrige.loc[df_incid_fra.jour == "2021-11-01", "P"] = 1.1 * df_inci
 df_incid_fra_corrige.loc[df_incid_fra.jour == "2021-11-11", "P"] = 1.3 * df_incid_fra_corrige[df_incid_fra_corrige.jour == "2021-11-04"]["P"].values[0]
 
 
-# In[104]:
+# In[11]:
 
 
 """fig = go.Figure()
@@ -238,7 +238,7 @@ fig['layout']['annotations'] += (
 fig.show()"""
 
 
-# In[105]:
+# In[27]:
 
 
 suffixe=""
@@ -465,13 +465,13 @@ for (date_deb, date_fin) in [("2020-09-18", last_day_plot_dashboard), (dates[-10
         if(suffixe=="_recent"):
             ax=-100
             ax2=0
-            
+        #<br><span style='color:red;'>Avec correction :<br> {} cas en moyenne<br>{} % en 7 jours</span>
         fig['layout']['annotations'] += (
             dict(
                 x = dates_incid[-4], y = y, # annotation point
                 xref='x1', 
                 yref='y2',
-                text=" <b>{} {}".format('%s' % nbWithSpaces(df_incid_france_cas_rolling.values[-4]), "cas quotidiens<br></b>en moyenne<br>prélevés du {} au {}.<br> {} % en 7 jours<br><br><span style='color:red;'>Avec correction :<br> {} cas en moyenne<br>{} % en 7 jours</span>".format(datetime.strptime(dates_incid[-7], '%Y-%m-%d').strftime('%d'), datetime.strptime(dates_incid[-1], '%Y-%m-%d').strftime('%d %b'), croissance, nbWithSpaces(df_incid_france_cas_rolling_corrige.values[-4]), croissance_corrige)),
+                text=" <b>{} {}".format('%s' % nbWithSpaces(df_incid_france_cas_rolling.values[-4]), "cas quotidiens<br></b>en moyenne<br>prélevés du {} au {}.<br> {} % en 7 jours<br>".format(datetime.strptime(dates_incid[-7], '%Y-%m-%d').strftime('%d'), datetime.strptime(dates_incid[-1], '%Y-%m-%d').strftime('%d %b'), croissance, nbWithSpaces(df_incid_france_cas_rolling_corrige.values[-4]), croissance_corrige)),
                 xshift=-2,
                 yshift=0,
                 xanchor="center",
@@ -483,7 +483,7 @@ for (date_deb, date_fin) in [("2020-09-18", last_day_plot_dashboard), (dates[-10
                 bgcolor="rgba(255, 255, 255, 0.6)",
                 opacity=1,
                 ax=ax,
-                ay=-200,
+                ay=-100,
                 arrowcolor="rgb(8, 115, 191)",
                 arrowsize=1.5,
                 arrowwidth=1,
@@ -542,7 +542,7 @@ for (date_deb, date_fin) in [("2020-09-18", last_day_plot_dashboard), (dates[-10
         suffixe="_recent"
 
 
-# In[106]:
+# In[13]:
 
 
 suffixe=""
@@ -729,7 +729,7 @@ for (date_deb, date_fin) in [("2020-09-18", last_day_plot_dashboard), (dates[-10
         suffixe="_recent"
 
 
-# In[107]:
+# In[14]:
 
 
 
@@ -828,7 +828,7 @@ if show_charts:
     fig.show()
 
 
-# In[108]:
+# In[15]:
 
 
 #Comparaison J-7
@@ -879,13 +879,13 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2,
 plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
-# In[109]:
+# In[16]:
 
 
 df_incid_fra
 
 
-# In[110]:
+# In[17]:
 
 
 #Comparaison J-7
@@ -936,7 +936,7 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2,
 plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
-# In[111]:
+# In[18]:
 
 
 
@@ -1146,7 +1146,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[112]:
+# In[19]:
 
 
 range_x, name_fig, range_y = ["2020-03-29", last_day_plot], "hosp_journ", [0, df_france["hosp"].max()*1.1]
@@ -1407,7 +1407,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[113]:
+# In[20]:
 
 
 range_x, name_fig, range_y = ["2020-03-29", last_day_plot], "dc_journ", [0, df_new_france["incid_dc"].max()]
@@ -1561,7 +1561,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[114]:
+# In[21]:
 
 
 
@@ -1771,7 +1771,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[115]:
+# In[22]:
 
 
 
@@ -1980,7 +1980,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[116]:
+# In[23]:
 
 
 for croiss in [""]:
@@ -1998,7 +1998,7 @@ for croiss in [""]:
     
 
 
-# In[117]:
+# In[24]:
 
 
 data.download_data_vue_ensemble()
@@ -2007,7 +2007,7 @@ df_vue_ensemble.loc[df_vue_ensemble.date >= "2021-05-21", "total_cas_confirmes"]
 #df_vue_ensemble=df_vue_ensemble.append({"date": "2021-03-30", "total_cas_confirmes": 4554683}, ignore_index=True)
 
 
-# In[118]:
+# In[25]:
 
 
 suffixe=""
@@ -2223,7 +2223,7 @@ for (date_deb, date_fin) in [("2020-01-18", datetime.strptime(df_vue_ensemble.da
         suffixe="_recent"
 
 
-# In[119]:
+# In[26]:
 
 
 #Comparaison J-7
