@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[33]:
+# In[1]:
 
 
 """
@@ -22,7 +22,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[34]:
+# In[2]:
 
 
 import pandas as pd
@@ -39,7 +39,7 @@ import locale
 locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
 
 
-# In[54]:
+# In[3]:
 
 
 COULEUR_NON_VACCINES = "#C65102"
@@ -48,7 +48,7 @@ COULEUR_COMPLETEMENT_VACCINES_RAPPEL = "black"
 COULEUR_PARTIELLEMENT_VACCINES = "#4777d6"
 
 
-# In[36]:
+# In[4]:
 
 
 df_drees = pd.read_csv("https://data.drees.solidarites-sante.gouv.fr/explore/dataset/covid-19-resultats-issus-des-appariements-entre-si-vic-si-dep-et-vac-si/download/?format=csv&timezone=Europe/Berlin&lang=fr&use_labels_for_header=true&csv_separator=%3B", sep=";")
@@ -59,12 +59,10 @@ df_drees = df_drees.sort_values(by="date")
 df_drees = df_drees[df_drees["vac_statut"]!="Ensemble"]
 
 
-# In[37]:
+# In[5]:
 
 
 df_drees_age = pd.read_csv("https://data.drees.solidarites-sante.gouv.fr/explore/dataset/covid-19-resultats-par-age-issus-des-appariements-entre-si-vic-si-dep-et-vac-si/download/?format=csv&timezone=Europe/Berlin&lang=fr&use_labels_for_header=true&csv_separator=%3B", sep=";")
-#df_drees_age = pd.read_csv("https://data.drees.solidarites-sante.gouv.fr/explore/dataset/covid-19-anciens-resultats-par-age-issus-des-appariements-entre-si-vic-si-dep-et/download/?format=csv&timezone=Europe/Berlin&lang=fr&use_labels_for_header=true&csv_separator=%3B", sep=";")
-#df_drees_age = df_drees_age[df_drees_age["date"]<="2021-09-26"] #TODO SUPPR
 
 df_drees_age_all = df_drees_age.groupby(["date", "vac_statut", "age"]).sum().reset_index()
 df_drees_age = df_drees_age.sort_values(by="date")
@@ -72,13 +70,7 @@ df_drees_age = df_drees_age[df_drees_age["vac_statut"]!="Ensemble"]
 df_drees_age_lastday = df_drees_age[df_drees_age["date"] == df_drees_age["date"].max()]
 
 
-# In[40]:
-
-
-df_drees.vac_statut.unique()
-
-
-# In[41]:
+# In[7]:
 
 
 df_drees_non_vaccines = df_drees[df_drees["vac_statut"]=="Non-vaccinés"]

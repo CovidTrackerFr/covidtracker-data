@@ -457,7 +457,7 @@ def import_data():
     df_new = df_new.groupby(["dep", "jour"]).first().reset_index()
     
     pbar.update(8)
-    import_data_opencovid()
+    #import_data_opencovid()
     return df, df_confirmed, dates, df_new, df_tests, df_deconf, df_sursaud, df_incid, df_tests_viro
 
 
