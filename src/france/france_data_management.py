@@ -87,6 +87,7 @@ def download_and_import_data_niveaux_scolaires_fra():
     df = pd.read_csv("https://www.data.gouv.fr/fr/datasets/r/e66efcc9-01dd-49ba-a774-88c753705ce0", sep=";")
     df["jour"] = df["sg"].apply(lambda x: x.split(" - ")[1])
     df["jour"] = pd.to_datetime(df["jour"])
+    df["age_18ans"] = df["age_18ans"].astype(str)
     df = df.sort_values(by="jour")
     return df
 
@@ -97,6 +98,7 @@ def download_and_import_data_niveaux_scolaires_reg():
     df = df.sort_values(by="jour")
     df_regions = pd.read_csv(PATH + 'data/france/departments_regions_france_2016.csv', sep=",")
     df = df.merge(df_regions, left_on="reg", right_on="regionCode")
+    df["age_18ans"] = df["age_18ans"].astype(str)
     return df
 
 def download_and_import_table_indicateurs():
@@ -109,6 +111,7 @@ def download_and_import_data_niveaux_scolaires_dep():
     df = df.sort_values(by="jour")
     df_regions = pd.read_csv(PATH + 'data/france/departments_regions_france_2016.csv', sep=",")
     df = df.merge(df_regions, left_on="dep", right_on="departmentCode")
+    df["age_18ans"] = df["age_18ans"].astype(str)
     return df
         
 def import_donnees_vaccination_par_tranche_dage_type_de_vaccin_et_departement():
