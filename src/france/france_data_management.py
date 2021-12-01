@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[2]:
 
 
 import requests
@@ -12,7 +12,7 @@ PATH = '../../'
 PATH_STATS = "../../data/france/stats/"
 
 
-# In[6]:
+# In[7]:
 
 
 # Download data from Santé publique France and export it to local files
@@ -95,13 +95,20 @@ def download_and_import_data_niveaux_scolaires_reg():
     df["jour"] = df["sg"].apply(lambda x: x.split(" - ")[1])
     df["jour"] = pd.to_datetime(df["jour"])
     df = df.sort_values(by="jour")
+    df_regions = pd.read_csv(PATH + 'data/france/departments_regions_france_2016.csv', sep=",")
+    df = df.merge(df_regions, left_on="reg", right_on="regionCode")
     return df
+
+def download_and_import_table_indicateurs():
+    return pd.read_csv("https://www.data.gouv.fr/fr/datasets/r/f335f9ea-86e3-4ffa-9684-93c009d5e617")
 
 def download_and_import_data_niveaux_scolaires_dep():
     df = pd.read_csv("https://www.data.gouv.fr/fr/datasets/r/73167a0f-7218-48e5-84b9-20092a525bff", sep=";")
     df["jour"] = df["sg"].apply(lambda x: x.split(" - ")[1])
     df["jour"] = pd.to_datetime(df["jour"])
     df = df.sort_values(by="jour")
+    df_regions = pd.read_csv(PATH + 'data/france/departments_regions_france_2016.csv', sep=",")
+    df = df.merge(df_regions, left_on="dep", right_on="departmentCode")
     return df
         
 def import_donnees_vaccination_par_tranche_dage_type_de_vaccin_et_departement():
@@ -461,7 +468,7 @@ def import_data():
     return df, df_confirmed, dates, df_new, df_tests, df_deconf, df_sursaud, df_incid, df_tests_viro
 
 
-# In[8]:
+# In[ ]:
 
 
 #import_data_opencovid()
@@ -469,7 +476,7 @@ def import_data():
 #df, df_confirmed, dates, df_new, df_tests, df_deconf, df_sursaud, df_incid, df_tests_viro = import_data()
 
 
-# In[35]:
+# In[ ]:
 
 
 """df = pd.read_csv(PATH + 'data/france/tests_viro-dep-quot.csv', sep=";")

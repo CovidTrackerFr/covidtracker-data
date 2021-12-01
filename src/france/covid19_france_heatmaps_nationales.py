@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
+# In[111]:
 
 
 """
@@ -22,7 +22,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[10]:
+# In[112]:
 
 
 import pandas as pd
@@ -41,7 +41,7 @@ locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
 now = datetime.now()
 
 
-# In[94]:
+# In[113]:
 
 
 def nbWithSpaces(nb):
@@ -74,13 +74,19 @@ def traitement_val(valeur, plus_sign=False, couleur=False):
     return valeur
 
 
-# In[5]:
+# In[115]:
+
+
+data.download_data()
+
+
+# In[116]:
 
 
 df_tests_viros = data.import_data_tests_sexe()
 
 
-# In[109]:
+# In[124]:
 
 
 df_tests_viros_france = df_tests_viros.groupby(['jour', 'cl_age90']).sum().reset_index()
@@ -88,6 +94,7 @@ df_tests_rolling = pd.DataFrame()
 
 array_positif= []
 array_taux= []
+array_depistage=[]
 array_incidence=[]
 for age in sorted(list(dict.fromkeys(list(df_tests_viros_france['cl_age90'].values)))):
     if age != -1:
@@ -104,6 +111,7 @@ for age in sorted(list(dict.fromkeys(list(df_tests_viros_france['cl_age90'].valu
         tranche.index = pd.to_datetime(tranche["jour"])
         tranche = tranche[tranche.index.max() - timedelta(days=7*32-1):].resample('7D').sum()
         array_positif += [tranche["P"].astype(int)]
+        array_depistage += [np.round(tranche["T"]/tranche["pop"]*7*100000,0).astype(int)]
         array_taux += [np.round(tranche["P"]/tranche["T"]*100, 1)]
         array_incidence += [np.round(tranche["P"]/tranche["pop"]*7*100000,0).astype(int)]
 
@@ -116,10 +124,10 @@ dates_heatmap_lastday = tranche.index + timedelta(days=6)
 dates_heatmap = [str(dates_heatmap_firstday[i])[8:10] + "/" + str(dates_heatmap_firstday[i])[5:7] + "<br>" + str(dates_heatmap_lastday[i])[8:10] + "/" + str(dates_heatmap_lastday[i])[5:7] for i, val in enumerate(dates_heatmap_firstday)]
 
 
-# In[110]:
+# In[125]:
 
 
-for (name, array, title, scale_txt, data_example, digits) in [("cas", array_positif, "Nombre de <b>tests positifs</b>", "", "", 0), ("taux", array_taux, "Taux de <b>positivité</b>", "%", "%", 1), ("incidence", array_incidence, "Taux d'<b>incidence</b>", " cas", " cas", 1)]: #
+for (name, array, title, scale_txt, data_example, digits) in [("cas", array_positif, "Nombre de <b>tests positifs</b>", "", "", 0), ("depistage", array_depistage, "Taux de <b>dépistage</b>", "", "", 0), ("taux", array_taux, "Taux de <b>positivité</b>", "%", "%", 1), ("incidence", array_incidence, "Taux d'<b>incidence</b>", " cas", " cas", 1)]: #
     locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
     
     labels = ["<b>Tous âges</b>"] + [str(x-9) + " à " + str(x)+" ans" if x!=99 else "Plus 90 ans" for x in range(9, 109, 10)]
@@ -215,13 +223,13 @@ for (name, array, title, scale_txt, data_example, digits) in [("cas", array_posi
 
 # ## Niveaux scolaires
 
-# In[16]:
+# In[119]:
 
 
 df_niveaux_scolaires = data.download_and_import_data_niveaux_scolaires_fra()
 
 
-# In[104]:
+# In[120]:
 
 
 df_tests_rolling = pd.DataFrame()
@@ -247,7 +255,7 @@ dates_heatmap_lastday = tranche.index + timedelta(days=6)
 dates_heatmap = [str(dates_heatmap_firstday[i])[8:10] + "/" + str(dates_heatmap_firstday[i])[5:7] + "<br>" + str(dates_heatmap_lastday[i])[8:10] + "/" + str(dates_heatmap_lastday[i])[5:7] for i, val in enumerate(dates_heatmap_firstday)]
 
 
-# In[108]:
+# In[121]:
 
 
 for (name, array, title, scale_txt, data_example, digits) in [("depistage", array_taux_depistage_niveaux_scolaires, "Taux de <b>dépistage</b>", " tests", " tests", 1), ("taux", array_taux_niveaux_scolaires, "Taux de <b>positivité</b>", "%", "%", 1), ("incidence", array_incidence_niveaux_scolaires, "Taux d'<b>incidence</b>", " cas", " cas", 1)]: #

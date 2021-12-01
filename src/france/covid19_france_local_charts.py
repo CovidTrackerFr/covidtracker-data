@@ -25,18 +25,6 @@ now = datetime.now()
 colors = px.colors.qualitative.D3 + plotly.colors.DEFAULT_PLOTLY_COLORS + px.colors.qualitative.Plotly + px.colors.qualitative.Dark24 + px.colors.qualitative.Alphabet
 
 
-# In[2]:
-
-
-try:
-    import subprocess
-    subprocess.run(["python3", "covid19_regions_dashboards.py"])
-    subprocess.run(["python3", "covid19_departements_dashboards.py"])
-    subprocess.run(["python3", "covid19_france_metropoles.py"])
-except:
-    print("error")
-
-
 # ## Data Import
 
 # In[3]:

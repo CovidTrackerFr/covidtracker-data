@@ -29,6 +29,7 @@ import pandas as pd
 import json
 import france_data_management as data
 import math
+import numpy as np
 
 show_charts = False
 PATH_STATS = "../../data/france/stats/"
@@ -78,7 +79,6 @@ df_new_france = data.import_data_new().groupby("jour").sum().reset_index()
 # In[10]:
 
 
-data.download_data_vue_ensemble()
 df_vue_ensemble = data.import_data_vue_ensemble()
 
 
@@ -181,7 +181,7 @@ zone_c = ["zone_c", "09", "11", "12", "30", "31", "32", "34", "46", "48", "65", 
 confines_mars_2021 = ["confines_mars_2021", "02", "06", "27", "59", "60", "62", "75", "76", "77", "78", "80", "91", "92", "93", "94", "95"]
 
 
-# In[35]:
+# In[45]:
 
 
 def generate_data(data_incid=pd.DataFrame(), data_hosp=pd.DataFrame(), data_sursaud=pd.DataFrame(), data_new=pd.DataFrame(), data_vue_ensemble=pd.DataFrame(), data_metropole=pd.DataFrame(), data_vacsi=pd.DataFrame(), data_obepine=pd.DataFrame(), mode="", export_jour=False, taux_croissance=False):## Incidence
@@ -253,8 +253,12 @@ def generate_data(data_incid=pd.DataFrame(), data_hosp=pd.DataFrame(), data_surs
         deces_ehpad = data_vue_ensemble["total_deces_ehpad"].diff().rolling(window=7).mean().fillna(0)
         dict_data["deces_ehpad"] = {"jour_nom": "jour_ehpad", "valeur": list(round(deces_ehpad,2))}
         
-        cas_spf = data_vue_ensemble.total_cas_confirmes.diff().rolling(window=7).mean().fillna(0)
-        dict_data["cas_spf"] = {"jour_nom": "jour_ehpad", "valeur": list(round(cas_spf, 2))}
+        cas_spf = data_vue_ensemble.total_cas_confirmes.diff().fillna(0)
+        cas_spf[cas_spf<0] = 0
+        cas_spf = cas_spf.replace(to_replace=0, method='ffill')
+        cas_spf_rolling = cas_spf.rolling(window=7).mean().fillna(0)
+        dict_data["cas_spf"] = {"jour_nom": "jour_ehpad", "valeur": list(round(cas_spf_rolling, 2))}
+        dict_data["cas_spf_brut"] = {"jour_nom": "jour_ehpad", "valeur": list(round(cas_spf, 2))}
         
     if len(data_obepine)>0:
         indicateur_obepine = data_obepine.Indicateur.fillna(0)
@@ -333,7 +337,7 @@ def generate_data(data_incid=pd.DataFrame(), data_hosp=pd.DataFrame(), data_surs
         deces_hospitaliers = data_new.incid_dc
         taux_croissance_deces_hospitaliers = ((deces_hospitaliers-deces_hospitaliers.shift(7))/deces_hospitaliers.shift(7).replace(0, None)).fillna(0) * 100
         
-        deces_hospitaliers_rolling = data_new.incid_dc.rolling(window=7, center=True).mean().fillna(0)
+        deces_hospitaliers_rolling = data_new.incid_dc.rolling(window=7, center=False).mean().fillna(0)
         taux_croissance_deces_hospitaliers_rolling = ((deces_hospitaliers_rolling-deces_hospitaliers_rolling.shift(7))/deces_hospitaliers_rolling.shift(7).replace(0, None)).fillna(0) * 100
         
         dict_data["deces_hospitaliers"] = {"jour_nom": "jour_new", "valeur": list(round(deces_hospitaliers_rolling, 1))}
@@ -419,10 +423,10 @@ def generate_data_age(data_incid, data_hosp, data_adm_hosp_clage=pd.DataFrame(),
  
 
 
-# In[24]:
+# In[37]:
 
 
-def generate_data_age_niveaux_scolaires(data_incid_niveaux_scolaires, export_jour=False, dict_data={}):
+def generate_data_niveaux_scolaires(data_incid_niveaux_scolaires, export_jour=False, dict_data={}):
     clage_tranches = ["0", "2", "5", "10", "14", "17", "18"]
     clage_noms = ["tous_scol", "02_scol", "05_scol", "10_scol", "14_scol", "17_scol", "18_scol"]
     clage_noms_disp = ["Tous", "0 - 2 ans", "3 - 5 ans", "6 - 10 ans", "11 - 14 ans", "15 - 17 ans", "plus 18 ans"]
@@ -434,11 +438,11 @@ def generate_data_age_niveaux_scolaires(data_incid_niveaux_scolaires, export_jou
 
         dict_data[clage_nom] = {}
 
-        taux_incidence = data_incid_clage["P"].rolling(window=7).sum().fillna(0) * 100000 / data_incid_clage["pop"].values[0]
-        dict_data[clage_nom]["incidence"] = {"jour_nom": "jour_niveaux_scolaires", "valeur": list(round(taux_incidence,0))}
+        taux_incidence = data_incid_niveaux_scolaires["ti"]
+        dict_data[clage_nom]["incidence"] = {"jour_nom": "jour_niveaux_scolaires", "valeur": list(np.round(taux_incidence.values))}
             
     if export_jour:
-            dict_data["jour_niveaux_scolaires"] = list(data_incid_niveaux_scolaires.jour.unique())
+            dict_data["jour_niveaux_scolaires"] = list(data_incid_niveaux_scolaires.jour.astype(str))
             dict_data["tranches_scolaires"] = clage_tranches
             dict_data["tranches_noms_scolaires"] = clage_noms
             dict_data["tranches_noms_affichage_scolaires"] = clage_noms_disp
@@ -470,7 +474,7 @@ def generate_data_education(df_education):
     return dict_data
 
 
-# In[26]:
+# In[23]:
 
 
 def export_data(data, suffix=""):
@@ -579,17 +583,28 @@ def dataexplorer_education():
     export_data(dict_data, suffix="_education")
 
 
-# In[31]:
+# In[46]:
 
 
 def dataexplorer_niveaux_scolaires():
     dict_data = {}
-    dict_data["france"] = generate_data_education(df_education=df_education)
-    generate_data_age_niveaux_scolaires(data_incid_niveaux_scolaires, export_jour=False)
+    dict_data["departements"] = list(df_niveaux_scolaires_dep["dep"].unique().astype(str))
+    dict_data["regions"] = list(df_niveaux_scolaires_reg["reg"].unique().astype(str))
+    
+    dict_data["france"] = generate_data_niveaux_scolaires(data_incid_niveaux_scolaires=df_niveaux_scolaires_fra, export_jour=True)
+    
+    departements = df_niveaux_scolaires_dep
+    
     export_data(dict_data, suffix="_education")
 
 
-# In[36]:
+# In[47]:
+
+
+dataexplorer_niveaux_scolaires()
+
+
+# In[78]:
 
 
 dataexplorer()
