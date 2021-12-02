@@ -12,7 +12,7 @@ PATH = '../../'
 PATH_STATS = "../../data/france/stats/"
 
 
-# In[7]:
+# In[10]:
 
 
 # Download data from Santé publique France and export it to local files
@@ -112,6 +112,10 @@ def download_and_import_data_niveaux_scolaires_dep():
     df_regions = pd.read_csv(PATH + 'data/france/departments_regions_france_2016.csv', sep=",")
     df = df.merge(df_regions, left_on="dep", right_on="departmentCode")
     df["age_18ans"] = df["age_18ans"].astype(str)
+    return df
+
+def download_and_import_opendata_indicateurs():
+    df = pd.read_csv("https://www.data.gouv.fr/fr/datasets/r/f335f9ea-86e3-4ffa-9684-93c009d5e617")
     return df
         
 def import_donnees_vaccination_par_tranche_dage_type_de_vaccin_et_departement():

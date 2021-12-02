@@ -4,7 +4,7 @@
 # # COVID-19 French Charts
 # Guillaume Rozier, 2020
 
-# In[1]:
+# In[6]:
 
 
 """
@@ -26,7 +26,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[2]:
+# In[7]:
 
 
 from multiprocessing import Pool
@@ -55,7 +55,7 @@ PATH = "../../"
 now = datetime.now()
 
 
-# In[3]:
+# In[8]:
 
 
 try:
@@ -71,7 +71,7 @@ except:
 
 # # Data download and import
 
-# In[4]:
+# In[9]:
 
 
 import time
@@ -96,13 +96,13 @@ while not success:
 
 # ## Data transformations
 
-# In[5]:
+# In[10]:
 
 
 df, df_confirmed, dates, df_new, df_tests, df_deconf, df_sursaud, df_incid, df_tests_viros = data.import_data()
 
 
-# In[6]:
+# In[11]:
 
 
 data.download_data_vue_ensemble()
@@ -112,21 +112,21 @@ df_vue_ensemble.loc[df_vue_ensemble.date >= "2021-05-21", "total_cas_confirmes"]
 df_opencovid = data.import_data_opencovid()
 
 
-# In[7]:
+# In[12]:
 
 
 df_sexes = data.import_data_df()
 df_sexes_tot = df_sexes[df_sexes.sexe==0]
 
 
-# In[8]:
+# In[13]:
 
 
 df_incid_fra_clage = data.import_data_tests_sexe()
 df_incid_fra = df_incid_fra_clage[df_incid_fra_clage["cl_age90"]==0]
 
 
-# In[9]:
+# In[14]:
 
 
 df_new_france = df_new.groupby(["jour"]).sum().reset_index()
@@ -166,7 +166,7 @@ regions = list(dict.fromkeys(list(df['regionName'].values)))
 departements_noms = list(dict.fromkeys(list(df['departmentName'].values))) 
 
 
-# In[10]:
+# In[15]:
 
 
 #Calcul sorties de réa
@@ -185,7 +185,7 @@ df_france_last15 = df_france[ df_france["jour"].isin(dates[-19:]) ]
 df_tests_tot_last15 = df_tests_tot[ df_tests_tot["jour"].isin(dates[-19:]) ]
 
 
-# In[12]:
+# In[16]:
 
 
 def nbWithSpaces(nb):
@@ -200,7 +200,7 @@ def nbWithSpaces(nb):
         return str_nb
 
 
-# In[13]:
+# In[17]:
 
 
 departements_name = {}
@@ -214,7 +214,7 @@ for dep in departements:
         departements_name[dep] = "St-Pierre-et-Miquelon"
 
 
-# In[14]:
+# In[18]:
 
 
 def objectif_deconfinement():
@@ -273,7 +273,7 @@ def objectif_deconfinement():
 objectif_deconfinement()
 
 
-# In[16]:
+# In[19]:
 
 
 import random
@@ -289,7 +289,7 @@ for idx, death in enumerate(df_new_france["incid_dc"].rolling(window=7).mean().d
     
 
 
-# In[17]:
+# In[20]:
 
 
 locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
@@ -330,7 +330,7 @@ fig.update_layout(
 fig.write_image(PATH + "images/charts/france/points_deces.jpeg", scale=4, width=800, height=350)
 
 
-# In[20]:
+# In[ ]:
 
 
 def stats_dep_vague(nb_first_values):
@@ -384,7 +384,7 @@ def stats_dep_vague(nb_first_values):
 stats_dep_vague(len(dates)-1)
 
 
-# In[21]:
+# In[ ]:
 
 
 def caracterisation_valeur(valeur, valeur_j1, seuils=[1, 2, 3], step=0.02):
@@ -411,7 +411,7 @@ def caracterisation_valeur(valeur, valeur_j1, seuils=[1, 2, 3], step=0.02):
     return caract
 
 
-# In[22]:
+# In[ ]:
 
 
 df_temp = df_new[["jour", "incid_dc", "incid_hosp", "incid_rea", "departmentName", "dep", "departmentPopulation"]][ df_new["jour"] >= dates[-14]]
@@ -421,7 +421,7 @@ df_dep_tests = df_tests_viros_departements[df_tests_viros_departements["departme
 df_dep_tests["P"].values[-7:].sum()/df_dep_tests["pop"].values[0]*100000
 
 
-# In[23]:
+# In[ ]:
 
 
 data.download_data_variants_deps()
