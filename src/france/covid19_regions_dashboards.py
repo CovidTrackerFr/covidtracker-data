@@ -177,7 +177,7 @@ df_drees_regions = df_drees_regions.merge(noms_regions, left_on="region", right_
 """
 
 
-# In[16]:
+# In[29]:
 
 
 def pcr_plus_statut_vaccinal(region):
@@ -185,20 +185,20 @@ def pcr_plus_statut_vaccinal(region):
     df_drees_reg = df_drees_reg.sort_values(by="date")
     
     df_drees_non_vaccines = df_drees_reg[df_drees_reg["vac_statut"]=="Non-vaccinés"]
-    df_drees_non_vaccines["effectif J-7"] = df_drees_non_vaccines["effectif J-7"].rolling(window=7).mean()
+    df_drees_non_vaccines["effectif"] = df_drees_non_vaccines["effectif"].rolling(window=7).mean()
 
     df_drees_completement_vaccines = df_drees_reg[df_drees_reg["vac_statut"].isin(["Vaccination complète",])].groupby("date").sum().reset_index()
-    df_drees_completement_vaccines["effectif J-7"] = df_drees_completement_vaccines["effectif J-7"].rolling(window=7).mean()
+    df_drees_completement_vaccines["effectif"] = df_drees_completement_vaccines["effectif"].rolling(window=7).mean()
 
     df_drees_partiellement_vaccines = df_drees_reg[df_drees_reg["vac_statut"].isin(["Primo dose récente", "Primo dose efficace"])].groupby("date").sum().reset_index()
-    df_drees_partiellement_vaccines["effectif J-7"] = df_drees_partiellement_vaccines["effectif J-7"].rolling(window=7).mean()
+    df_drees_partiellement_vaccines["effectif"] = df_drees_partiellement_vaccines["effectif"].rolling(window=7).mean()
 
     fig = go.Figure()
 
     fig.add_trace(
         go.Scatter(
             x=df_drees_non_vaccines["date"].values,
-            y=df_drees_non_vaccines["nb_PCR+"].rolling(window=7).mean() / df_drees_non_vaccines["effectif J-7"] * 10000000,
+            y=df_drees_non_vaccines["nb_PCR+"].rolling(window=7).mean() / df_drees_non_vaccines["effectif"] * 10000000,
             name="Non vaccinés",
             line_color="#C65102",
             line_width=4
@@ -207,7 +207,7 @@ def pcr_plus_statut_vaccinal(region):
     fig.add_trace(
         go.Scatter(
             x=[df_drees_non_vaccines["date"].values[-1]],
-            y=[(df_drees_non_vaccines["nb_PCR+"].rolling(window=7).mean() / df_drees_non_vaccines["effectif J-7"] * 10000000).values[-1]],
+            y=[(df_drees_non_vaccines["nb_PCR+"].rolling(window=7).mean() / df_drees_non_vaccines["effectif"] * 10000000).values[-1]],
             name="Non vaccinés",
             line_color="#C65102",
             marker_size=10,
@@ -218,7 +218,7 @@ def pcr_plus_statut_vaccinal(region):
     fig.add_trace(
         go.Scatter(
             x=df_drees_partiellement_vaccines["date"].values,
-            y=df_drees_partiellement_vaccines["nb_PCR+"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif J-7"] * 10000000,
+            y=df_drees_partiellement_vaccines["nb_PCR+"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif"] * 10000000,
             name="Partiellement vaccinés",
             line_color="#4777d6",
             line_width=4
@@ -227,7 +227,7 @@ def pcr_plus_statut_vaccinal(region):
     fig.add_trace(
         go.Scatter(
             x=[df_drees_partiellement_vaccines["date"].values[-1]],
-            y=[(df_drees_partiellement_vaccines["nb_PCR+"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif J-7"] * 10000000).values[-1]],
+            y=[(df_drees_partiellement_vaccines["nb_PCR+"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif"] * 10000000).values[-1]],
             name="Partiellement vaccinés",
             line_color="#4777d6",
             marker_size=10,
@@ -238,7 +238,7 @@ def pcr_plus_statut_vaccinal(region):
     fig.add_trace(
         go.Scatter(
             x=df_drees_completement_vaccines["date"].values,
-            y=df_drees_completement_vaccines["nb_PCR+"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif J-7"] * 10000000,
+            y=df_drees_completement_vaccines["nb_PCR+"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif"] * 10000000,
             name="Vaccinés",
             line_color="#00308F",
             line_width=4
@@ -248,7 +248,7 @@ def pcr_plus_statut_vaccinal(region):
     fig.add_trace(
         go.Scatter(
             x=[df_drees_completement_vaccines["date"].values[-1]],
-            y=[(df_drees_completement_vaccines["nb_PCR+"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif J-7"] * 10000000).values[-1]],
+            y=[(df_drees_completement_vaccines["nb_PCR+"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif"] * 10000000).values[-1]],
             name="Vaccinés",
             line_color="#00308F",
             marker_size=10,
@@ -288,7 +288,7 @@ def pcr_plus_statut_vaccinal(region):
                             ),
                             ]
     )
-    y=df_drees_non_vaccines["nb_PCR+"].rolling(window=7).mean().values[-1] / df_drees_non_vaccines["effectif J-7"].values[-1] * 10000000
+    y=df_drees_non_vaccines["nb_PCR+"].rolling(window=7).mean().values[-1] / df_drees_non_vaccines["effectif"].values[-1] * 10000000
     fig.add_annotation(
         x=df_drees_reg.date.max(),
         y=y,
@@ -300,7 +300,7 @@ def pcr_plus_statut_vaccinal(region):
         xshift=105
     )
 
-    y=df_drees_completement_vaccines["nb_PCR+"].rolling(window=7).mean().values[-1] / df_drees_completement_vaccines["effectif J-7"].values[-1] * 10000000
+    y=df_drees_completement_vaccines["nb_PCR+"].rolling(window=7).mean().values[-1] / df_drees_completement_vaccines["effectif"].values[-1] * 10000000
     fig.add_annotation(
         x=df_drees_reg.date.max(),
         y=y,
@@ -330,7 +330,7 @@ def pcr_plus_statut_vaccinal(region):
     
 
 
-# In[10]:
+# In[30]:
 
 
 def adm_hc_statut_vaccinal(region):
@@ -338,20 +338,20 @@ def adm_hc_statut_vaccinal(region):
     df_drees_reg = df_drees_reg.sort_values(by="date")
     
     df_drees_non_vaccines = df_drees_reg[df_drees_reg["vac_statut"]=="Non-vaccinés"]
-    df_drees_non_vaccines["effectif J-7"] = df_drees_non_vaccines["effectif J-7"].rolling(window=7).mean()
+    df_drees_non_vaccines["effectif"] = df_drees_non_vaccines["effectif"].rolling(window=7).mean()
 
     df_drees_completement_vaccines = df_drees_reg[df_drees_reg["vac_statut"].isin(["Vaccination complète",])].groupby("date").sum().reset_index()
-    df_drees_completement_vaccines["effectif J-7"] = df_drees_completement_vaccines["effectif J-7"].rolling(window=7).mean()
+    df_drees_completement_vaccines["effectif"] = df_drees_completement_vaccines["effectif"].rolling(window=7).mean()
 
     df_drees_partiellement_vaccines = df_drees_reg[df_drees_reg["vac_statut"].isin(["Primo dose récente", "Primo dose efficace"])].groupby("date").sum().reset_index()
-    df_drees_partiellement_vaccines["effectif J-7"] = df_drees_partiellement_vaccines["effectif J-7"].rolling(window=7).mean()
+    df_drees_partiellement_vaccines["effectif"] = df_drees_partiellement_vaccines["effectif"].rolling(window=7).mean()
 
     fig = go.Figure()
 
     fig.add_trace(
         go.Scatter(
             x=df_drees_non_vaccines["date"].values,
-            y=df_drees_non_vaccines["HC"].rolling(window=7).mean() / df_drees_non_vaccines["effectif J-7"] * 10000000,
+            y=df_drees_non_vaccines["HC"].rolling(window=7).mean() / df_drees_non_vaccines["effectif"] * 10000000,
             name="Non vaccinés",
             line_color="#C65102",
             line_width=4
@@ -360,7 +360,7 @@ def adm_hc_statut_vaccinal(region):
     fig.add_trace(
         go.Scatter(
             x=[df_drees_non_vaccines["date"].values[-1]],
-            y=[(df_drees_non_vaccines["HC"].rolling(window=7).mean() / df_drees_non_vaccines["effectif J-7"] * 10000000).values[-1]],
+            y=[(df_drees_non_vaccines["HC"].rolling(window=7).mean() / df_drees_non_vaccines["effectif"] * 10000000).values[-1]],
             name="Non vaccinés",
             line_color="#C65102",
             marker_size=10,
@@ -371,7 +371,7 @@ def adm_hc_statut_vaccinal(region):
     fig.add_trace(
         go.Scatter(
             x=df_drees_partiellement_vaccines["date"].values,
-            y=df_drees_partiellement_vaccines["HC"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif J-7"] * 10000000,
+            y=df_drees_partiellement_vaccines["HC"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif"] * 10000000,
             name="Partiellement vaccinés",
             line_color="#4777d6",
             line_width=4
@@ -380,7 +380,7 @@ def adm_hc_statut_vaccinal(region):
     fig.add_trace(
         go.Scatter(
             x=[df_drees_partiellement_vaccines["date"].values[-1]],
-            y=[(df_drees_partiellement_vaccines["HC"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif J-7"] * 10000000).values[-1]],
+            y=[(df_drees_partiellement_vaccines["HC"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif"] * 10000000).values[-1]],
             name="Partiellement vaccinés",
             line_color="#4777d6",
             marker_size=10,
@@ -391,7 +391,7 @@ def adm_hc_statut_vaccinal(region):
     fig.add_trace(
         go.Scatter(
             x=df_drees_completement_vaccines["date"].values,
-            y=df_drees_completement_vaccines["HC"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif J-7"] * 10000000,
+            y=df_drees_completement_vaccines["HC"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif"] * 10000000,
             name="Vaccinés",
             line_color="#00308F",
             line_width=4
@@ -401,7 +401,7 @@ def adm_hc_statut_vaccinal(region):
     fig.add_trace(
         go.Scatter(
             x=[df_drees_completement_vaccines["date"].values[-1]],
-            y=[(df_drees_completement_vaccines["HC"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif J-7"] * 10000000).values[-1]],
+            y=[(df_drees_completement_vaccines["HC"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif"] * 10000000).values[-1]],
             name="Vaccinés",
             line_color="#00308F",
             marker_size=10,
@@ -441,7 +441,7 @@ def adm_hc_statut_vaccinal(region):
                             ),
                             ]
     )
-    y=df_drees_non_vaccines["HC"].rolling(window=7).mean().values[-1] / df_drees_non_vaccines["effectif J-7"].values[-1] * 10000000
+    y=df_drees_non_vaccines["HC"].rolling(window=7).mean().values[-1] / df_drees_non_vaccines["effectif"].values[-1] * 10000000
     fig.add_annotation(
         x=df_drees_reg.date.max(),
         y=y,
@@ -453,7 +453,7 @@ def adm_hc_statut_vaccinal(region):
         xshift=105
     )
 
-    y=df_drees_completement_vaccines["HC"].rolling(window=7).mean().values[-1] / df_drees_completement_vaccines["effectif J-7"].values[-1] * 10000000
+    y=df_drees_completement_vaccines["HC"].rolling(window=7).mean().values[-1] / df_drees_completement_vaccines["effectif"].values[-1] * 10000000
     fig.add_annotation(
         x=df_drees_reg.date.max(),
         y=y,
@@ -483,7 +483,7 @@ def adm_hc_statut_vaccinal(region):
     
 
 
-# In[11]:
+# In[31]:
 
 
 def adm_sc_statut_vaccinal(region):
@@ -491,20 +491,20 @@ def adm_sc_statut_vaccinal(region):
     df_drees_reg = df_drees_reg.sort_values(by="date")
     
     df_drees_non_vaccines = df_drees_reg[df_drees_reg["vac_statut"]=="Non-vaccinés"]
-    df_drees_non_vaccines["effectif J-7"] = df_drees_non_vaccines["effectif J-7"].rolling(window=7).mean()
+    df_drees_non_vaccines["effectif"] = df_drees_non_vaccines["effectif"].rolling(window=7).mean()
 
     df_drees_completement_vaccines = df_drees_reg[df_drees_reg["vac_statut"].isin(["Vaccination complète",])].groupby("date").sum().reset_index()
-    df_drees_completement_vaccines["effectif J-7"] = df_drees_completement_vaccines["effectif J-7"].rolling(window=7).mean()
+    df_drees_completement_vaccines["effectif"] = df_drees_completement_vaccines["effectif"].rolling(window=7).mean()
 
     df_drees_partiellement_vaccines = df_drees_reg[df_drees_reg["vac_statut"].isin(["Primo dose récente", "Primo dose efficace"])].groupby("date").sum().reset_index()
-    df_drees_partiellement_vaccines["effectif J-7"] = df_drees_partiellement_vaccines["effectif J-7"].rolling(window=7).mean()
+    df_drees_partiellement_vaccines["effectif"] = df_drees_partiellement_vaccines["effectif"].rolling(window=7).mean()
 
     fig = go.Figure()
 
     fig.add_trace(
         go.Scatter(
             x=df_drees_non_vaccines["date"].values,
-            y=df_drees_non_vaccines["SC"].rolling(window=7).mean() / df_drees_non_vaccines["effectif J-7"] * 10000000,
+            y=df_drees_non_vaccines["SC"].rolling(window=7).mean() / df_drees_non_vaccines["effectif"] * 10000000,
             name="Non vaccinés",
             line_color="#C65102",
             line_width=4
@@ -513,7 +513,7 @@ def adm_sc_statut_vaccinal(region):
     fig.add_trace(
         go.Scatter(
             x=[df_drees_non_vaccines["date"].values[-1]],
-            y=[(df_drees_non_vaccines["SC"].rolling(window=7).mean() / df_drees_non_vaccines["effectif J-7"] * 10000000).values[-1]],
+            y=[(df_drees_non_vaccines["SC"].rolling(window=7).mean() / df_drees_non_vaccines["effectif"] * 10000000).values[-1]],
             name="Non vaccinés",
             line_color="#C65102",
             marker_size=10,
@@ -524,7 +524,7 @@ def adm_sc_statut_vaccinal(region):
     fig.add_trace(
         go.Scatter(
             x=df_drees_partiellement_vaccines["date"].values,
-            y=df_drees_partiellement_vaccines["SC"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif J-7"] * 10000000,
+            y=df_drees_partiellement_vaccines["SC"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif"] * 10000000,
             name="Partiellement vaccinés",
             line_color="#4777d6",
             line_width=4
@@ -533,7 +533,7 @@ def adm_sc_statut_vaccinal(region):
     fig.add_trace(
         go.Scatter(
             x=[df_drees_partiellement_vaccines["date"].values[-1]],
-            y=[(df_drees_partiellement_vaccines["SC"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif J-7"] * 10000000).values[-1]],
+            y=[(df_drees_partiellement_vaccines["SC"].rolling(window=7).mean() / df_drees_partiellement_vaccines["effectif"] * 10000000).values[-1]],
             name="Partiellement vaccinés",
             line_color="#4777d6",
             marker_size=10,
@@ -544,7 +544,7 @@ def adm_sc_statut_vaccinal(region):
     fig.add_trace(
         go.Scatter(
             x=df_drees_completement_vaccines["date"].values,
-            y=df_drees_completement_vaccines["SC"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif J-7"] * 10000000,
+            y=df_drees_completement_vaccines["SC"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif"] * 10000000,
             name="Vaccinés",
             line_color="#00308F",
             line_width=4
@@ -554,7 +554,7 @@ def adm_sc_statut_vaccinal(region):
     fig.add_trace(
         go.Scatter(
             x=[df_drees_completement_vaccines["date"].values[-1]],
-            y=[(df_drees_completement_vaccines["SC"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif J-7"] * 10000000).values[-1]],
+            y=[(df_drees_completement_vaccines["SC"].rolling(window=7).mean() / df_drees_completement_vaccines["effectif"] * 10000000).values[-1]],
             name="Vaccinés",
             line_color="#00308F",
             marker_size=10,
@@ -594,7 +594,7 @@ def adm_sc_statut_vaccinal(region):
                             ),
                             ]
     )
-    y=df_drees_non_vaccines["SC"].rolling(window=7).mean().values[-1] / df_drees_non_vaccines["effectif J-7"].values[-1] * 10000000
+    y=df_drees_non_vaccines["SC"].rolling(window=7).mean().values[-1] / df_drees_non_vaccines["effectif"].values[-1] * 10000000
     fig.add_annotation(
         x=df_drees_reg.date.max(),
         y=y,
@@ -606,7 +606,7 @@ def adm_sc_statut_vaccinal(region):
         xshift=105
     )
 
-    y=df_drees_completement_vaccines["SC"].rolling(window=7).mean().values[-1] / df_drees_completement_vaccines["effectif J-7"].values[-1] * 10000000
+    y=df_drees_completement_vaccines["SC"].rolling(window=7).mean().values[-1] / df_drees_completement_vaccines["effectif"].values[-1] * 10000000
     fig.add_annotation(
         x=df_drees_reg.date.max(),
         y=y,
@@ -636,7 +636,7 @@ def adm_sc_statut_vaccinal(region):
     
 
 
-# In[11]:
+# In[32]:
 
 
 def cas_journ(region):
@@ -788,7 +788,7 @@ def cas_journ(region):
 #cas_journ("Auvergne-Rhône-Alpes")
 
 
-# In[12]:
+# In[33]:
 
 
 def hosp_journ(region):   
@@ -939,7 +939,7 @@ def hosp_journ(region):
     print("> " + name_fig)
 
 
-# In[13]:
+# In[34]:
 
 
 def hosp_journ_elias(reg):
@@ -1230,7 +1230,7 @@ def hosp_journ_elias(reg):
 #hosp_journ_elias("Nouvelle-Aquitaine")
 
 
-# In[14]:
+# In[35]:
 
 
 def rea_journ(region):
@@ -1375,7 +1375,7 @@ def rea_journ(region):
 #rea_journ("Auvergne-Rhône-Alpes")
 
 
-# In[15]:
+# In[36]:
 
 
 def dc_journ(region): 
@@ -1490,7 +1490,7 @@ def dc_journ(region):
     print("> " + name_fig)
 
 
-# In[16]:
+# In[18]:
 
 
 
@@ -1595,16 +1595,7 @@ def saturation_rea_journ(region):
     return df_saturation.values[-1]
 
 
-# In[17]:
-
-
-for reg in regions:
-    pcr_plus_statut_vaccinal(reg)
-    adm_hc_statut_vaccinal(reg)
-    adm_sc_statut_vaccinal(reg)
-
-
-# In[18]:
+# In[38]:
 
 
 import cv2
@@ -1640,7 +1631,16 @@ with open(PATH_STATS + 'saturation_rea_regions.json', 'w') as outfile:
     json.dump(dict_saturation, outfile)
 
 
-# In[19]:
+# In[37]:
+
+
+for reg in regions:
+    pcr_plus_statut_vaccinal(reg)
+    adm_hc_statut_vaccinal(reg)
+    adm_sc_statut_vaccinal(reg)
+
+
+# In[ ]:
 
 
 n_tot=4
@@ -1793,7 +1793,7 @@ for i in range(0, n_tot):
     fig.write_image(PATH+"images/charts/france/evolution_regs/{}_{}.jpeg".format("evolution_regs", i), scale=3, width=1000, height=900)
 
 
-# In[20]:
+# In[ ]:
 
 
 """for reg in regions:
@@ -1808,7 +1808,7 @@ for i in range(0, n_tot):
 """
 
 
-# In[21]:
+# In[ ]:
 
 
 """print("<!-- wp:buttons --><div class=\"wp-block-buttons\">\n")
