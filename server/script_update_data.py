@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[2]:
 
 
 """
@@ -17,7 +17,7 @@ This file contains a script that automatically update data. In the morning it up
 """
 
 
-# In[1]:
+# In[3]:
 
 
 import datetime as dt
@@ -52,12 +52,16 @@ def push(type_data):
     os.chdir(PATH_FRANCE)
     
 def get_datetime_spf():
-    metadata = requests.get(url_metadata)
-    content = str(metadata.content)
-    re_result = re.search("donnees-hospitalieres-nouveaux-covid19-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{2}h[0-9]{2}.csv", content)
-    re_date = re.match(".*covid19-([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{2})h([0-9]{2}).csv", re_result[0])
-    datetime_object = dt.datetime.strptime(re_date[1] + re_date[2] + re_date[3] + re_date[4] + re_date[5], '%Y%m%d%H%M')
-    return datetime_object
+    try:
+        metadata = requests.get(url_metadata)
+        content = str(metadata.content)
+        re_result = re.search("donnees-hospitalieres-nouveaux-covid19-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{2}h[0-9]{2}.csv", content)
+        re_date = re.match(".*covid19-([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{2})h([0-9]{2}).csv", re_result[0])
+        datetime_object = dt.datetime.strptime(re_date[1] + re_date[2] + re_date[3] + re_date[4] + re_date[5], '%Y%m%d%H%M')
+        return datetime_object
+    except:
+        print("error get_datetime_spf")
+        return dt.datetime.now()
 
 def try_update_france():
     datetime_spf = get_datetime_spf()
@@ -92,6 +96,10 @@ def try_update_france():
         push("France")
         print("update France charts: " + str(now.hour) + ":" + str(now.minute))
         
+        subprocess.run(["sudo", "python3", PATH_FRANCE+"covid19_france_data_explorer.py"])
+        push("Data Explorer")
+        print("update data explorer: " + str(now.hour) + ":" + str(now.minute))
+        
         subprocess.run(["python3", "covid19_departements_dashboards.py"])
         push("France dep dashboards")
         print("update France dep dashboards: " + str(now.hour) + ":" + str(now.minute))
@@ -107,10 +115,6 @@ def try_update_france():
         subprocess.run(["sudo", "python3", PATH_FRANCE+"covid19_france_heatmaps_nationales.py"])
         push("France heatmaps et niveaux scolaires")
         print("update France heatmap + niveaux scolaires : " + str(now.hour) + ":" + str(now.minute))
-        
-        subprocess.run(["sudo", "python3", PATH_FRANCE+"covid19_france_data_explorer.py"])
-        push("Data Explorer")
-        print("update data explorer: " + str(now.hour) + ":" + str(now.minute))
         
         try:
             subprocess.run(["sudo", "python3", PATH_FRANCE+"tweetbot_france_maps.py"])
