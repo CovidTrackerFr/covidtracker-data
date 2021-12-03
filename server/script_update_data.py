@@ -45,9 +45,9 @@ def update_repo():
     
 def push(type_data):
     os.chdir(BASE_CWD)
-    subprocess.run(["sudo", "git", "add", "images/", "data/"])
-    subprocess.run(["sudo", "git", "commit", "-m", "[auto] data update: {}".format(type_data)])
-    subprocess.run(["git", "push"])
+    subprocess.run(["sudo", "git", "add", "images/", "data/"], timeout=500)
+    subprocess.run(["sudo", "git", "commit", "-m", "[auto] data update: {}".format(type_data)], timeout=500)
+    subprocess.run(["git", "push"], timeout=500)
     print("pushed")
     os.chdir(PATH_FRANCE)
     
@@ -92,17 +92,25 @@ def try_update_france():
         push("France")
         print("update France charts: " + str(now.hour) + ":" + str(now.minute))
         
+        subprocess.run(["python3", "covid19_departements_dashboards.py"])
+        push("France dep dashboards")
+        print("update France dep dashboards: " + str(now.hour) + ":" + str(now.minute))
+        
+        subprocess.run(["python3", "covid19_regions_dashboards.py"])
+        push("France reg dashboards")
+        print("update France reg dashboards: " + str(now.hour) + ":" + str(now.minute))
+        
         subprocess.run(["sudo", "python3", PATH_FRANCE+"covid19_france_map_incid.py"])
         push("France map incid")
-        print("update France local: " + str(now.hour) + ":" + str(now.minute))
+        print("update France map incid: " + str(now.hour) + ":" + str(now.minute))
+        
+        subprocess.run(["sudo", "python3", PATH_FRANCE+"covid19_france_heatmaps_nationales.py"])
+        push("France heatmaps et niveaux scolaires")
+        print("update France heatmap + niveaux scolaires : " + str(now.hour) + ":" + str(now.minute))
         
         subprocess.run(["sudo", "python3", PATH_FRANCE+"covid19_france_data_explorer.py"])
         push("Data Explorer")
         print("update data explorer: " + str(now.hour) + ":" + str(now.minute))
-        
-        subprocess.run(["sudo", "python3", PATH_FRANCE+"covid19_france_charts_fastlane.py"])
-        push("France fastlane")
-        print("update France charts fastlane: " + str(now.hour) + ":" + str(now.minute))
         
         try:
             subprocess.run(["sudo", "python3", PATH_FRANCE+"tweetbot_france_maps.py"])
@@ -134,9 +142,13 @@ def try_update_france():
         push("France GIF")
         print("update France GIF: " + str(now.hour) + ":" + str(now.minute))
         
-        subprocess.run(["sudo", "python3", PATH_FRANCE+"covid19_france_charts_cas_hospitalisations.py.py"])
+        subprocess.run(["sudo", "python3", PATH_FRANCE+"covid19_france_charts_cas_hospitalisations.py"])
         push("France Cas Hosp Comparaison")
         print("update France Cas Hosp Comparaison: " + str(now.hour) + ":" + str(now.minute))
+        
+        subprocess.run(["sudo", "python3", PATH_FRANCE+"covid19_france_statut_vaccinal_drees.py"])
+        push("Drees Vaccination")
+        print("update drees vaccination: " + str(now.hour) + ":" + str(now.minute))
         
         os.chdir(BASE_CWD)
         
@@ -218,10 +230,4 @@ while True:
             k += 1
             
     time.sleep(120)
-
-
-# In[5]:
-
-
-(dt.datetime.now() - get_datetime_spf()).total_seconds()/3600
 

@@ -187,7 +187,7 @@ confines_mars_2021 = ["confines_mars_2021", "02", "06", "27", "59", "60", "62", 
 df_opendata_indicateurs = data.download_and_import_opendata_indicateurs()
 
 
-# In[31]:
+# In[20]:
 
 
 def generate_data(data_incid=pd.DataFrame(), data_hosp=pd.DataFrame(), data_sursaud=pd.DataFrame(), data_new=pd.DataFrame(), data_vue_ensemble=pd.DataFrame(), data_metropole=pd.DataFrame(), data_vacsi=pd.DataFrame(), data_obepine=pd.DataFrame(), data_opendata_indicateurs=pd.DataFrame(), mode="", export_jour=False, taux_croissance=False):## Incidence
@@ -638,26 +638,25 @@ def dataexplorer_niveaux_scolaires():
 dict_ns = dataexplorer_niveaux_scolaires()
 
 
-# In[32]:
+# In[30]:
 
 
 dataexplorer()
 
 
-# In[33]:
+# In[31]:
 
 
 dict_data = dataexplorer_age()
 
 
-# In[34]:
+# In[32]:
 
 
 dataexplorer_education()
 
 
-# In[40]:
-
+# In[33]:
 
 
 jours_dt = list(df_opendata_indicateurs.date)
@@ -665,7 +664,7 @@ cas_spf_opendata = df_opendata_indicateurs["conf_j1"].fillna(0)
 cas_spf_opendata_rolling = cas_spf_opendata.rolling(window=7).mean().fillna(0)
 
 
-# In[43]:
+# In[34]:
 
 
 cas_spf_opendata_rolling

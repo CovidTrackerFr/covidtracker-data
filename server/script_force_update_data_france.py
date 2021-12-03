@@ -93,7 +93,10 @@ def update_france():
         subprocess.run(["sudo", "python3", PATH_FRANCE+"covid19_france_map_incid.py"])
         push("France map incid")
         print("update France local: " + str(now.hour) + ":" + str(now.minute))
-    
+        
+        subprocess.run(["sudo", "python3", PATH_FRANCE+"covid19_france_heatmaps_nationales.py"])
+        push("France heatmaps et niveaux scolaires")
+        print("update France heatmap + niveaux scolaires : " + str(now.hour) + ":" + str(now.minute))
         
         subprocess.run(["sudo", "python3", PATH_FRANCE+"covid19_france_variants.py"])
         push("France variants")
@@ -119,9 +122,13 @@ def update_france():
         push("France GIF")
         print("update France GIF: " + str(now.hour) + ":" + str(now.minute))
         
-        subprocess.run(["sudo", "python3", PATH_FRANCE+"covid19_france_charts_cas_hospitalisations.py.py"])
+        subprocess.run(["sudo", "python3", PATH_FRANCE+"covid19_france_charts_cas_hospitalisations.py"])
         push("France Cas Hosp Comparaison")
         print("update France Cas Hosp Comparaison: " + str(now.hour) + ":" + str(now.minute))
+        
+        subprocess.run(["sudo", "python3", PATH_FRANCE+"covid19_france_statut_vaccinal_drees.py"])
+        push("Drees Vaccination")
+        print("update drees vaccination: " + str(now.hour) + ":" + str(now.minute))
         
         os.chdir(BASE_CWD)
         

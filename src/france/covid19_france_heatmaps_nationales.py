@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[111]:
+# In[1]:
 
 
 """
@@ -22,7 +22,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[112]:
+# In[2]:
 
 
 import pandas as pd
@@ -41,7 +41,7 @@ locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
 now = datetime.now()
 
 
-# In[113]:
+# In[3]:
 
 
 def nbWithSpaces(nb):
@@ -74,19 +74,19 @@ def traitement_val(valeur, plus_sign=False, couleur=False):
     return valeur
 
 
-# In[115]:
+# In[4]:
 
 
 data.download_data()
 
 
-# In[116]:
+# In[5]:
 
 
 df_tests_viros = data.import_data_tests_sexe()
 
 
-# In[124]:
+# In[6]:
 
 
 df_tests_viros_france = df_tests_viros.groupby(['jour', 'cl_age90']).sum().reset_index()
@@ -124,7 +124,7 @@ dates_heatmap_lastday = tranche.index + timedelta(days=6)
 dates_heatmap = [str(dates_heatmap_firstday[i])[8:10] + "/" + str(dates_heatmap_firstday[i])[5:7] + "<br>" + str(dates_heatmap_lastday[i])[8:10] + "/" + str(dates_heatmap_lastday[i])[5:7] for i, val in enumerate(dates_heatmap_firstday)]
 
 
-# In[125]:
+# In[7]:
 
 
 for (name, array, title, scale_txt, data_example, digits) in [("cas", array_positif, "Nombre de <b>tests positifs</b>", "", "", 0), ("depistage", array_depistage, "Taux de <b>dépistage</b>", "", "", 0), ("taux", array_taux, "Taux de <b>positivité</b>", "%", "%", 1), ("incidence", array_incidence, "Taux d'<b>incidence</b>", " cas", " cas", 1)]: #
@@ -223,13 +223,19 @@ for (name, array, title, scale_txt, data_example, digits) in [("cas", array_posi
 
 # ## Niveaux scolaires
 
-# In[119]:
+# In[37]:
 
 
 df_niveaux_scolaires = data.download_and_import_data_niveaux_scolaires_fra()
 
 
-# In[120]:
+# In[34]:
+
+
+
+
+
+# In[45]:
 
 
 df_tests_rolling = pd.DataFrame()
@@ -237,10 +243,11 @@ df_tests_rolling = pd.DataFrame()
 array_taux_niveaux_scolaires= []
 array_taux_depistage_niveaux_scolaires= []
 array_incidence_niveaux_scolaires=[]
-for age in sorted(list(dict.fromkeys(list(df_niveaux_scolaires['age_18ans'].values)))):
+sorted_tranches = sorted(list(dict.fromkeys(list(df_niveaux_scolaires['age_18ans'].astype(int).values))))
+for age in sorted_tranches:
     if age != -1:
         df_temp = pd.DataFrame()
-        df_niveaux_scolaires_temp = df_niveaux_scolaires[df_niveaux_scolaires['age_18ans'] == age]
+        df_niveaux_scolaires_temp = df_niveaux_scolaires[df_niveaux_scolaires['age_18ans'] == str(age)]
         tranche = df_niveaux_scolaires_temp
         tranche.index = pd.to_datetime(tranche["jour"])
         tranche = tranche[tranche.index.max() - timedelta(days=7*32-1):].resample('7D').last()
@@ -255,7 +262,7 @@ dates_heatmap_lastday = tranche.index + timedelta(days=6)
 dates_heatmap = [str(dates_heatmap_firstday[i])[8:10] + "/" + str(dates_heatmap_firstday[i])[5:7] + "<br>" + str(dates_heatmap_lastday[i])[8:10] + "/" + str(dates_heatmap_lastday[i])[5:7] for i, val in enumerate(dates_heatmap_firstday)]
 
 
-# In[121]:
+# In[46]:
 
 
 for (name, array, title, scale_txt, data_example, digits) in [("depistage", array_taux_depistage_niveaux_scolaires, "Taux de <b>dépistage</b>", " tests", " tests", 1), ("taux", array_taux_niveaux_scolaires, "Taux de <b>positivité</b>", "%", "%", 1), ("incidence", array_incidence_niveaux_scolaires, "Taux d'<b>incidence</b>", " cas", " cas", 1)]: #
