@@ -632,13 +632,13 @@ def dataexplorer_niveaux_scolaires():
     return dict_data
 
 
-# In[29]:
+# In[35]:
 
 
 dict_ns = dataexplorer_niveaux_scolaires()
 
 
-# In[30]:
+# In[36]:
 
 
 dataexplorer()

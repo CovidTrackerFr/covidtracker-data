@@ -22,7 +22,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[50]:
+# In[2]:
 
 
 import pandas as pd
@@ -68,13 +68,13 @@ clage_spf = pd.read_csv(PATH+"data/france/clage_spf.csv", sep=";")
 #df_a_vacsi_a_france = df_a_vacsi_a_france.merge(clage_spf, left_on="clage_vacsi", right_on="code_spf")
 
 
-# In[20]:
+# In[7]:
 
 
 df_new = data.import_data_new()
 
 
-# In[7]:
+# In[8]:
 
 
 df_tests_viros = data.import_data_tests_viros()
@@ -84,13 +84,13 @@ df_tests_viros = df_tests_viros[df_tests_viros["cl_age90"] == 0]
 df_tests_viros
 
 
-# In[29]:
+# In[9]:
 
 
 df_new_dep
 
 
-# In[127]:
+# In[ ]:
 
 
 from sklearn import datasets, linear_model
@@ -229,7 +229,7 @@ plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/cas_vacci
 
 
 
-# In[9]:
+# In[ ]:
 
 
 df_a_vacsi_a_france_80 = df_a_vacsi_a_france[df_a_vacsi_a_france.clage_vacsi==80]
@@ -297,7 +297,7 @@ fig.write_image(PATH + "images/charts/france/hosp_vacsi_p80.jpeg", scale=2, widt
 plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/dc_vacsi_p80.html', auto_open=False)
 
 
-# In[10]:
+# In[ ]:
 
 
 df_a_vacsi_a_france_80 = df_a_vacsi_a_france[df_a_vacsi_a_france.clage_vacsi!=80].groupby(["jour"]).sum().reset_index()
@@ -365,7 +365,7 @@ fig.write_image(PATH + "images/charts/france/hosp_vacsi_m80.jpeg", scale=2, widt
 plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/dc_vacsi_m80.html', auto_open=False)
 
 
-# In[11]:
+# In[ ]:
 
 
 df_a_vacsi_a_france_80 = df_a_vacsi_a_france[df_a_vacsi_a_france.clage_vacsi==80]
@@ -433,7 +433,7 @@ fig.write_image(PATH + "images/charts/france/dc_vacsi_p80.jpeg", scale=2, width=
 plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/dc_vacsi_p80.html', auto_open=False)
 
 
-# In[12]:
+# In[ ]:
 
 
 df_a_vacsi_a_france_80 = df_a_vacsi_a_france[df_a_vacsi_a_france.clage_vacsi!=80].groupby(["jour"]).sum().reset_index()
@@ -501,7 +501,7 @@ fig.write_image(PATH + "images/charts/france/dc_vacsi_m80.jpeg", scale=2, width=
 plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/dc_vacsi_m80.html', auto_open=False)
 
 
-# In[13]:
+# In[ ]:
 
 
 df_a_vacsi_a_france_80 = df_a_vacsi_a_france[df_a_vacsi_a_france.clage_vacsi!=80].groupby(["jour"]).sum().reset_index()
@@ -572,7 +572,7 @@ fig.write_image(PATH + "images/charts/france/dc_vacsi_m80.jpeg", scale=2, width=
 plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/dc_vacsi_m80_p80.html', auto_open=False)
 
 
-# In[14]:
+# In[ ]:
 
 
 def dc_hosp_clage(df_hosp_fra_clage, lastday="", minday=""):    
@@ -643,7 +643,7 @@ def dc_hosp_clage(df_hosp_fra_clage, lastday="", minday=""):
     fig.write_image(PATH + "images/charts/france/dc_hosp_clage/{}.jpeg".format(lastday), scale=2, width=500, height=500)
 
 
-# In[15]:
+# In[ ]:
 
 
 def vacsi_clage(df_a_vacsi_a_france, lastday=""):
@@ -684,7 +684,7 @@ def vacsi_clage(df_a_vacsi_a_france, lastday=""):
     fig.write_image(PATH + "images/charts/france/vacsi_clage/{}.jpeg".format(lastday), scale=2, width=500, height=500)
 
 
-# In[16]:
+# In[ ]:
 
 
 def assemble_images(date):
@@ -700,7 +700,7 @@ def assemble_images(date):
     cv2.imwrite(PATH+'images/charts/france/vacsi_hosp_comp/{}.jpeg'.format(date), im_h)
 
 
-# In[17]:
+# In[ ]:
 
 
 def build_video(dates):
@@ -737,7 +737,7 @@ def build_video(dates):
             print("error conversion h265")
 
 
-# In[18]:
+# In[ ]:
 
 
 dict_clage = {
@@ -759,7 +759,7 @@ dict_clage = {
 df_a_vacsi_a_france["clage_vacsi_text"] = df_a_vacsi_a_france["clage_vacsi"].map(dict_clage)
 
 
-# In[19]:
+# In[ ]:
 
 
 days = sorted(df_a_vacsi_a_france.jour.unique()) #[-100:]
