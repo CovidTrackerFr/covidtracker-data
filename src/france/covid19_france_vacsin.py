@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[10]:
 
 
 """
@@ -22,7 +22,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[2]:
+# In[11]:
 
 
 import pandas as pd
@@ -37,20 +37,20 @@ import locale
 locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
 
 
-# In[3]:
+# In[12]:
 
 
 data.download_data()
 data.download_data_hosp_fra_clage()
 
 
-# In[4]:
+# In[13]:
 
 
 df_ameli = pd.read_csv("https://datavaccin-covid.ameli.fr/explore/dataset/donnees-vaccination-par-tranche-dage-type-de-vaccin-et-departement/download/?format=csv&timezone=Europe/Berlin&lang=fr&use_labels_for_header=true&csv_separator=%3B", sep=";")
 
 
-# In[5]:
+# In[14]:
 
 
 df_ameli_filtre = df_ameli[df_ameli["classe_age"]=="TOUT_AGE"]
@@ -59,7 +59,7 @@ df_ameli_filtre = df_ameli_filtre[df_ameli_filtre["libelle_departement"] != "FRA
 df_ameli_filtre = df_ameli_filtre[df_ameli_filtre["type_vaccin"] == "Tout vaccin"]
 
 
-# In[6]:
+# In[15]:
 
 
 df_a_vacsi_a_france = data.import_data_vacsi_a_fra()
@@ -68,13 +68,13 @@ clage_spf = pd.read_csv(PATH+"data/france/clage_spf.csv", sep=";")
 #df_a_vacsi_a_france = df_a_vacsi_a_france.merge(clage_spf, left_on="clage_vacsi", right_on="code_spf")
 
 
-# In[7]:
+# In[16]:
 
 
 df_new = data.import_data_new()
 
 
-# In[8]:
+# In[19]:
 
 
 df_tests_viros = data.import_data_tests_viros()
@@ -84,13 +84,7 @@ df_tests_viros = df_tests_viros[df_tests_viros["cl_age90"] == 0]
 df_tests_viros
 
 
-# In[9]:
-
-
-df_new_dep
-
-
-# In[ ]:
+# In[20]:
 
 
 from sklearn import datasets, linear_model
@@ -229,7 +223,7 @@ plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/cas_vacci
 
 
 
-# In[ ]:
+# In[21]:
 
 
 df_a_vacsi_a_france_80 = df_a_vacsi_a_france[df_a_vacsi_a_france.clage_vacsi==80]
@@ -297,7 +291,7 @@ fig.write_image(PATH + "images/charts/france/hosp_vacsi_p80.jpeg", scale=2, widt
 plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/dc_vacsi_p80.html', auto_open=False)
 
 
-# In[ ]:
+# In[22]:
 
 
 df_a_vacsi_a_france_80 = df_a_vacsi_a_france[df_a_vacsi_a_france.clage_vacsi!=80].groupby(["jour"]).sum().reset_index()
@@ -365,7 +359,7 @@ fig.write_image(PATH + "images/charts/france/hosp_vacsi_m80.jpeg", scale=2, widt
 plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/dc_vacsi_m80.html', auto_open=False)
 
 
-# In[ ]:
+# In[23]:
 
 
 df_a_vacsi_a_france_80 = df_a_vacsi_a_france[df_a_vacsi_a_france.clage_vacsi==80]
@@ -433,7 +427,7 @@ fig.write_image(PATH + "images/charts/france/dc_vacsi_p80.jpeg", scale=2, width=
 plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/dc_vacsi_p80.html', auto_open=False)
 
 
-# In[ ]:
+# In[24]:
 
 
 df_a_vacsi_a_france_80 = df_a_vacsi_a_france[df_a_vacsi_a_france.clage_vacsi!=80].groupby(["jour"]).sum().reset_index()
@@ -501,7 +495,7 @@ fig.write_image(PATH + "images/charts/france/dc_vacsi_m80.jpeg", scale=2, width=
 plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/dc_vacsi_m80.html', auto_open=False)
 
 
-# In[ ]:
+# In[25]:
 
 
 df_a_vacsi_a_france_80 = df_a_vacsi_a_france[df_a_vacsi_a_france.clage_vacsi!=80].groupby(["jour"]).sum().reset_index()
@@ -572,7 +566,7 @@ fig.write_image(PATH + "images/charts/france/dc_vacsi_m80.jpeg", scale=2, width=
 plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/dc_vacsi_m80_p80.html', auto_open=False)
 
 
-# In[ ]:
+# In[26]:
 
 
 def dc_hosp_clage(df_hosp_fra_clage, lastday="", minday=""):    
@@ -643,7 +637,7 @@ def dc_hosp_clage(df_hosp_fra_clage, lastday="", minday=""):
     fig.write_image(PATH + "images/charts/france/dc_hosp_clage/{}.jpeg".format(lastday), scale=2, width=500, height=500)
 
 
-# In[ ]:
+# In[27]:
 
 
 def vacsi_clage(df_a_vacsi_a_france, lastday=""):
@@ -684,7 +678,7 @@ def vacsi_clage(df_a_vacsi_a_france, lastday=""):
     fig.write_image(PATH + "images/charts/france/vacsi_clage/{}.jpeg".format(lastday), scale=2, width=500, height=500)
 
 
-# In[ ]:
+# In[28]:
 
 
 def assemble_images(date):
@@ -700,7 +694,7 @@ def assemble_images(date):
     cv2.imwrite(PATH+'images/charts/france/vacsi_hosp_comp/{}.jpeg'.format(date), im_h)
 
 
-# In[ ]:
+# In[29]:
 
 
 def build_video(dates):
@@ -737,7 +731,7 @@ def build_video(dates):
             print("error conversion h265")
 
 
-# In[ ]:
+# In[30]:
 
 
 dict_clage = {
@@ -759,7 +753,7 @@ dict_clage = {
 df_a_vacsi_a_france["clage_vacsi_text"] = df_a_vacsi_a_france["clage_vacsi"].map(dict_clage)
 
 
-# In[ ]:
+# In[31]:
 
 
 days = sorted(df_a_vacsi_a_france.jour.unique()) #[-100:]

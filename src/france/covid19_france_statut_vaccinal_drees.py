@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[18]:
 
 
 """
@@ -22,7 +22,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[2]:
+# In[19]:
 
 
 import pandas as pd
@@ -34,12 +34,13 @@ from plotly.subplots import make_subplots
 from datetime import datetime
 import plotly
 import cv2
+import numpy as np
 PATH = "../../"
 import locale
 locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
 
 
-# In[3]:
+# In[20]:
 
 
 COULEUR_NON_VACCINES = "#C65102"
@@ -48,7 +49,7 @@ COULEUR_COMPLETEMENT_VACCINES_RAPPEL = "black"
 COULEUR_PARTIELLEMENT_VACCINES = "#4777d6"
 
 
-# In[4]:
+# In[21]:
 
 
 df_drees = pd.read_csv("https://data.drees.solidarites-sante.gouv.fr/explore/dataset/covid-19-resultats-issus-des-appariements-entre-si-vic-si-dep-et-vac-si/download/?format=csv&timezone=Europe/Berlin&lang=fr&use_labels_for_header=true&csv_separator=%3B", sep=";")
@@ -59,7 +60,7 @@ df_drees = df_drees.sort_values(by="date")
 df_drees = df_drees[df_drees["vac_statut"]!="Ensemble"]
 
 
-# In[5]:
+# In[22]:
 
 
 df_drees_age = pd.read_csv("https://data.drees.solidarites-sante.gouv.fr/explore/dataset/covid-19-resultats-par-age-issus-des-appariements-entre-si-vic-si-dep-et-vac-si/download/?format=csv&timezone=Europe/Berlin&lang=fr&use_labels_for_header=true&csv_separator=%3B", sep=";")
@@ -70,7 +71,7 @@ df_drees_age = df_drees_age[df_drees_age["vac_statut"]!="Ensemble"]
 df_drees_age_lastday = df_drees_age[df_drees_age["date"] == df_drees_age["date"].max()]
 
 
-# In[6]:
+# In[23]:
 
 
 df_drees_non_vaccines = df_drees[df_drees["vac_statut"]=="Non-vaccinés"]
@@ -89,7 +90,7 @@ df_drees_partiellement_vaccines["effectif"] = df_drees_partiellement_vaccines["e
 df_drees_ensemble = df_drees.groupby("date").sum().reset_index()
 
 
-# In[7]:
+# In[24]:
 
 
 def get_df_by_vaccine_status(df):
@@ -112,7 +113,7 @@ def get_df_by_vaccine_status(df):
     
 
 
-# In[53]:
+# In[25]:
 
 
 fig = go.Figure()
@@ -219,7 +220,7 @@ name_fig = "hc_statut_vaccinal_age"
 fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
 
 
-# In[9]:
+# In[26]:
 
 
 import numpy as np
@@ -304,7 +305,7 @@ name_fig = "hc_statut_vaccinal_age_diminution_risque"
 fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
 
 
-# In[10]:
+# In[27]:
 
 
 import numpy as np
@@ -389,7 +390,7 @@ name_fig = "sc_statut_vaccinal_age_diminution_risque"
 fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
 
 
-# In[54]:
+# In[28]:
 
 
 import ast 
@@ -497,7 +498,7 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2,
 #fig.show()
 
 
-# In[12]:
+# In[29]:
 
 
 locale.setlocale(locale.LC_TIME, 'fr_FR')
@@ -668,7 +669,7 @@ name_fig = "pcr_plus_sympt_proportion_selon_statut_vaccinal"
 fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
 
 
-# In[13]:
+# In[30]:
 
 
 locale.setlocale(locale.LC_TIME, 'fr_FR')
@@ -828,7 +829,7 @@ name_fig = "pcr_plus_proportion_selon_statut_vaccinal"
 fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
 
 
-# In[14]:
+# In[31]:
 
 
 ages_str = ["0 à 19 ans", "20 à 39 ans", "40 à 59 ans", "60 à 79 ans", "plus 80 ans"]
@@ -1004,7 +1005,7 @@ for idx, age in enumerate(ages):
     fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
 
 
-# In[15]:
+# In[32]:
 
 
 fig = go.Figure()
@@ -1160,7 +1161,7 @@ name_fig = "hc_proportion_selon_statut_vaccinal"
 fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
 
 
-# In[60]:
+# In[33]:
 
 
 ages=df_drees_age_lastday.age.sort_values().unique()
@@ -1339,7 +1340,7 @@ for idx, age in enumerate(ages):
     plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
-# In[17]:
+# In[34]:
 
 
 ages_str = ["0 à 19 ans", "20 à 39 ans", "40 à 59 ans", "60 à 79 ans", "plus 80 ans"]
@@ -1475,7 +1476,7 @@ for idx, age in enumerate(ages):
     plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
-# In[18]:
+# In[35]:
 
 
 fig = go.Figure()
@@ -1634,7 +1635,7 @@ name_fig = "sc_proportion_selon_statut_vaccinal"
 fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
 
 
-# In[59]:
+# In[36]:
 
 
 ages=df_drees_age_lastday.age.sort_values().unique()
@@ -1814,7 +1815,7 @@ for idx, age in enumerate(ages):
     fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
 
 
-# In[20]:
+# In[37]:
 
 
 fig = go.Figure()
@@ -1971,7 +1972,7 @@ name_fig = "dc_proportion_selon_statut_vaccinal"
 fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=900, height=600)
 
 
-# In[21]:
+# In[38]:
 
 
 positif_vax = round((df_drees_completement_vaccines["nb_PCR+_sympt"].values[-1]/df_drees_ensemble["nb_PCR+_sympt"].values[-1])*100)
@@ -1989,7 +1990,7 @@ fig = px.funnel(df, y='number', x='stage', color='État vaccinal', height=700, w
 fig.show()
 
 
-# In[22]:
+# In[39]:
 
 
 taux_positif_vax = round((df_drees_completement_vaccines["nb_PCR+_sympt"].values[-1]/df_drees_completement_vaccines["nb_PCR_sympt"].values[-1])*100)
@@ -2005,7 +2006,7 @@ fig = px.funnel(df, y='number', x='stage', color='Résultat', height=700, width=
 fig.show()
 
 
-# In[23]:
+# In[42]:
 
 
 #df = pd.concat([df_completement_vaccine, df_partiellement_vaccine, df_non_vaccine], axis=0)
@@ -2013,8 +2014,8 @@ fig.show()
 hosp_vax = int(round((df_drees_completement_vaccines["HC"].values[-1]/df_drees_ensemble["HC"].values[-1])*100))
 hosp_partiellement_vax = int(round((df_drees_partiellement_vaccines["HC"].values[-1]/df_drees_ensemble["HC"].values[-1])*100))
 
-pop_vax = int(round((df_drees_completement_vaccines["effectif J-7"].values[-1]/df_drees_ensemble["effectif J-7"].values[-1])*100))
-pop_partiellement_vax = int(round((df_drees_partiellement_vaccines["effectif J-7"].values[-1]/df_drees_ensemble["effectif J-7"].values[-1])*100))
+pop_vax = int(round((df_drees_completement_vaccines["effectif"].values[-1]/df_drees_ensemble["effectif"].values[-1])*100))
+pop_partiellement_vax = int(round((df_drees_partiellement_vaccines["effectif"].values[-1]/df_drees_ensemble["effectif"].values[-1])*100))
 
 x=["<b>Population générale</b>", "<b>Hospitalisés</b>"]
 y1 = [100-pop_vax-pop_partiellement_vax, 100-hosp_partiellement_vax-hosp_vax]
@@ -2059,7 +2060,7 @@ name_fig = "popgen_hosp_statut_vaccinal"
 fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2, width=600, height=600)
 
 
-# In[ ]:
+# In[43]:
 
 
 ages_str = ["0 à 19 ans", "20 à 39 ans", "40 à 59 ans", "60 à 79 ans", "plus 80 ans"]

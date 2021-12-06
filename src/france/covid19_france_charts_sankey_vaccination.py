@@ -74,36 +74,37 @@ fig.update_xaxes(range=[0, 30], row=1, col=2)
 fig.show()
 
 
-# In[72]:
+# In[20]:
 
 
 df_drees = pd.read_csv("https://data.drees.solidarites-sante.gouv.fr/explore/dataset/covid-19-resultats-issus-des-appariements-entre-si-vic-si-dep-et-vac-si/download/?format=csv&timezone=Europe/Berlin&lang=fr&use_labels_for_header=true&csv_separator=%3B", sep=";")
 df_drees = df_drees.sort_values(by="date")
+df_drees = df_drees[df_drees["date"] >= df_drees["date"].values[-14]]
 
 
-# In[81]:
+# In[21]:
 
 
 
 
 
-# In[43]:
+# In[22]:
 
 
 df_drees = df_drees[df_drees["vac_statut"]!="Ensemble"]
 df_drees_ensemble = df_drees.groupby("date").sum().reset_index()
 
 df_drees_non_vaccines = df_drees[df_drees["vac_statut"]=="Non-vaccinés"]
-df_drees_non_vaccines["effectif J-7"] = df_drees_non_vaccines["effectif J-7"].rolling(window=7).mean()
+df_drees_non_vaccines["effectif"] = df_drees_non_vaccines["effectif"].rolling(window=7).mean()
 
 df_drees_completement_vaccines = df_drees[df_drees["vac_statut"].isin(["Vaccination complète",])].groupby("date").sum().reset_index()
-df_drees_completement_vaccines["effectif J-7"] = df_drees_completement_vaccines["effectif J-7"].rolling(window=7).mean()
+df_drees_completement_vaccines["effectif"] = df_drees_completement_vaccines["effectif"].rolling(window=7).mean()
 
 df_drees_partiellement_vaccines = df_drees[df_drees["vac_statut"].isin(["Primo dose récente", "Primo dose efficace"])].groupby("date").sum().reset_index()
-df_drees_partiellement_vaccines["effectif J-7"] = df_drees_partiellement_vaccines["effectif J-7"].rolling(window=7).mean()
+df_drees_partiellement_vaccines["effectif"] = df_drees_partiellement_vaccines["effectif"].rolling(window=7).mean()
 
 
-# In[75]:
+# In[23]:
 
 
 x=["<b>Population générale</b>", "<b>Hospitalisés</b>"]
@@ -146,7 +147,7 @@ fig.update_layout(
 fig.show()
 
 
-# In[76]:
+# In[8]:
 
 
 x=["<b>Population générale</b>", "<b>Hospitalisés</b>"]
@@ -189,7 +190,7 @@ fig.update_layout(
 fig.show()
 
 
-# In[147]:
+# In[9]:
 
 
 x=["<b>Population générale</b>", "<b>Hospitalisés</b>"]
@@ -232,7 +233,7 @@ fig.update_layout(
 fig.show()
 
 
-# In[141]:
+# In[10]:
 
 
 x=["Non vaccinés", "Partiellement vaccinés", "Totalement vaccinés"]
@@ -291,7 +292,7 @@ fig.add_annotation(x="Non vaccinés", y=132,
 fig.show()
 
 
-# In[6]:
+# In[11]:
 
 
 fig = go.Figure()
@@ -326,7 +327,7 @@ fig.update_yaxes(range=[0, 100])
 fig.write_image(PATH + "images/charts/france/{}.jpeg".format("carres_cas_vaccination"), scale=2, width=900, height=900)
 
 
-# In[3]:
+# In[ ]:
 
 
 fig

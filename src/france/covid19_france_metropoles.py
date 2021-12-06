@@ -47,16 +47,17 @@ now = datetime.now()
 PATH = "../../"
 
 
-# In[11]:
+# In[3]:
 
 
+data.download_data()
 df_metro = data.import_data_metropoles()
 df_metro_65 = df_metro[df_metro["clage_65"] == 65]
 df_metro_0 = df_metro[df_metro["clage_65"] == 0]
 nb_last_days=40
 
 
-# In[14]:
+# In[4]:
 
 
 metropoles = df_metro_0[df_metro_0["semaine_glissante"]==df_metro_0["semaine_glissante"].max()].sort_values(by=["ti"], ascending=False)["Metropole"].values
@@ -64,101 +65,7 @@ metropoles_couvre_feu = ["Paris", "Saint Etienne", "Grenoble", "Montpellier", "R
 metropoles_couvre_feu_sorted = [m for m in metropoles if m in metropoles_couvre_feu]
 
 
-# In[15]:
-
-
-
-fig=go.Figure()
-
-for i,metro in enumerate(metropoles_couvre_feu_sorted): #list(dict.fromkeys(list(df_metro['Metropole'].values))
-    
-    y=df_metro_0[df_metro_0["Metropole"]==metro]
-    y=y[len(y)-nb_last_days:]
-    
-    fig.add_trace(go.Scatter(
-            x = [d[-10:] for d in y["semaine_glissante"].values],
-            y = y["ti"],
-            name = str(i+1) + ".<b> " + metro + "</b>" + "<br> Incidence : " + str(math.trunc(y["ti"].values[-1])) + "",
-            line_width=5,
-            marker_size=10,
-            mode="markers+lines",
-            opacity=1))
-    fig.update_yaxes(range=[0, df_metro_0["ti"].max()])
-    
-    fig.update_layout(
-        
-        title={
-            'text': "<b>Taux d'incidence du Covid19 dans les métropoles [avec couvre-feu le 17/10]<br></b>{}, nombre de cas sur 7 j. pour 100k. hab.".format("covidtracker.fr"),
-            'y':0.95,
-            'x':0.5,
-            'xanchor': 'center',
-            'yanchor': 'top'},
-            titlefont = dict(
-                size=20),
-    )
-    
-    
-name_fig = "line_metropole_avec_couvre_feu"
-fig.write_image(PATH+"images/charts/france/{}.jpeg".format(name_fig), scale=2, width=800, height=800)
-
-plotly.offline.plot(fig, filename = PATH+'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
-
-
-# In[16]:
-
-
-
-fig=go.Figure()
-
-metropoles = df_metro_0[df_metro_0["semaine_glissante"]==df_metro_0["semaine_glissante"].max()].sort_values(by=["ti"], ascending=False)["Metropole"].values
-
-for i,metro in enumerate([m for m in metropoles if m not in metropoles_couvre_feu]): #list(dict.fromkeys(list(df_metro['Metropole'].values))
-    
-    y=df_metro_0[df_metro_0["Metropole"]==metro]
-    #y=y[len(y)-nb_last_days:]
-                 
-    fig.add_trace(go.Scatter(
-            x = [d[-10:] for d in y["semaine_glissante"].values],
-            y = y["ti"],
-            name = str(i+1) + ".<b> " + metro + "</b>" + "<br> Incidence : " + str(math.trunc(y["ti"].values[-1])) + "",
-            line_width=5,
-            marker_size=10,
-            mode="markers+lines",
-            opacity=1))
-    
-    fig.update_yaxes(range=[0, df_metro_0["ti"].max()])
-    
-    fig.update_layout(
-        
-        title={
-            'text': "<b>Taux d'incidence du Covid19 dans les métropoles <b>[sans couvre-feu le 17/10]</b><br></b>{}, nombre de cas sur 7 j. pour 100k. hab.".format("covidtracker.fr"),
-            'y':0.95,
-            'x':0.5,
-            'xanchor': 'center',
-            'yanchor': 'top'},
-            titlefont = dict(
-                size=20),
-    )
-    
-    
-name_fig = "line_metropoles_sans_couvre_feu"
-fig.write_image(PATH+"images/charts/france/{}.jpeg".format(name_fig), scale=2, width=800, height=800)
-
-plotly.offline.plot(fig, filename = PATH+'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
-
-
-# In[17]:
-
-
-im1 = cv2.imread(PATH+'images/charts/france/line_metropole_avec_couvre_feu.jpeg')
-im2 = cv2.imread(PATH+'images/charts/france/line_metropoles_sans_couvre_feu.jpeg')
-
-im3 = cv2.hconcat([im1, im2])
-
-cv2.imwrite(PATH+'images/charts/france/line_metropoles_comp_couvre_feu.jpeg', im3)
-
-
-# In[18]:
+# In[8]:
 
 
 nb_last_days=25
