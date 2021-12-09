@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[24]:
+# In[62]:
 
 
 import pandas as pd
@@ -13,7 +13,7 @@ from dateutil.relativedelta import relativedelta
 PATH = "../../"
 
 
-# In[2]:
+# In[63]:
 
 
 df_vacsi = data.import_data_vacsi_fra()
@@ -25,7 +25,7 @@ df_vacsi = data.import_data_vacsi_fra()
 
 
 
-# In[3]:
+# In[64]:
 
 
 def nbWithSpaces(nb):
@@ -40,7 +40,7 @@ def nbWithSpaces(nb):
         return str_nb
 
 
-# In[57]:
+# In[185]:
 
 
 fig = go.Figure()
@@ -175,4 +175,150 @@ fig.update_layout(
             'yanchor': 'top'},
 )
 fig.write_image(PATH + "images/charts/france/{}.jpeg".format("vaccination_rappel_comparaison_5_7_mois"), scale=2, width=800, height=600)
+
+
+# In[190]:
+
+
+fig = go.Figure()
+
+DATE_DEBUT = "2021-07-01"
+DATE_DEBUT_DT = dt.datetime.strptime(DATE_DEBUT, "%Y-%m-%d")
+date_5_mois = (pd.to_datetime(DATE_DEBUT) - relativedelta(months=5) - timedelta(days=2)).strftime(format="%Y-%m-%d")
+date_7_mois = (pd.to_datetime(DATE_DEBUT) - relativedelta(months=7) - timedelta(days=2)).strftime(format="%Y-%m-%d")
+MI_JANVIER_MOINS_7_MOIS = (pd.to_datetime("2022-01-15") - relativedelta(months=7)).strftime(format="%Y-%m-%d")
+
+n_days = (dt.datetime.strptime(df_vacsi["jour"].max(), "%Y-%m-%d") - DATE_DEBUT_DT).days
+dates_rappel_comparaison = [(DATE_DEBUT_DT + timedelta(days=n)).strftime("%Y-%m-%d") for n in range(0, n_days+1)]
+
+fig.add_trace(
+    go.Scatter(
+        x=df_vacsi["jour"],
+        y=df_vacsi.n_cum_dose1,
+        marker_color="rgba(170, 201, 227, 1)",
+        fillcolor="rgba(170, 201, 227, 1)",
+        line_width=0,
+        fill="tozeroy",
+        name="Vaccinés partiellement"
+    )
+)
+
+fig.add_trace(
+    go.Scatter(
+        x=df_vacsi["jour"],
+        y=df_vacsi.n_cum_complet,
+        marker_color="rgba(70, 148, 224, 1)",
+        fillcolor="rgba(70, 148, 224, 1)",
+        fill="tozeroy",
+        line_width=0,
+        name="Vaccinés complètement"
+    )
+)
+
+fig.add_trace(
+    go.Scatter(
+        x=dates_rappel_comparaison,
+        y=df_vacsi[df_vacsi["jour"]>=date_5_mois].n_cum_complet,
+        marker_color="rgba(181, 220, 245, 1)",
+        fillcolor="rgba(181, 220, 245, 1)",
+        line=dict(width=1, dash="dot"),
+        name="Éligibles au rappel",
+    )
+)
+
+
+fig.add_trace(
+    go.Scatter(
+        x=dates_rappel_comparaison,
+        y=df_vacsi[df_vacsi["jour"]>=DATE_DEBUT].n_cum_rappel,
+        marker_color="rgba(52, 116, 184, 1)",
+        fillcolor="rgba(52, 116, 184, 1)",
+        fill="tozeroy",
+        line_width=0,
+        name="Vaccinés avec rappel"
+    )
+)
+
+fig.add_shape(type="line",
+    x0=df_vacsi["jour"].min(), y0=67407241, x1=df_vacsi["jour"].max(), y1=67407241,
+    line=dict(color="black",width=1, dash="dot")
+)
+
+fig.add_shape(type="line",
+    x0=df_vacsi["jour"].min(), y0=57656000, x1=df_vacsi["jour"].max(), y1=57656000,
+    line=dict(color="rgba(70, 148, 224, 1)",width=1, dash="dot")
+)
+
+fig.add_annotation(
+    x=df_vacsi["jour"].max(),
+    y=57656000+1000000,
+    font=dict(size=7, color="rgba(70, 148, 224, 1)"),
+    text="Français éligibles (+12 ans)",
+    xanchor="right",
+    showarrow = False
+    )
+
+fig.add_annotation(
+    x=df_vacsi["jour"].max(),
+    y=67407241-1000000,
+    font=dict(size=7, color="black"),
+    text="Population française",
+    xanchor="right",
+    showarrow = False
+    )
+
+
+fig.add_annotation(
+    x=df_vacsi["jour"].max(),
+    y=df_vacsi.n_cum_dose1.max(),
+    xshift=10,
+    font=dict(size=10, color="black"),
+    align="left",
+    text=f"<span style='color: rgba(115, 154, 186, 1);'><b>{round(df_vacsi.n_cum_dose1.max()/1000000, 1)}</b> millions<br>partiellement vaccinés<br></span>"
+          f"<span style='color: rgba(70, 148, 224, 1);'><b>{round(df_vacsi.n_cum_complet.max()/1000000, 1)}</b> millions<br>complètement vaccinés</span>",
+    xanchor="left",
+    yanchor="top",
+    showarrow = False
+    
+    )
+
+fig.add_annotation(
+    x=df_vacsi["jour"].max(),
+    y=df_vacsi.n_cum_rappel.max(),
+    xshift=10,
+    font=dict(size=10, color="black"),
+    align="left",
+    text=f"<span style='color: rgba(52, 116, 184, 1);'><b>{round(df_vacsi.n_cum_rappel.max()/1000000, 1)}</b> millions<br>vaccinés avec rappel</span>",
+    xanchor="left",
+    showarrow = False
+    )
+
+
+fig.add_annotation(
+    x=0.5,
+    y=1.12,
+    xref='paper',
+    yref='paper',
+    font=dict(size=14),
+    text="Données Ministère de la Santé - @GuillaumeRozier - covidtracker.fr",
+    showarrow = False
+    )
+
+fig.update_xaxes(range=[df_vacsi["jour"].min(), df_vacsi["jour"].max()])
+fig.update_yaxes(rangemode="nonnegative")
+
+fig.update_layout(
+    legend_orientation="h",
+    margin=dict(
+            r=140
+        ),
+    title={
+            'text': "Nombre de Français vaccinés",
+            'y':0.97,
+            'x':0.5,
+            'xanchor': 'center',
+            'font': {'size': 25},
+            'yanchor': 'top'},
+)
+fig.write_image(PATH + "images/charts/france/{}.jpeg".format("vaccination_repartition"), scale=2, width=1000, height=600)
 
