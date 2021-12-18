@@ -831,7 +831,7 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2,
 
 # In[14]:
 
-
+ages=df_drees_age_lastday.age.sort_values().unique()
 ages_str = ["0 à 19 ans", "20 à 39 ans", "40 à 59 ans", "60 à 79 ans", "plus 80 ans"]
 for idx, age in enumerate(ages):
     data_non_vaccines, data_completement_vaccines, data_completement_vaccines_rappel, data_partiellement_vaccines, _  = get_df_by_vaccine_status(df_drees_age[(df_drees_age.age==age)])
