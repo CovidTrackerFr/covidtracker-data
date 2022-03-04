@@ -187,7 +187,7 @@ confines_mars_2021 = ["confines_mars_2021", "02", "06", "27", "59", "60", "62", 
 df_opendata_indicateurs = data.download_and_import_opendata_indicateurs()
 
 
-# In[34]:
+# In[20]:
 
 
 def generate_data(data_incid=pd.DataFrame(), data_hosp=pd.DataFrame(), data_sursaud=pd.DataFrame(), data_new=pd.DataFrame(), data_vue_ensemble=pd.DataFrame(), data_metropole=pd.DataFrame(), data_vacsi=pd.DataFrame(), data_obepine=pd.DataFrame(), data_opendata_indicateurs=pd.DataFrame(), mode="", export_jour=False, taux_croissance=False):## Incidence
@@ -703,7 +703,7 @@ data_nouveau_dashboard_france()
 dict_ns = dataexplorer_niveaux_scolaires()
 
 
-# In[35]:
+# In[32]:
 
 
 dict_dataexplorer = dataexplorer()

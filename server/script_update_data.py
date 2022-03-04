@@ -17,7 +17,7 @@ This file contains a script that automatically update data. In the morning it up
 """
 
 
-# In[3]:
+# In[9]:
 
 
 import datetime as dt
@@ -26,6 +26,7 @@ import subprocess
 import requests
 import re
 import os
+from datetime import timedelta
 
 #os.chdir("../")
 BASE_CWD = os.getcwd()
@@ -44,24 +45,27 @@ def update_repo():
     subprocess.run(["sudo", "jupyter", "nbconvert", "--to", "script", "server/*.ipynb", "src/france/*.ipynb", "src/world/*.ipynb"])
     
 def push(type_data):
-    os.chdir(BASE_CWD)
-    subprocess.run(["sudo", "git", "add", "images/", "data/"], timeout=500)
-    subprocess.run(["sudo", "git", "commit", "-m", "[auto] data update: {}".format(type_data)], timeout=500)
-    subprocess.run(["git", "push"], timeout=500)
-    print("pushed")
-    os.chdir(PATH_FRANCE)
+    try:
+        os.chdir(BASE_CWD)
+        subprocess.run(["sudo", "git", "add", "images/", "data/"], timeout=500)
+        subprocess.run(["sudo", "git", "commit", "-m", "[auto] data update: {}".format(type_data)], timeout=500)
+        subprocess.run(["git", "push"], timeout=500)
+        print("pushed")
+        os.chdir(PATH_FRANCE)
+    except:
+        print("Error push timout")
     
 def get_datetime_spf():
     try:
         metadata = requests.get(url_metadata)
         content = str(metadata.content)
-        re_result = re.search("donnees-hospitalieres-nouveaux-covid19-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{2}h[0-9]{2}.csv", content)
-        re_date = re.match(".*covid19-([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{2})h([0-9]{2}).csv", re_result[0])
+        re_result = re.search("sursaud-covid-quot-dep-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{2}h[0-9]{2}.csv", content) #donnees-hospitalieres-nouveaux-covid19-
+        re_date = re.match(".*dep-([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{2})h([0-9]{2}).csv", re_result[0])
         datetime_object = dt.datetime.strptime(re_date[1] + re_date[2] + re_date[3] + re_date[4] + re_date[5], '%Y%m%d%H%M')
         return datetime_object
     except:
         print("error get_datetime_spf")
-        return dt.datetime.now()
+        return dt.datetime.now() - timedelta(days=1)
 
 def try_update_france():
     datetime_spf = get_datetime_spf()
@@ -85,20 +89,24 @@ def try_update_france():
         push("France fastlane")
         print("update France charts fastlane: " + str(now.hour) + ":" + str(now.minute))
         
+        
+        subprocess.run(["sudo", "python3", PATH_FRANCE+"covid19_france_vacsi.py"])
+        push("France vacsi")
+        print("update France charts vacsi: " + str(now.hour) + ":" + str(now.minute))
+        
         try:
             subprocess.run(["sudo", "python3", PATH_FRANCE+"tweetbot_france.py"])
             print("data tweeted")
         except:
             pass
         
-        # Mise à jour des graphiques
-        subprocess.run(["sudo", "python3", PATH_FRANCE+"covid19_france_charts.py"])
-        push("France")
-        print("update France charts: " + str(now.hour) + ":" + str(now.minute))
-        
         subprocess.run(["sudo", "python3", PATH_FRANCE+"covid19_france_data_explorer.py"])
         push("Data Explorer")
         print("update data explorer: " + str(now.hour) + ":" + str(now.minute))
+        
+        subprocess.run(["sudo", "python3", PATH_FRANCE+"covid19_france_charts.py"])
+        push("France")
+        print("update France  : " + str(now.hour) + ":" + str(now.minute))
         
         subprocess.run(["python3", "covid19_departements_dashboards.py"])
         push("France dep dashboards")

@@ -3720,7 +3720,7 @@ if show_charts:
     fig.show()
 
 
-# In[47]:
+# In[43]:
 
 
 def traitement_val(valeur, plus_sign=False):
@@ -3818,7 +3818,7 @@ with open(PATH_STATS + 'stats.json', 'w') as outfile:
     json.dump(data_json, outfile)
 
 
-# In[ ]:
+# In[44]:
 
 
 with open(PATH_STATS + 'cas_sidep.json', 'w') as outfile:
@@ -3826,13 +3826,13 @@ with open(PATH_STATS + 'cas_sidep.json', 'w') as outfile:
         json.dump(dict_data, outfile)
 
 
-# In[ ]:
+# In[45]:
 
 
 temp = df_tests_viros_france.groupby(["jour"]).sum().reset_index()
 
 
-# In[ ]:
+# In[46]:
 
 
 for (val, valname) in [('P', 'positifs'), ('T', '')]:
@@ -3957,7 +3957,7 @@ for (val, valname) in [('P', 'positifs'), ('T', '')]:
 #colors_hosp
 
 
-# In[37]:
+# In[ ]:
 
 
 
@@ -4012,7 +4012,7 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=3,
 plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
-# In[38]:
+# In[ ]:
 
 
 

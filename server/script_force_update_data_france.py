@@ -36,20 +36,17 @@ PATH_FRANCE = BASE_CWD + "/src/france/"
 url_metadata = "https://www.data.gouv.fr/fr/organizations/sante-publique-france/datasets-resources.csv"
 metadata = requests.get(url_metadata)
 content = str(metadata.content)
-
-def update_repo():
-    os.chdir(BASE_CWD)
-    subprocess.run(["sudo", "git", "fetch", "--all"])
-    subprocess.run(["sudo", "git", "reset", "--hard", "origin/master"])
-    subprocess.run(["sudo", "jupyter", "nbconvert", "--to", "script", "server/*.ipynb", "src/france/*.ipynb", "src/world/*.ipynb"])
     
 def push(type_data):
-    os.chdir(BASE_CWD)
-    subprocess.run(["sudo", "git", "add", "images/", "data/"])
-    subprocess.run(["sudo", "git", "commit", "-m", "[auto] data update: {}".format(type_data)])
-    subprocess.run(["git", "push"])
-    print("pushed")
-    os.chdir(PATH_FRANCE)
+    try:
+        os.chdir(BASE_CWD)
+        subprocess.run(["sudo", "git", "add", "images/", "data/"])
+        subprocess.run(["sudo", "git", "commit", "-m", "[auto] data update: {}".format(type_data)])
+        subprocess.run(["git", "push"], timeout=500)
+        print("pushed")
+        os.chdir(PATH_FRANCE)
+    except:
+        print("Error push")
     
 def get_datetime_spf():
     metadata = requests.get(url_metadata)
@@ -74,7 +71,6 @@ def update_france():
         content = str(metadata.content)
         
         print("starting France update: {}:{}".format(str(now.hour), str(now.minute)))
-        #update_repo()
         
         os.chdir(PATH_FRANCE)
         # Mise à jour des graphiques
