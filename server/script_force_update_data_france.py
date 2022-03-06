@@ -51,8 +51,8 @@ def push(type_data):
 def get_datetime_spf():
     metadata = requests.get(url_metadata)
     content = str(metadata.content)
-    re_result = re.search("donnees-hospitalieres-nouveaux-covid19-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{2}h[0-9]{2}.csv", content)
-    re_date = re.match(".*covid19-([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{2})h([0-9]{2}).csv", re_result[0])
+    re_result = re.search("sursaud-covid-quot-dep-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{2}h[0-9]{2}.csv", content)
+    re_date = re.match(".*dep-([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{2})h([0-9]{2}).csv", re_result[0])
     datetime_object = dt.datetime.strptime(re_date[1] + re_date[2] + re_date[3] + re_date[4] + re_date[5], '%Y%m%d%H%M')
     return datetime_object
 

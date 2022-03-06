@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[39]:
+# In[128]:
 
 
 """
@@ -29,7 +29,7 @@ Requirements: please see the imports below (use pip3 to install them).
 
 
 
-# In[40]:
+# In[129]:
 
 
 from multiprocessing import Pool
@@ -61,14 +61,14 @@ now = datetime.now()
 COLOR_PAPER = "rgba(225, 230, 235, 0.8)"
 
 
-# In[41]:
+# In[130]:
 
 
 #time.sleep(300)
 data.download_data()
 
 
-# In[42]:
+# In[131]:
 
 
 import time
@@ -91,7 +91,7 @@ while not success:
         continue
 
 
-# In[43]:
+# In[132]:
 
 
 
@@ -102,7 +102,7 @@ df_incid_fra = df_incid_fra_clage[df_incid_fra_clage["cl_age90"]==0]
 dates_incid = list(dict.fromkeys(list(df_incid_fra['jour'].values))) 
 
 
-# In[44]:
+# In[133]:
 
 
 df_new = data.import_data_new()
@@ -111,7 +111,7 @@ df_new_france = df_new.groupby("jour").sum().reset_index()
 dates_new = sorted(list(dict.fromkeys(list(df_new_france['jour'].values))))
 
 
-# In[45]:
+# In[134]:
 
 
 df = data.import_data_df()
@@ -120,7 +120,7 @@ dates = sorted(list(dict.fromkeys(list(df['jour'].values))))
 df_france = df.groupby("jour").sum().reset_index()
 
 
-# In[46]:
+# In[135]:
 
 
 last_day_plot_dashboard = (datetime.strptime(max(dates), '%Y-%m-%d') + timedelta(days=3)).strftime("%Y-%m-%d")
@@ -128,7 +128,7 @@ first_day_plot_adm = (datetime.strptime(max(dates), '%Y-%m-%d') - timedelta(days
 last_day_plot = (datetime.strptime(max(dates), '%Y-%m-%d') + timedelta(days=1)).strftime("%Y-%m-%d")
 
 
-# In[47]:
+# In[136]:
 
 
 def nbWithSpaces(nb):
@@ -143,7 +143,7 @@ def nbWithSpaces(nb):
         return str_nb
 
 
-# In[48]:
+# In[137]:
 
 
 df_incid_fra_corrige = df_incid_fra.copy()
@@ -160,7 +160,7 @@ df_incid_fra_corrige.loc[df_incid_fra.jour == "2021-11-01", "P"] = 1.1 * df_inci
 df_incid_fra_corrige.loc[df_incid_fra.jour == "2021-11-11", "P"] = 1.3 * df_incid_fra_corrige[df_incid_fra_corrige.jour == "2021-11-04"]["P"].values[0]
 
 
-# In[49]:
+# In[138]:
 
 
 """fig = go.Figure()
@@ -246,7 +246,7 @@ fig['layout']['annotations'] += (
 fig.show()"""
 
 
-# In[50]:
+# In[139]:
 
 
 suffixe=""
@@ -494,7 +494,7 @@ for (date_deb, date_fin) in [("2020-09-18", last_day_plot_dashboard), (dates[-10
         suffixe="_recent"
 
 
-# In[51]:
+# In[140]:
 
 
 suffixe=""
@@ -681,7 +681,7 @@ for (date_deb, date_fin) in [("2020-09-18", last_day_plot_dashboard), (dates[-10
         suffixe="_recent"
 
 
-# In[52]:
+# In[141]:
 
 
 
@@ -780,7 +780,7 @@ if show_charts:
     fig.show()
 
 
-# In[53]:
+# In[142]:
 
 
 #Comparaison J-7
@@ -831,7 +831,7 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2,
 plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
-# In[54]:
+# In[143]:
 
 
 df_table_indicateurs = data.download_and_import_table_indicateurs()
@@ -840,7 +840,7 @@ cas_cum = df_table_indicateurs_recent["conf_j1"].cumsum()/67800000*100
 dates_cas_cum = pd.to_datetime(df_table_indicateurs_recent["date"])
 
 
-# In[55]:
+# In[144]:
 
 
 df_new_france_recent = df_new_france[df_new_france["jour"]>="2020-01-01"]
@@ -848,7 +848,7 @@ adm_hosp_recent = df_new_france_recent["incid_hosp"].cumsum()
 dates_adm_hosp_recent = pd.to_datetime(df_new_france_recent["jour"])
 
 
-# In[56]:
+# In[145]:
 
 
 fig = go.Figure()
@@ -926,7 +926,7 @@ fig.add_hline(y=100, line=dict(color="black", dash="dot"),)
 fig.write_image(PATH + f"images/charts/france/cas_cum.jpeg", scale=2, width=900, height=600)
 
 
-# In[57]:
+# In[146]:
 
 
 fig = go.Figure()
@@ -1001,7 +1001,7 @@ fig.update_layout(
 fig.write_image(PATH + f"images/charts/france/adm_hosp_cum.jpeg", scale=2, width=900, height=600)
 
 
-# In[58]:
+# In[147]:
 
 
 #Comparaison J-7
@@ -1052,7 +1052,7 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2,
 plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
-# In[59]:
+# In[148]:
 
 
 
@@ -1263,7 +1263,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[60]:
+# In[149]:
 
 
 df_txad = data.download_and_import_hosp_txad_fra()
@@ -1271,7 +1271,7 @@ df_pour = df_txad[df_txad["PourAvec"]==1]
 df_avec = df_txad[df_txad["PourAvec"]==2]
 
 
-# In[79]:
+# In[150]:
 
 
 
@@ -1388,7 +1388,7 @@ if show_charts:
     fig.show()
 
 
-# In[84]:
+# In[151]:
 
 
 
@@ -1505,7 +1505,7 @@ if show_charts:
     fig.show()
 
 
-# In[63]:
+# In[152]:
 
 
 
@@ -1622,7 +1622,7 @@ if show_charts:
     fig.show()
 
 
-# In[64]:
+# In[153]:
 
 
 
@@ -1738,7 +1738,7 @@ if show_charts:
     fig.show()
 
 
-# In[65]:
+# In[154]:
 
 
 range_x, name_fig, range_y = ["2020-03-29", last_day_plot], "hosp_journ", [0, df_france["hosp"].max()*1.1]
@@ -1999,7 +1999,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[66]:
+# In[155]:
 
 
 range_x, name_fig, range_y = ["2020-03-29", last_day_plot], "dc_journ", [0, df_new_france["incid_dc"].max()]
@@ -2153,7 +2153,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[67]:
+# In[156]:
 
 
 
@@ -2364,7 +2364,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[68]:
+# In[157]:
 
 
 
@@ -2573,7 +2573,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[69]:
+# In[158]:
 
 
 for croiss in [""]:
@@ -2591,7 +2591,7 @@ for croiss in [""]:
     
 
 
-# In[70]:
+# In[159]:
 
 
 data.download_data_vue_ensemble()
@@ -2600,7 +2600,7 @@ df_vue_ensemble.loc[df_vue_ensemble.date >= "2021-05-21", "total_cas_confirmes"]
 #df_vue_ensemble=df_vue_ensemble.append({"date": "2021-03-30", "total_cas_confirmes": 4554683}, ignore_index=True)
 
 
-# In[71]:
+# In[160]:
 
 
 """suffixe=""
@@ -2817,7 +2817,7 @@ for (date_deb, date_fin) in [("2020-01-18", datetime.strptime(df_vue_ensemble.da
     """
 
 
-# In[72]:
+# In[161]:
 
 
 #Comparaison J-7
@@ -2868,7 +2868,7 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2,
 plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
-# In[73]:
+# In[162]:
 
 
 df_incid_fra_recent = df_incid_fra[-300:]
@@ -2989,7 +2989,7 @@ fig.update_layout(
 fig.write_image(PATH + f"images/charts/france/cas_hosp_dc_comparaison_pic.jpeg", scale=2, width=900, height=600)
 
 
-# In[74]:
+# In[163]:
 
 
 df_incid_fra_recent = df_incid_fra[-150:]
@@ -3069,7 +3069,7 @@ fig.update_layout(
 fig.write_image(PATH + f"images/charts/france/proportion_rea_hosp.jpeg", scale=2, width=900, height=600)
 
 
-# In[75]:
+# In[164]:
 
 
 df_incid_fra_recent = df_incid_fra[-500:]
@@ -3157,7 +3157,7 @@ fig.update_layout(
 fig.write_image(PATH + f"images/charts/france/proportion_cas_hosp.jpeg", scale=2, width=900, height=600)
 
 
-# In[76]:
+# In[165]:
 
 
 df_incid_fra_recent = df_incid_fra[-300:]
@@ -3267,7 +3267,7 @@ fig.add_annotation(
 )
 
 fig.add_annotation(
-    xref="paper",e
+    xref="paper",
     x=0.5,
     y=1.2,
     text="<b>Admissions à l'hôpital et en soins critiques</b>",
