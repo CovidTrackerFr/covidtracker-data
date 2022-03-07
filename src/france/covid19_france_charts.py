@@ -4,7 +4,7 @@
 # # COVID-19 French Charts
 # Guillaume Rozier, 2020
 
-# In[47]:
+# In[93]:
 
 
 """
@@ -26,7 +26,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[48]:
+# In[94]:
 
 
 from multiprocessing import Pool
@@ -55,7 +55,7 @@ PATH = "../../"
 now = datetime.now()
 
 
-# In[49]:
+# In[95]:
 
 
 try:
@@ -71,7 +71,7 @@ except:
 
 # # Data download and import
 
-# In[50]:
+# In[96]:
 
 
 import time
@@ -96,13 +96,13 @@ while not success:
 
 # ## Data transformations
 
-# In[51]:
+# In[97]:
 
 
 df, df_confirmed, dates, df_new, df_tests, df_deconf, df_sursaud, df_incid, df_tests_viros = data.import_data()
 
 
-# In[52]:
+# In[98]:
 
 
 data.download_data_vue_ensemble()
@@ -111,22 +111,24 @@ df_vue_ensemble.loc[df_vue_ensemble.date >= "2021-05-21", "total_cas_confirmes"]
 
 df_opencovid = data.import_data_opencovid()
 
+df_opendata = download_and_import_opendata_indicateurs
 
-# In[53]:
+
+# In[ ]:
 
 
 df_sexes = data.import_data_df()
 df_sexes_tot = df_sexes[df_sexes.sexe==0]
 
 
-# In[54]:
+# In[ ]:
 
 
 df_incid_fra_clage = data.import_data_tests_sexe()
 df_incid_fra = df_incid_fra_clage[df_incid_fra_clage["cl_age90"]==0]
 
 
-# In[55]:
+# In[ ]:
 
 
 df_new_france = df_new.groupby(["jour"]).sum().reset_index()
@@ -166,7 +168,7 @@ regions = list(dict.fromkeys(list(df['regionName'].values)))
 departements_noms = list(dict.fromkeys(list(df['departmentName'].values))) 
 
 
-# In[56]:
+# In[ ]:
 
 
 #Calcul sorties de réa
@@ -185,7 +187,7 @@ df_france_last15 = df_france[ df_france["jour"].isin(dates[-19:]) ]
 df_tests_tot_last15 = df_tests_tot[ df_tests_tot["jour"].isin(dates[-19:]) ]
 
 
-# In[57]:
+# In[ ]:
 
 
 def nbWithSpaces(nb):
@@ -200,7 +202,7 @@ def nbWithSpaces(nb):
         return str_nb
 
 
-# In[58]:
+# In[ ]:
 
 
 departements_name = {}
@@ -214,7 +216,7 @@ for dep in departements:
         departements_name[dep] = "St-Pierre-et-Miquelon"
 
 
-# In[59]:
+# In[ ]:
 
 
 def objectif_deconfinement():
@@ -262,11 +264,14 @@ def objectif_deconfinement():
     ## Cas date publication
     struct = {"date": "", "values": []}
     dict_json["cas_spf"] = struct
-    cas_rolling = df_vue_ensemble["total_cas_confirmes"].diff().rolling(window=7, center=False).mean().fillna(0)
-    
-    dict_json["cas_spf"]["values"] = [float(round(x, 1)) for x in cas_rolling.values[-n:]]
-    dict_json["cas_spf"]["dates"] = list(df_vue_ensemble.loc[cas_rolling.index.values[-n:], "date"])
+    #cas_rolling = df_vue_ensemble["total_cas_confirmes"].diff().rolling(window=7, center=False).mean().fillna(0)
+    cas_rolling = df_opendata["conf_j1"].rolling(window=7, center=False).mean().fillna(0)
 
+    #dict_json["cas_spf"]["values"] = [float(round(x, 1)) for x in cas_rolling.values[-n:]]
+    #dict_json["cas_spf"]["dates"] = list(df_vue_ensemble.loc[cas_rolling.index.values[-n:], "date"])
+    dict_json["cas_spf"]["values"] = [float(round(x, 1)) for x in cas_rolling.values[-n:]]
+    dict_json["cas_spf"]["dates"] = list(df_opendata.loc[cas_rolling.index.values[-n:], "date"])
+    
     with open(PATH_STATS + 'objectif_deconfinement.json', 'w') as outfile:
         json.dump(dict_json, outfile)
         
