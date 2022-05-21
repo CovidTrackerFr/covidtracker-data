@@ -60,7 +60,7 @@ now = datetime.now()
 data.download_data()
 
 
-# In[4]:
+# In[ ]:
 
 
 import time
@@ -83,7 +83,7 @@ while not success:
         continue
 
 
-# In[5]:
+# In[ ]:
 
 
 
@@ -94,7 +94,7 @@ df_incid_fra = df_incid_fra_clage[df_incid_fra_clage["cl_age90"]==0]
 dates_incid = list(dict.fromkeys(list(df_incid_fra['jour'].values))) 
 
 
-# In[6]:
+# In[ ]:
 
 
 df_new = data.import_data_new()
@@ -103,7 +103,7 @@ df_new_france = df_new.groupby("jour").sum().reset_index()
 dates_new = sorted(list(dict.fromkeys(list(df_new_france['jour'].values))))
 
 
-# In[7]:
+# In[ ]:
 
 
 df = data.import_data_df()
@@ -112,7 +112,7 @@ dates = sorted(list(dict.fromkeys(list(df['jour'].values))))
 df_france = df.groupby("jour").sum().reset_index()
 
 
-# In[8]:
+# In[ ]:
 
 
 last_day_plot_dashboard = (datetime.strptime(max(dates), '%Y-%m-%d') + timedelta(days=3)).strftime("%Y-%m-%d")
@@ -120,7 +120,7 @@ first_day_plot_adm = (datetime.strptime(max(dates), '%Y-%m-%d') - timedelta(days
 last_day_plot = (datetime.strptime(max(dates), '%Y-%m-%d') + timedelta(days=1)).strftime("%Y-%m-%d")
 
 
-# In[9]:
+# In[ ]:
 
 
 def nbWithSpaces(nb):
@@ -135,13 +135,13 @@ def nbWithSpaces(nb):
         return str_nb
 
 
-# In[10]:
+# In[ ]:
 
 
 #df_incid_fra.loc[df_incid_fra.jour == "2021-04-05", "P"] = 45000
 
 
-# In[11]:
+# In[ ]:
 
 
 df_incid_fra_corrige = df_incid_fra.copy()
@@ -155,13 +155,13 @@ df_incid_fra_corrige.loc[df_incid_fra.jour == "2021-05-13", "P"] = 0.7 * df_inci
 df_incid_fra_corrige.loc[df_incid_fra.jour == "2021-05-24", "P"] = 0.7 * df_incid_fra_corrige[df_incid_fra_corrige.jour == "2021-05-17"]["P"].values[0]
 
 
-# In[12]:
+# In[ ]:
 
 
 df_incid_fra.loc[df_incid_fra.jour == "2021-05-01", "P"].values[0] * 0.7
 
 
-# In[13]:
+# In[ ]:
 
 
 """from sklearn.ensemble import IsolationForest
@@ -183,7 +183,7 @@ fig.add_trace(go.Scatter(
 fig.show()"""
 
 
-# In[14]:
+# In[ ]:
 
 
 suffixe=""
@@ -196,7 +196,7 @@ for (date_deb, date_fin) in [("2020-09-18", last_day_plot_dashboard), (dates[-10
     for i in ("", "log"):
         if i=="log":
             title += " [log.]"
-            range_y=[0, math.log(df_incid_fra["P"].max())/2]
+            range_y=[3, math.log(df_incid_fra["P"].rolling(window=7).mean().values[-100:].max())/2]
 
         fig = make_subplots(rows=1, cols=1, shared_yaxes=True, subplot_titles=[""], vertical_spacing = 0.08, horizontal_spacing = 0.1, specs=[[{"secondary_y": True}]])
 
@@ -470,7 +470,7 @@ for (date_deb, date_fin) in [("2020-09-18", last_day_plot_dashboard), (dates[-10
         suffixe="_recent"
 
 
-# In[15]:
+# In[ ]:
 
 
 
@@ -569,7 +569,7 @@ if show_charts:
     fig.show()
 
 
-# In[20]:
+# In[ ]:
 
 
 #Comparaison J-7
@@ -620,7 +620,7 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2,
 plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
-# In[56]:
+# In[ ]:
 
 
 
@@ -830,7 +830,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[57]:
+# In[ ]:
 
 
 range_x, name_fig, range_y = ["2020-03-29", last_day_plot], "hosp_journ", [0, df_france["hosp"].max()*1.1]
@@ -1091,7 +1091,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[58]:
+# In[ ]:
 
 
 range_x, name_fig, range_y = ["2020-03-29", last_day_plot], "dc_journ", [0, df_new_france["incid_dc"].max()]
@@ -1245,7 +1245,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[59]:
+# In[ ]:
 
 
 
@@ -1455,7 +1455,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[60]:
+# In[ ]:
 
 
 
@@ -1664,7 +1664,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[61]:
+# In[ ]:
 
 
 for croiss in [""]:
@@ -1682,7 +1682,7 @@ for croiss in [""]:
     
 
 
-# In[62]:
+# In[ ]:
 
 
 data.download_data_vue_ensemble()
@@ -1691,7 +1691,7 @@ df_vue_ensemble.loc[df_vue_ensemble.date >= "2021-05-21", "total_cas_confirmes"]
 #df_vue_ensemble=df_vue_ensemble.append({"date": "2021-03-30", "total_cas_confirmes": 4554683}, ignore_index=True)
 
 
-# In[63]:
+# In[ ]:
 
 
 suffixe=""

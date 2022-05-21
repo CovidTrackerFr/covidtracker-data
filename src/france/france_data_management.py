@@ -219,10 +219,10 @@ def download_data():
     url_metropoles = "https://www.data.gouv.fr/fr/datasets/r/61533034-0f2f-4b16-9a6d-28ffabb33a02" #df_metadata[df_metadata['url'].str.contains("/sg-metro-opendata")]["url"].max()
     url_incidence = df_metadata[df_metadata['url'].str.contains("/sp-pe-tb-quot")]["url"].values[0]
     
-    url_tests_viro = df_metadata[df_metadata['url'].str.contains("/sp-pos-quot-dep")]["url"].values[0]
+    url_tests_viro = "https://www.data.gouv.fr/fr/datasets/r/674bddab-6d61-4e59-b0bd-0be535490db0"#df_metadata[df_metadata['url'].str.contains("/sp-pos-quot-dep")]["url"].values[0]
     
     url_sursaud = df_metadata[df_metadata['url'].str.contains("sursaud.*quot.*dep")]["url"].values[0]
-    url_data_clage = df_metadata[df_metadata['url'].str.contains("/donnees-hospitalieres-classe-age-covid19")]["url"].values[0]
+    url_data_clage = "https://www.data.gouv.fr/fr/datasets/r/08c18e08-6780-452d-9b8c-ae244ad529b3" #df_metadata[df_metadata['url'].str.contains("/donnees-hospitalieres-classe-age-covid19")]["url"].values[0]
     url_data_sexe = "https://www.data.gouv.fr/fr/datasets/r/dd0de5d9-b5a5-4503-930a-7b08dc0adc7c" #df_metadata[df_metadata['url'].str.contains("/sp-pos-quot-fra")]["url"].values[0]
 
         

@@ -320,7 +320,7 @@ for dep in departements:
         departements_name[dep] = "St-Pierre-et-Miquelon"
 
 
-# In[14]:
+# In[19]:
 
 
 def objectif_deconfinement():
@@ -360,10 +360,10 @@ def objectif_deconfinement():
     ## Cas
     struct = {"date": "", "values": []}
     dict_json["cas"] = struct
-    cas_rolling = df_incid_france["P"].rolling(window=7, center=False).mean().dropna()
+    cas_rolling = df_incid_fra["P"].rolling(window=7, center=False).mean().dropna()
     
     dict_json["cas"]["values"] = [int(x) for x in cas_rolling.values[-n:]]
-    dict_json["cas"]["dates"] = list(df_incid_france.loc[cas_rolling.index.values[-n:], "jour"])
+    dict_json["cas"]["dates"] = list(df_incid_fra.loc[cas_rolling.index.values[-n:], "jour"])
     
     ## Cas date publication
     struct = {"date": "", "values": []}
