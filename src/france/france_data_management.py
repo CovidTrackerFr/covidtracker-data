@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
+# In[4]:
 
 
 import requests
@@ -130,7 +130,9 @@ def import_data_variants_regs():
     return df_variants
 
 def import_data_tests_sexe():
-    df = pd.read_csv(PATH + 'data/france/tests_viro-fra-covid19.csv', sep=";")
+    df = pd.read_csv(PATH + 'data/france/tests_viro-fra-covid19.csv', sep=";").replace(",00", "", regex=True)
+    df["P"] = pd.to_numeric(df["P"])
+    df["T"] = pd.to_numeric(df["T"])
     return df
 
 def import_data_vue_ensemble():
@@ -138,7 +140,7 @@ def import_data_vue_ensemble():
     df = df.sort_values(["date"])
     
     with open(PATH_STATS + 'vue-ensemble.json', 'w') as outfile:
-        dict_data = {"cas":  int(df["total_cas_confirmes"].diff().values[-1]), "update": df.date.values[-1][-2:] + "/" + df.date.values[-1][-5:-3]}
+        dict_data = {"cas":  int(df["total_cas_confirmes"].diff().fillna(0).values[-1]), "update": df.date.values[-1][-2:] + "/" + df.date.values[-1][-5:-3]}
         json.dump(dict_data, outfile)
         
     return df
@@ -223,8 +225,8 @@ def download_data():
     
     url_sursaud = df_metadata[df_metadata['url'].str.contains("sursaud.*quot.*dep")]["url"].values[0]
     url_data_clage = "https://www.data.gouv.fr/fr/datasets/r/08c18e08-6780-452d-9b8c-ae244ad529b3" #df_metadata[df_metadata['url'].str.contains("/donnees-hospitalieres-classe-age-covid19")]["url"].values[0]
-    url_data_sexe = "https://www.data.gouv.fr/fr/datasets/r/dd0de5d9-b5a5-4503-930a-7b08dc0adc7c" #df_metadata[df_metadata['url'].str.contains("/sp-pos-quot-fra")]["url"].values[0]
-
+    url_data_sexe = "https://www.data.gouv.fr/fr/datasets/r/4e8d826a-d2a1-4d69-9ed0-b18a1f3d5ce2" #"https://www.data.gouv.fr/fr/datasets/r/dd0de5d9-b5a5-4503-930a-7b08dc0adc7c" #df_metadata[df_metadata['url'].str.contains("/sp-pos-quot-fra")]["url"].values[0]
+    
         
     pbar.update(6)
     data = requests.get(url_data)
@@ -402,6 +404,22 @@ def import_data():
     pbar.update(8)
     import_data_opencovid()
     return df, df_confirmed, dates, df_new, df_tests, df_deconf, df_sursaud, df_incid, df_tests_viro
+
+
+# In[5]:
+
+
+import pandas as pd
+
+def import_data_vue_ensemble():
+    df = pd.read_csv(PATH + 'data/france/synthese-fra.csv', sep=",")
+    df = df.sort_values(["date"])
+    
+    with open(PATH_STATS + 'vue-ensemble.json', 'w') as outfile:
+        dict_data = {"cas":  int(df["total_cas_confirmes"].diff().fillna(0).values[-1]), "update": df.date.values[-1][-2:] + "/" + df.date.values[-1][-5:-3]}
+        json.dump(dict_data, outfile)
+        
+    return df
 
 
 # In[8]:

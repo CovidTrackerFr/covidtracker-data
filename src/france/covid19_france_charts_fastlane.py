@@ -36,13 +36,11 @@ import plotly
 from plotly.subplots import make_subplots
 from datetime import datetime
 from datetime import timedelta
-from tqdm import tqdm
 import imageio
 import json
 import locale
 import france_data_management as data
 import numpy as np
-import cv2
 import time
 
 locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
@@ -60,7 +58,7 @@ now = datetime.now()
 data.download_data()
 
 
-# In[ ]:
+# In[4]:
 
 
 import time
@@ -83,7 +81,7 @@ while not success:
         continue
 
 
-# In[ ]:
+# In[5]:
 
 
 
@@ -94,7 +92,7 @@ df_incid_fra = df_incid_fra_clage[df_incid_fra_clage["cl_age90"]==0]
 dates_incid = list(dict.fromkeys(list(df_incid_fra['jour'].values))) 
 
 
-# In[ ]:
+# In[6]:
 
 
 df_new = data.import_data_new()
@@ -103,7 +101,7 @@ df_new_france = df_new.groupby("jour").sum().reset_index()
 dates_new = sorted(list(dict.fromkeys(list(df_new_france['jour'].values))))
 
 
-# In[ ]:
+# In[7]:
 
 
 df = data.import_data_df()
@@ -112,7 +110,7 @@ dates = sorted(list(dict.fromkeys(list(df['jour'].values))))
 df_france = df.groupby("jour").sum().reset_index()
 
 
-# In[ ]:
+# In[8]:
 
 
 last_day_plot_dashboard = (datetime.strptime(max(dates), '%Y-%m-%d') + timedelta(days=3)).strftime("%Y-%m-%d")
@@ -120,7 +118,7 @@ first_day_plot_adm = (datetime.strptime(max(dates), '%Y-%m-%d') - timedelta(days
 last_day_plot = (datetime.strptime(max(dates), '%Y-%m-%d') + timedelta(days=1)).strftime("%Y-%m-%d")
 
 
-# In[ ]:
+# In[9]:
 
 
 def nbWithSpaces(nb):
@@ -135,13 +133,7 @@ def nbWithSpaces(nb):
         return str_nb
 
 
-# In[ ]:
-
-
-#df_incid_fra.loc[df_incid_fra.jour == "2021-04-05", "P"] = 45000
-
-
-# In[ ]:
+# In[10]:
 
 
 df_incid_fra_corrige = df_incid_fra.copy()
@@ -155,35 +147,7 @@ df_incid_fra_corrige.loc[df_incid_fra.jour == "2021-05-13", "P"] = 0.7 * df_inci
 df_incid_fra_corrige.loc[df_incid_fra.jour == "2021-05-24", "P"] = 0.7 * df_incid_fra_corrige[df_incid_fra_corrige.jour == "2021-05-17"]["P"].values[0]
 
 
-# In[ ]:
-
-
-df_incid_fra.loc[df_incid_fra.jour == "2021-05-01", "P"].values[0] * 0.7
-
-
-# In[ ]:
-
-
-"""from sklearn.ensemble import IsolationForest
-model=IsolationForest(n_estimators=50, max_samples='auto', contamination=float(0.1),max_features=1.0)
-model.fit(df_incid_fra[["P"]])
-df_incid_fra["anomaly"] = model.predict(df_incid_fra[["P"]])
-
-fig = go.Figure()
-fig.add_trace(go.Scatter(
-    x=df_incid_fra.loc[df_incid_fra['anomaly']==1].jour,
-    y=df_incid_fra.loc[df_incid_fra['anomaly']==1].P,
-    mode="markers",
-    marker_color="red"))
-fig.add_trace(go.Scatter(
-    x=df_incid_fra.loc[df_incid_fra['anomaly']==-1].jour,
-    y=df_incid_fra.loc[df_incid_fra['anomaly']==-1].P,
-    mode="markers",
-    marker_color="blue"))
-fig.show()"""
-
-
-# In[ ]:
+# In[13]:
 
 
 suffixe=""
@@ -472,9 +436,6 @@ for (date_deb, date_fin) in [("2020-09-18", last_day_plot_dashboard), (dates[-10
 
 # In[ ]:
 
-
-
-    
 
 range_x, name_fig, range_y = ["2020-05-10", last_day_plot], "cas_journ_croissance", [-50, 150]
 title = "<b>Croissance des cas positifs</b> au Covid19"
@@ -1667,7 +1628,7 @@ for i in ("", "log"):
 # In[ ]:
 
 
-for croiss in [""]:
+"""for croiss in [""]:
     im1 = cv2.imread(PATH + 'images/charts/france/cas_journ{}.jpeg'.format(croiss))
     im2 = cv2.imread(PATH + 'images/charts/france/hosp_journ{}.jpeg'.format(croiss))
     im3 = cv2.imread(PATH + 'images/charts/france/rea_journ{}.jpeg'.format(croiss))
@@ -1679,7 +1640,7 @@ for croiss in [""]:
 
     im_totale = cv2.vconcat([im_haut, im_bas])
     cv2.imwrite(PATH + 'images/charts/france/dashboard_jour{}.jpeg'.format(croiss), im_totale)
-    
+    """
 
 
 # In[ ]:
@@ -1694,7 +1655,7 @@ df_vue_ensemble.loc[df_vue_ensemble.date >= "2021-05-21", "total_cas_confirmes"]
 # In[ ]:
 
 
-suffixe=""
+"""suffixe=""
 for (date_deb, date_fin) in [("2020-01-18", datetime.strptime(df_vue_ensemble.date.max(), '%Y-%m-%d') + timedelta(days=4)), ("2020-01-18", datetime.strptime(df_vue_ensemble.date.max(), '%Y-%m-%d') + timedelta(days=4))]:
     range_x, name_fig, range_y = [date_deb, date_fin], "cas_journ_spf"+suffixe, [0, df_vue_ensemble["total_cas_confirmes"].diff().max()*0.7]
     
@@ -1905,4 +1866,5 @@ for (date_deb, date_fin) in [("2020-01-18", datetime.strptime(df_vue_ensemble.da
         if show_charts:
             fig.show()
         suffixe="_recent"
+    """
 
