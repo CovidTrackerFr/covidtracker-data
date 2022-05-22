@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[4]:
+# In[9]:
 
 
 import requests
@@ -12,7 +12,7 @@ PATH = '../../'
 PATH_STATS = "../../data/france/stats/"
 
 
-# In[5]:
+# In[18]:
 
 
 # Download data from Santé publique France and export it to local files
@@ -71,10 +71,9 @@ def import_data_obepine():
     return df
 
 def import_data_metropoles():
-    df_metro = pd.read_csv(PATH + 'data/france/donnes-incidence-metropoles.csv', sep=",")
+    df_metro = pd.read_csv(PATH + 'data/france/donnes-incidence-metropoles.csv', sep=";")
     epci = pd.read_csv(PATH + 'data/france/metropole-epci.csv', sep=";", encoding="'windows-1252'")
-    
-    df_metro = df_metro.merge(epci, left_on='epci2020', right_on='EPCI').drop(['EPCI'], axis=1)
+    df_metro = df_metro.merge(epci, left_on='epci', right_on='EPCI').drop(['EPCI'], axis=1)
     
     return df_metro
 
@@ -218,8 +217,8 @@ def download_data():
     url_data = "https://www.data.gouv.fr/fr/datasets/r/63352e38-d353-4b54-bfd1-f1b3ee1cabd7" #df_metadata[df_metadata['url'].str.contains("/donnees-hospitalieres-covid19")]["url"].values[0] #donnees-hospitalieres-classe-age-covid19-2020-10-14-19h00.csv 
     url_data_new = "https://www.data.gouv.fr/fr/datasets/r/6fadff46-9efd-4c53-942a-54aca783c30c" #df_metadata[df_metadata['url'].str.contains("/donnees-hospitalieres-nouveaux")]["url"].values[0]
     url_tests = df_metadata[df_metadata['url'].str.contains("/donnees-tests-covid19-labo-quotidien")]["url"].values[0]
-    url_metropoles = "https://www.data.gouv.fr/fr/datasets/r/61533034-0f2f-4b16-9a6d-28ffabb33a02" #df_metadata[df_metadata['url'].str.contains("/sg-metro-opendata")]["url"].max()
-    url_incidence = df_metadata[df_metadata['url'].str.contains("/sp-pe-tb-quot")]["url"].values[0]
+    url_metropoles = "https://www.data.gouv.fr/fr/datasets/r/b3bf17a1-b97d-41ba-9de6-5606065f4e2b" #"https://www.data.gouv.fr/fr/datasets/r/61533034-0f2f-4b16-9a6d-28ffabb33a02" #df_metadata[df_metadata['url'].str.contains("/sg-metro-opendata")]["url"].max()
+    url_incidence = "https://www.data.gouv.fr/fr/datasets/r/674bddab-6d61-4e59-b0bd-0be535490db0"# "https://www.data.gouv.fr/fr/datasets/r/426bab53-e3f5-4c6a-9d54-dba4442b3dbc" #df_metadata[df_metadata['url'].str.contains("/sp-pe-tb-quot")]["url"].values[0]
     
     url_tests_viro = "https://www.data.gouv.fr/fr/datasets/r/674bddab-6d61-4e59-b0bd-0be535490db0"#df_metadata[df_metadata['url'].str.contains("/sp-pos-quot-dep")]["url"].values[0]
     
@@ -306,6 +305,11 @@ def import_data():
     df_incid = pd.read_csv(PATH + 'data/france/taux-incidence-dep-quot.csv', sep=";")
     df_incid["dep"] = df_incid["dep"].astype('str')
     df_incid["dep"] = df_incid["dep"].astype('str').str.replace(r"^([1-9])$", lambda m: "0"+m.group(0), regex=True)
+    df_incid = df_incid.replace(",00", "", regex=True)
+    df_incid = df_incid.replace(",", ".", regex=True)
+    df_incid["P"] = pd.to_numeric(df_incid["P"])
+    df_incid["T"] = pd.to_numeric(df_incid["T"])
+    df_incid["pop"] = pd.to_numeric(df_incid["pop"])
 
     df_tests_viro = pd.read_csv(PATH + 'data/france/tests_viro-dep-quot.csv', sep=";")
     df_tests_viro["dep"] = df_tests_viro["dep"].astype('str').str.replace(r"^([1-9])$", lambda m: "0"+m.group(0), regex=True)
@@ -328,14 +332,13 @@ def import_data():
     df = df[df["sexe"] == 0]
     df['hosp_nonrea'] = df['hosp'] - df['rea']
     df = df.merge(lits_reas, left_on="departmentName", right_on="nom_dpt")
-    #df_tests_viro = df_tests_viro[df_tests_viro["cl_age90"] == 0]
     
     df_incid = df_incid.merge(df_regions, left_on='dep', right_on='departmentCode')
     
-    if "pop" in df_tests_viro.columns:
-        df_incid = df_incid.merge(df_tests_viro[df_tests_viro["cl_age90"] == 0].drop("pop", axis=1).drop("P", axis=1).drop("cl_age90", axis=1), left_on=['jour', 'dep'], right_on=['jour', 'dep'])
-    else:
-        df_incid = df_incid.merge(df_tests_viro[df_tests_viro["cl_age90"] == 0].drop("P", axis=1).drop("cl_age90", axis=1), left_on=['jour', 'dep'], right_on=['jour', 'dep'])
+    #if "pop" in df_tests_viro.columns:
+        #df_incid = df_incid.merge(df_tests_viro[df_tests_viro["cl_age90"] == 0].drop("pop", axis=1).drop("P", axis=1).drop("cl_age90", axis=1), left_on=['jour', 'dep'], right_on=['jour', 'dep'])
+    #else:
+        #df_incid = df_incid.merge(df_tests_viro[df_tests_viro["cl_age90"] == 0].drop("P", axis=1).drop("cl_age90", axis=1), left_on=['jour', 'dep'], right_on=['jour', 'dep'])
     
     df_new = df_new.merge(df_regions, left_on='dep', right_on='departmentCode')
     df_new = df_new.merge(df_reg_pop, left_on='regionName', right_on='regionName')
@@ -381,10 +384,6 @@ def import_data():
     df_tests = df_tests[df_tests['clage_covid'] == "0"]
     
     pbar.update(6)
-    
-    # Correction du 14/05 (pas de données)
-    #cols_to_change = df.select_dtypes(include=np.number).columns.tolist()
-    #cols_to_change = [s for s in df.columns.tolist() if "new" in s]
 
     df['jour'] = df['jour'].str.replace(r'(.*)/(.*)/(.*)',r'\3-\2-\1')     
     dates = sorted(list(dict.fromkeys(list(df['jour'].values))))
@@ -392,6 +391,7 @@ def import_data():
     for dep in pd.unique(df_incid["dep"].values):
         for clage in [0, 9, 19, 29, 39, 49, 59, 69, 79, 89, 90]:
             df_incid.loc[(df_incid["dep"] == dep) & (df_incid["cl_age90"]==clage),"incidence"] = df_incid.loc[(df_incid["dep"] == dep) & (df_incid["cl_age90"]==clage)]["P"].rolling(window=7).sum()/df_incid.loc[(df_incid["dep"] == dep) & (df_incid["cl_age90"]==clage)]["pop"]*100000
+
     df_incid.loc[:,"incidence_color"] = ['Alerte Maximale' if x>= 250 else 'Alerte Renforcée' if x>=150 else 'Alerte' if x >= 50 else 'Risque Faible' for x in df_incid['incidence']]
     
     pbar.update(7)
@@ -406,50 +406,9 @@ def import_data():
     return df, df_confirmed, dates, df_new, df_tests, df_deconf, df_sursaud, df_incid, df_tests_viro
 
 
-# In[5]:
+# In[14]:
 
 
-import pandas as pd
-
-def import_data_vue_ensemble():
-    df = pd.read_csv(PATH + 'data/france/synthese-fra.csv', sep=",")
-    df = df.sort_values(["date"])
-    
-    with open(PATH_STATS + 'vue-ensemble.json', 'w') as outfile:
-        dict_data = {"cas":  int(df["total_cas_confirmes"].diff().fillna(0).values[-1]), "update": df.date.values[-1][-2:] + "/" + df.date.values[-1][-5:-3]}
-        json.dump(dict_data, outfile)
-        
-    return df
-
-
-# In[8]:
-
-
-#import_data_opencovid()
 #download_data()
-#df, df_confirmed, dates, df_new, df_tests, df_deconf, df_sursaud, df_incid, df_tests_viro = import_data()
-
-
-# In[11]:
-
-
-#df = pd.read_csv(PATH + 'data/france/donnes-hospitalieres-covid19.csv', sep=";")
-#df[df.dep=="59"]
-
-
-# In[35]:
-
-
-"""df = pd.read_csv(PATH + 'data/france/tests_viro-dep-quot.csv', sep=";")
-    
-df_reg_pop = pd.read_csv(PATH + 'data/france/population_grandes_regions.csv', sep=",")
-df_dep_reg = pd.read_csv(PATH + 'data/france/departments_regions_france_2016.csv', sep=",")
-
-df["dep"] = df["dep"].astype(str)
-df_dep_reg["departmentCode.astype"] = df_dep_reg.departmentCode.astype(str)
-
-df = df.merge(df_dep_reg, left_on="dep", right_on="departmentCode", how="left")
-#df = df.merge(df_reg_pop, left_on="regionCode", right_on="code", how="left")
-df[df.regionName.isna()].dep.unique()
-"""
+#import_data()
 
