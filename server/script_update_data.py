@@ -134,6 +134,10 @@ def try_update_france():
         push("France variants")
         print("update variants : " + str(now.hour) + ":" + str(now.minute))
         
+        subprocess.run(["sudo", "python3", PATH_FRANCE+"covid19_france_statut_vaccinal_drees.py"])
+        push("Drees Vaccination")
+        print("update drees vaccination: " + str(now.hour) + ":" + str(now.minute))
+        
         subprocess.run(["sudo", "python3", PATH_FRANCE+"covid19_france_metropoles.py"])
         push("France metropoles")
         print("update France local: " + str(now.hour) + ":" + str(now.minute))
@@ -157,10 +161,6 @@ def try_update_france():
         subprocess.run(["sudo", "python3", PATH_FRANCE+"covid19_france_charts_cas_hospitalisations.py"])
         push("France Cas Hosp Comparaison")
         print("update France Cas Hosp Comparaison: " + str(now.hour) + ":" + str(now.minute))
-        
-        subprocess.run(["sudo", "python3", PATH_FRANCE+"covid19_france_statut_vaccinal_drees.py"])
-        push("Drees Vaccination")
-        print("update drees vaccination: " + str(now.hour) + ":" + str(now.minute))
         
         os.chdir(BASE_CWD)
         

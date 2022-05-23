@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[128]:
+# In[1]:
 
 
 """
@@ -23,13 +23,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[ ]:
-
-
-
-
-
-# In[129]:
+# In[2]:
 
 
 from multiprocessing import Pool
@@ -61,14 +55,14 @@ now = datetime.now()
 COLOR_PAPER = "rgba(225, 230, 235, 0.8)"
 
 
-# In[130]:
+# In[3]:
 
 
 #time.sleep(300)
 data.download_data()
 
 
-# In[131]:
+# In[4]:
 
 
 import time
@@ -91,8 +85,7 @@ while not success:
         continue
 
 
-# In[132]:
-
+# In[5]:
 
 
 df_incid_fra_clage = data.import_data_tests_sexe()
@@ -102,7 +95,7 @@ df_incid_fra = df_incid_fra_clage[df_incid_fra_clage["cl_age90"]==0]
 dates_incid = list(dict.fromkeys(list(df_incid_fra['jour'].values))) 
 
 
-# In[133]:
+# In[6]:
 
 
 df_new = data.import_data_new()
@@ -111,7 +104,7 @@ df_new_france = df_new.groupby("jour").sum().reset_index()
 dates_new = sorted(list(dict.fromkeys(list(df_new_france['jour'].values))))
 
 
-# In[134]:
+# In[7]:
 
 
 df = data.import_data_df()
@@ -120,7 +113,7 @@ dates = sorted(list(dict.fromkeys(list(df['jour'].values))))
 df_france = df.groupby("jour").sum().reset_index()
 
 
-# In[135]:
+# In[8]:
 
 
 last_day_plot_dashboard = (datetime.strptime(max(dates), '%Y-%m-%d') + timedelta(days=3)).strftime("%Y-%m-%d")
@@ -128,7 +121,7 @@ first_day_plot_adm = (datetime.strptime(max(dates), '%Y-%m-%d') - timedelta(days
 last_day_plot = (datetime.strptime(max(dates), '%Y-%m-%d') + timedelta(days=1)).strftime("%Y-%m-%d")
 
 
-# In[136]:
+# In[9]:
 
 
 def nbWithSpaces(nb):
@@ -143,7 +136,7 @@ def nbWithSpaces(nb):
         return str_nb
 
 
-# In[137]:
+# In[10]:
 
 
 df_incid_fra_corrige = df_incid_fra.copy()
@@ -160,7 +153,7 @@ df_incid_fra_corrige.loc[df_incid_fra.jour == "2021-11-01", "P"] = 1.1 * df_inci
 df_incid_fra_corrige.loc[df_incid_fra.jour == "2021-11-11", "P"] = 1.3 * df_incid_fra_corrige[df_incid_fra_corrige.jour == "2021-11-04"]["P"].values[0]
 
 
-# In[138]:
+# In[11]:
 
 
 """fig = go.Figure()
@@ -246,7 +239,7 @@ fig['layout']['annotations'] += (
 fig.show()"""
 
 
-# In[139]:
+# In[12]:
 
 
 suffixe=""
@@ -494,7 +487,7 @@ for (date_deb, date_fin) in [("2020-09-18", last_day_plot_dashboard), (dates[-10
         suffixe="_recent"
 
 
-# In[140]:
+# In[13]:
 
 
 suffixe=""
@@ -681,7 +674,7 @@ for (date_deb, date_fin) in [("2020-09-18", last_day_plot_dashboard), (dates[-10
         suffixe="_recent"
 
 
-# In[141]:
+# In[14]:
 
 
 
@@ -780,7 +773,7 @@ if show_charts:
     fig.show()
 
 
-# In[142]:
+# In[15]:
 
 
 #Comparaison J-7
@@ -831,7 +824,7 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2,
 plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
-# In[143]:
+# In[16]:
 
 
 df_table_indicateurs = data.download_and_import_table_indicateurs()
@@ -840,7 +833,7 @@ cas_cum = df_table_indicateurs_recent["conf_j1"].cumsum()/67800000*100
 dates_cas_cum = pd.to_datetime(df_table_indicateurs_recent["date"])
 
 
-# In[144]:
+# In[17]:
 
 
 df_new_france_recent = df_new_france[df_new_france["jour"]>="2020-01-01"]
@@ -848,7 +841,7 @@ adm_hosp_recent = df_new_france_recent["incid_hosp"].cumsum()
 dates_adm_hosp_recent = pd.to_datetime(df_new_france_recent["jour"])
 
 
-# In[145]:
+# In[18]:
 
 
 fig = go.Figure()
@@ -908,7 +901,7 @@ fig.add_annotation(
     y=cas_cum.max(),
     text=f"{round(cas_cum.max(), 1)}% des Français<br>positifs depuis le 1er janvier",
     ay=-50,
-    ax=0,
+    ax=-25,
     font=dict(size=14),
 )
 
@@ -926,7 +919,7 @@ fig.add_hline(y=100, line=dict(color="black", dash="dot"),)
 fig.write_image(PATH + f"images/charts/france/cas_cum.jpeg", scale=2, width=900, height=600)
 
 
-# In[146]:
+# In[19]:
 
 
 fig = go.Figure()
@@ -1001,7 +994,7 @@ fig.update_layout(
 fig.write_image(PATH + f"images/charts/france/adm_hosp_cum.jpeg", scale=2, width=900, height=600)
 
 
-# In[147]:
+# In[20]:
 
 
 #Comparaison J-7
@@ -1052,7 +1045,7 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2,
 plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
-# In[148]:
+# In[21]:
 
 
 
@@ -1263,7 +1256,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[149]:
+# In[22]:
 
 
 df_txad = data.download_and_import_hosp_txad_fra()
@@ -1271,7 +1264,7 @@ df_pour = df_txad[df_txad["PourAvec"]==1]
 df_avec = df_txad[df_txad["PourAvec"]==2]
 
 
-# In[150]:
+# In[23]:
 
 
 
@@ -1376,7 +1369,7 @@ fig['layout']['annotations'] += (
         font=dict(size=10),
         xref='paper',
         yref='paper',
-        text="Données Santé publique France",#'Date : {}. Source : Santé publique France. Auteur : guillaumerozier.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
+        text="Données Santé publique France • {}".format(datetime.strptime(df_avec["jour"].max(), '%Y-%m-%d').strftime('%d %B %Y')),#'Date : {}. Source : Santé publique France. Auteur : guillaumerozier.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
         showarrow=False
                 ),)
 
@@ -1388,9 +1381,7 @@ if show_charts:
     fig.show()
 
 
-# In[151]:
-
-
+# In[24]:
 
 
 title = "<b>Décès à l'hôpital</b> avec vs. pour Covid19"
@@ -1493,7 +1484,7 @@ fig['layout']['annotations'] += (
         font=dict(size=10),
         xref='paper',
         yref='paper',
-        text="Données Santé publique France",#'Date : {}. Source : Santé publique France. Auteur : guillaumerozier.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
+        text="Données Santé publique France • {}".format(datetime.strptime(df_avec["jour"].max(), '%Y-%m-%d').strftime('%d %B %Y')),#'Date : {}. Source : Santé publique France. Auteur : guillaumerozier.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
         showarrow=False
                 ),)
 
@@ -1505,124 +1496,7 @@ if show_charts:
     fig.show()
 
 
-# In[152]:
-
-
-
-
-title = "<b>Admissions à l'hôpital</b> avec vs. pour Covid19"
-
-range_x, name_fig, range_y = ["2020-12-29", df_pour["jour"].max()], "hosp_journ_adm", [0, df_pour["tx_indic_7J_hosp"][-150:].max()*1.2]
-
-
-fig = make_subplots(rows=1, cols=1, shared_yaxes=True, subplot_titles=[title], vertical_spacing = 0.08, horizontal_spacing = 0.1, specs=[[{"secondary_y": False}]])
-
-
-fig.add_trace(go.Scatter(
-    x = df_pour["jour"],
-    y = df_pour["tx_indic_7J_hosp"].values/(df_avec["tx_indic_7J_hosp"].values+df_pour["tx_indic_7J_hosp"].values),
-    marker_color='rgb(209, 102, 21)',
-    fillcolor='rgba(209, 102, 21, 0.5)',
-    marker_size=5,
-    line_width=2,
-    opacity=1,
-    showlegend=True,
-    stackgroup="one",
-    name="dont soignés pour Covid19",
-    fill="tonexty"
-))
-
-fig.add_trace(go.Scatter(
-    x = df_avec["jour"],
-    y = df_avec["tx_indic_7J_hosp"].values/(df_avec["tx_indic_7J_hosp"].values+df_pour["tx_indic_7J_hosp"].values),
-    marker_color='rgba(237, 137, 62, 1)',
-    fillcolor='rgba(209, 102, 21, 0.2)',
-    marker_size=5,
-    line_width=2,
-    opacity=1,
-    showlegend=True,
-    stackgroup="one",
-    name="soignés pour autre pathologie, mais avec Covid19",
-    fill="tonexty"
-))
-
-fig.update_xaxes(nticks=10, ticks='inside', tickangle=0, tickfont=dict(size=18), range=[range_x[0], range_x[1]])
-
-# Here we modify the tickangle of the xaxis, resulting in rotated labels.
-fig.update_layout(
-    margin=dict(
-            l=50,
-            r=50,
-            b=50,
-            t=70,
-            pad=0
-        ),
-    legend_orientation="h",
-    barmode='group',
-    title={
-                'text': title,
-                'y':0.95,
-                'x':0.5,
-                'xanchor': 'center',
-                'yanchor': 'top'},
-                titlefont = dict(
-                size=30),
-    xaxis=dict(
-            title='',
-            tickformat='%d/%m'),
-
-    annotations = [
-                dict(
-                    x=0.5,
-                    y=0.95,
-                    font=dict(size=14),
-                    xref='paper',
-                    yref='paper',
-                    text="<b>@GuillaumeRozier - covidtracker.fr</b>",#'Date : {}. Source : Santé publique France. Auteur : guillaumerozier.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
-                ),
-
-                ]
-                 )
-
-
-fig['layout']['annotations'] += (
-    dict(
-        x=df_pour["jour"].max(),
-        y=df_pour["tx_indic_7J_hosp"]/(df_avec["tx_indic_7J_hosp"]+df_pour["tx_indic_7J_hosp"]),
-        font=dict(size=10, color="rgb(209, 102, 21)"),
-        text=f"{round(df_pour['tx_indic_7J_hosp'].values[-1]*670/7)}<br>",
-        showarrow=False,
-        xshift=10,
-        xanchor="left"
-                ),
-     dict(
-        x=df_avec["jour"].max(),
-        y=df_avec["tx_indic_7J_hosp"]/(df_avec["tx_indic_7J_hosp"]+df_pour["tx_indic_7J_hosp"]),
-        font=dict(size=10, color="rgba(237, 137, 62, 1)"),
-        text=f"{round(df_avec['tx_indic_7J_hosp'].values[-1]*670/7)}<br>",
-        showarrow=False,
-        xshift=10,
-        xanchor="left"
-                ),
-    dict(
-        x=0.5,
-        y=-0.1,
-        font=dict(size=10),
-        xref='paper',
-        yref='paper',
-        text="Données Santé publique France",#'Date : {}. Source : Santé publique France. Auteur : guillaumerozier.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
-        showarrow=False
-                ),)
-
-fig.write_image(PATH + "images/charts/france/{}_pouravec.jpeg".format(name_fig), scale=2, width=900, height=600)
-
-plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}_pouravec_percent.html'.format(name_fig), auto_open=False)
-print("> " + name_fig)
-if show_charts:
-    fig.show()
-
-
-# In[153]:
+# In[25]:
 
 
 
@@ -1726,7 +1600,7 @@ fig['layout']['annotations'] += (
         font=dict(size=10),
         xref='paper',
         yref='paper',
-        text="Données Santé publique France",#'Date : {}. Source : Santé publique France. Auteur : guillaumerozier.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
+        text="Données Santé publique France • {}".format(datetime.strptime(df_avec["jour"].max(), '%Y-%m-%d').strftime('%d %B %Y')),#'Date : {}. Source : Santé publique France. Auteur : guillaumerozier.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
         showarrow=False
                 ),)
 
@@ -1738,7 +1612,7 @@ if show_charts:
     fig.show()
 
 
-# In[154]:
+# In[26]:
 
 
 range_x, name_fig, range_y = ["2020-03-29", last_day_plot], "hosp_journ", [0, df_france["hosp"].max()*1.1]
@@ -1999,7 +1873,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[155]:
+# In[27]:
 
 
 range_x, name_fig, range_y = ["2020-03-29", last_day_plot], "dc_journ", [0, df_new_france["incid_dc"].max()]
@@ -2153,7 +2027,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[156]:
+# In[28]:
 
 
 
@@ -2364,7 +2238,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[157]:
+# In[29]:
 
 
 
@@ -2573,7 +2447,7 @@ for i in ("", "log"):
         fig.show()
 
 
-# In[158]:
+# In[30]:
 
 
 for croiss in [""]:
@@ -2591,7 +2465,7 @@ for croiss in [""]:
     
 
 
-# In[159]:
+# In[31]:
 
 
 data.download_data_vue_ensemble()
@@ -2600,7 +2474,7 @@ df_vue_ensemble.loc[df_vue_ensemble.date >= "2021-05-21", "total_cas_confirmes"]
 #df_vue_ensemble=df_vue_ensemble.append({"date": "2021-03-30", "total_cas_confirmes": 4554683}, ignore_index=True)
 
 
-# In[160]:
+# In[32]:
 
 
 """suffixe=""
@@ -2817,7 +2691,7 @@ for (date_deb, date_fin) in [("2020-01-18", datetime.strptime(df_vue_ensemble.da
     """
 
 
-# In[161]:
+# In[33]:
 
 
 #Comparaison J-7
@@ -2868,7 +2742,7 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2,
 plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
-# In[162]:
+# In[34]:
 
 
 df_incid_fra_recent = df_incid_fra[-300:]
@@ -2989,7 +2863,7 @@ fig.update_layout(
 fig.write_image(PATH + f"images/charts/france/cas_hosp_dc_comparaison_pic.jpeg", scale=2, width=900, height=600)
 
 
-# In[163]:
+# In[35]:
 
 
 df_incid_fra_recent = df_incid_fra[-150:]
@@ -3043,7 +2917,7 @@ fig.add_annotation(
     x=0.5,
     y=1.2,
     text="<b>Proportion d'admissions en soins critiques rapporté aux hospitalisations</b>",
-    font=dict(size=24),
+    font=dict(size=22),
     showarrow=False
 )
 
@@ -3060,7 +2934,7 @@ fig.add_annotation(
 fig.update_layout(
     showlegend=False,
     xaxis=dict(showgrid=False, zeroline=True, showline=True),
-    yaxis=dict(ticksuffix=" %", zeroline=True, range=[10, 30]),
+    yaxis=dict(ticksuffix=" %", zeroline=True, range=[0, 30]),
     paper_bgcolor='rgba(225, 230, 235, 1)',
     plot_bgcolor='rgba(0,0,0,0)',
     margin=dict(r=50)
@@ -3069,7 +2943,7 @@ fig.update_layout(
 fig.write_image(PATH + f"images/charts/france/proportion_rea_hosp.jpeg", scale=2, width=900, height=600)
 
 
-# In[164]:
+# In[36]:
 
 
 df_incid_fra_recent = df_incid_fra[-500:]
@@ -3157,7 +3031,7 @@ fig.update_layout(
 fig.write_image(PATH + f"images/charts/france/proportion_cas_hosp.jpeg", scale=2, width=900, height=600)
 
 
-# In[165]:
+# In[37]:
 
 
 df_incid_fra_recent = df_incid_fra[-300:]
