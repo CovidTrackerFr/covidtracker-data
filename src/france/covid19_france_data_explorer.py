@@ -187,7 +187,7 @@ confines_mars_2021 = ["confines_mars_2021", "02", "06", "27", "59", "60", "62", 
 df_opendata_indicateurs = data.download_and_import_opendata_indicateurs()
 
 
-# In[20]:
+# In[42]:
 
 
 def generate_data(data_incid=pd.DataFrame(), data_hosp=pd.DataFrame(), data_sursaud=pd.DataFrame(), data_new=pd.DataFrame(), data_vue_ensemble=pd.DataFrame(), data_metropole=pd.DataFrame(), data_vacsi=pd.DataFrame(), data_obepine=pd.DataFrame(), data_opendata_indicateurs=pd.DataFrame(), mode="", export_jour=False, taux_croissance=False):## Incidence
@@ -312,7 +312,7 @@ def generate_data(data_incid=pd.DataFrame(), data_hosp=pd.DataFrame(), data_surs
         dict_data["obepine"] = {"jour_nom": "jour_obepine", "jours":list(data_obepine.Date), "valeur": list(round(indicateur_obepine, 2))}
         
     if len(data_incid)>0:
-        taux_incidence = data_incid["P"].rolling(window=7).sum().fillna(0) * 100000 / int(data_incid["pop"].values[0])
+        taux_incidence = data_incid["P"].rolling(window=7).sum().fillna(0) * 100000 / float(data_incid["pop"].values[0])
         dict_data["incidence"] = {"jour_nom": "jour_incid", "valeur": list(round(taux_incidence, 1))}
 
         taux_positivite = (data_incid["P"] / data_incid["T"] * 100).rolling(window=7).mean().fillna(0)
@@ -337,7 +337,7 @@ def generate_data(data_incid=pd.DataFrame(), data_hosp=pd.DataFrame(), data_surs
         dict_data["tests_total"] = {"jour_nom": "jour_incid", "valeur": int(tests_total)}
         
     if (len(data_metropole)>0) & (mode=="metropoles"):
-        taux_incidence = data_metropole["ti"].fillna(0)
+        taux_incidence = data_metropole["Ti"].fillna(0)
         dict_data["incidence"] = {"jour_nom": "jour_metropoles", "valeur": list(round(taux_incidence, 1))}
         
     if (taux_croissance) and (len(data_hosp)>0):
@@ -468,7 +468,7 @@ def generate_data_age(data_incid, data_hosp, data_adm_hosp_clage=pd.DataFrame(),
  
 
 
-# In[22]:
+# In[33]:
 
 
 def generate_data_niveaux_scolaires(data_incid_niveaux_scolaires, export_jour=False):
@@ -483,9 +483,9 @@ def generate_data_niveaux_scolaires(data_incid_niveaux_scolaires, export_jour=Fa
 
         dict_data[clage_nom] = {}
 
-        taux_incidence = data_incid_niveaux_scolaires_clage["ti"]
-        taux_depistage = data_incid_niveaux_scolaires_clage["td"]
-        taux_positivite = data_incid_niveaux_scolaires_clage["tp"]
+        taux_incidence = data_incid_niveaux_scolaires_clage["Ti"]
+        taux_depistage = data_incid_niveaux_scolaires_clage["Td"]
+        taux_positivite = data_incid_niveaux_scolaires_clage["Tp"]
         
         dict_data[clage_nom]["incidence"] = {"jour_nom": "jour_niveaux_scolaires", "valeur": round(taux_incidence.astype(float)).astype(int).tolist()}
         dict_data[clage_nom]["depistage"] = {"jour_nom": "jour_niveaux_scolaires", "valeur": round(taux_depistage.astype(float)).astype(int).tolist()}
@@ -532,7 +532,7 @@ def export_data(data, suffix=""):
         json.dump(data, outfile)
 
 
-# In[25]:
+# In[44]:
 
 
 def dataexplorer():
@@ -544,7 +544,7 @@ def dataexplorer():
     dict_data["regions"] = regions
     dict_data["metropoles"] = sorted(metropoles)
     dict_data["departements"] = departements
-    dict_data["france"] = generate_data(df_incid_fra, df_france, df_sursaud_france, df_new_france, df_vue_ensemble, data_metropole=df_metro_0, data_vacsi=df_vacsi, data_obepine=df_obepine_france, data_opendata_indicateurs=df_opendata_indicateurs, mode="france", export_jour=True, taux_croissance=True)
+    dict_data["france"] = generate_data(df_incid_fra, df_france, df_sursaud_france, df_new_france, df_vue_ensemble, data_metropole=df_metro_0, data_vacsi=df_vacsi, data_obepine=pd.DataFrame(), data_opendata_indicateurs=df_opendata_indicateurs, mode="france", export_jour=True, taux_croissance=True)
     dict_data["metropole"] = generate_data(df_incid[df_incid["dep"].str.len()<=2].groupby(["jour"]).sum(), df[df["dep"].str.len()<=2].groupby(["jour"]).sum(), df_sursaud[df_sursaud["dep"].str.len()<=2].groupby(["date_de_passage"]).sum(), df_new[df_new["dep"].str.len()<=2].groupby(["jour"]).sum(), data_vacsi=df_vacsi_dep[df_new["dep"].str.len()<=2].groupby(["jour"]).sum())
     dict_data["drom_com"] = generate_data(df_incid[df_incid["dep"].str.len()>2].groupby(["jour"]).sum(), df[df["dep"].str.len()>2].groupby(["jour"]).sum(), df_sursaud[df_sursaud["dep"].str.len()>2].groupby(["date_de_passage"]).sum(), df_new[df_new["dep"].str.len()>2].groupby(["jour"]).sum(), data_vacsi=df_vacsi_dep[df_new["dep"].str.len()>2].groupby(["jour"]).sum())
 
@@ -556,7 +556,7 @@ def dataexplorer():
         dict_data[reg] = generate_data(data_incid=df_incid_regions[df_incid_regions.regionName==reg],                                        data_hosp=data_hosp,                                       data_sursaud=df_sursaud_regions[df_sursaud_regions.regionName==reg],
                                        data_new=df_new_regions[df_new_regions.regionName==reg],
                                        data_vacsi=df_vacsi_reg[df_vacsi_reg.regionName==reg],\
-                                       data_obepine=df_obepine[df_obepine.regionName==reg]
+                                       data_obepine=pd.DataFrame() #df_obepine[df_obepine.regionName==reg]
                                       )
     print("Regions : done")
     
@@ -691,31 +691,31 @@ def data_nouveau_dashboard_france():
         json.dump(data, outfile)
 
 
-# In[30]:
+# In[31]:
 
 
 data_nouveau_dashboard_france()
 
 
-# In[31]:
+# In[35]:
 
 
 dict_ns = dataexplorer_niveaux_scolaires()
 
 
-# In[32]:
+# In[45]:
 
 
 dict_dataexplorer = dataexplorer()
 
 
-# In[33]:
+# In[46]:
 
 
 dict_data = dataexplorer_age()
 
 
-# In[34]:
+# In[47]:
 
 
 def objectif_deconfinement():

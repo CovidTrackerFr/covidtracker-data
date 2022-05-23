@@ -68,9 +68,9 @@ def tweet_france_maps():
     if len(tweet_departements)>240:
         tweet_departements = tweet_departements[:236] + "…"
     first_tweet = api.update_status(status=tweet, media_ids=media_ids2)
-    reply_tweet = api.update_status(status=tweet_departements, 
-                                in_reply_to_status_id=first_tweet.id, 
-                                auto_populate_reply_metadata=True)
+    #reply_tweet = api.update_status(status=tweet_departements, 
+    #                            in_reply_to_status_id=first_tweet.id, 
+    #                            auto_populate_reply_metadata=True)
     
 tweet_france_maps()
 

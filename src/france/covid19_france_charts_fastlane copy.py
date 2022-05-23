@@ -84,7 +84,6 @@ while not success:
 # In[5]:
 
 
-
 df_incid_fra_clage = data.import_data_tests_sexe()
 df_incid_fra = df_incid_fra_clage[df_incid_fra_clage["cl_age90"]==0]
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
+# In[3]:
 
 
 import requests
@@ -138,7 +138,7 @@ def import_data_obepine():
     return df
 
 def import_data_metropoles():
-    df_metro = pd.read_csv(PATH + 'data/france/donnes-incidence-metropoles.csv', sep=",")
+    df_metro = pd.read_csv(PATH + 'data/france/donnes-incidence-metropoles.csv', sep=";")
     epci = pd.read_csv(PATH + 'data/france/metropole-epci.csv', sep=";", encoding="'windows-1252'")
     
     df_metro = df_metro.merge(epci, left_on='epci', right_on='EPCI').drop(['EPCI'], axis=1)
@@ -147,7 +147,7 @@ def import_data_metropoles():
 
 def import_data_hosp_clage():
     df_hosp = pd.read_csv(PATH + 'data/france/donnes-hospitalieres-clage-covid19.csv', sep=";")
-    df_hosp["jour"] = pd.to_datetime(df_hosp["Semaine"]+"-0", format="%Y-S%U-%w") 
+    #df_hosp["jour"] = pd.to_datetime(df_hosp["Semaine"]+"-0", format="%Y-S%U-%w") 
     df_hosp = df_hosp.groupby(["reg", "jour", "cl_age90"]).first().reset_index()
     df_reg_pop = pd.read_csv(PATH + 'data/france/population_grandes_regions.csv', sep=",")
     df_hosp = df_hosp.merge(df_reg_pop, left_on="reg", right_on="code")
@@ -176,6 +176,7 @@ def import_data_tests_viros():
 
 def import_data_hosp_ad_age():
     df = pd.read_csv('https://www.data.gouv.fr/fr/datasets/r/dc7663c7-5da9-4765-a98b-ba4bc9de9079', sep=";")
+    df["jour"] = pd.to_datetime(df["Semaine"]+"-0", format="%Y-S%U-%w")
     return df
     
 def import_data_new():
@@ -206,6 +207,7 @@ def import_data_variants_regs():
 
 def import_data_tests_sexe():
     df = pd.read_csv(PATH + 'data/france/tests_viro-fra-covid19.csv', sep=";")
+    df = df.replace(",", ".", regex=True)
     df["P"] = pd.to_numeric(df["P"])
     df["T"] = pd.to_numeric(df["T"])
     return df
@@ -306,7 +308,7 @@ def download_data():
     url_tests_viro = "https://www.data.gouv.fr/fr/datasets/r/674bddab-6d61-4e59-b0bd-0be535490db0" #df_metadata[df_metadata['url'].str.contains("/sp-pos-quot-dep")]["url"].values[0]
     
     url_sursaud = df_metadata[df_metadata['url'].str.contains("sursaud.*quot.*dep")]["url"].values[0]
-    url_data_clage = "https://www.data.gouv.fr/fr/datasets/r/dc7663c7-5da9-4765-a98b-ba4bc9de9079" #df_metadata[df_metadata['url'].str.contains("/donnees-hospitalieres-classe-age-covid19")]["url"].values[0]
+    url_data_clage = "https://www.data.gouv.fr/fr/datasets/r/08c18e08-6780-452d-9b8c-ae244ad529b3" #"https://www.data.gouv.fr/fr/datasets/r/dc7663c7-5da9-4765-a98b-ba4bc9de9079" #df_metadata[df_metadata['url'].str.contains("/donnees-hospitalieres-classe-age-covid19")]["url"].values[0]
     url_data_sexe = "https://www.data.gouv.fr/fr/datasets/r/4e8d826a-d2a1-4d69-9ed0-b18a1f3d5ce2" #df_metadata[df_metadata['url'].str.contains("/sp-pos-quot-fra")]["url"].values[0]
 
         
