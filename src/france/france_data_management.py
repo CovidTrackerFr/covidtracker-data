@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[3]:
+# In[2]:
 
 
 import requests
@@ -389,15 +389,21 @@ def import_data():
     df_tests = pd.read_csv(PATH + 'data/france/donnes-tests-covid19-quotidien.csv', sep=";")
     df_deconf = pd.read_csv(PATH + 'data/france/indicateurs-deconf.csv', sep=",")
     df_incid = pd.read_csv(PATH + 'data/france/taux-incidence-dep-quot.csv', sep=";")
+    
     df_incid["dep"] = df_incid["dep"].astype('str')
     df_incid["dep"] = df_incid["dep"].astype('str').str.replace(r"^([1-9])$", lambda m: "0"+m.group(0), regex=True)
     df_incid = df_incid.replace(",00", "", regex=True)
     df_incid = df_incid.replace(",", ".", regex=True)
-    df_incid["P"] = pd.to_numeric(df_incid["P"])
-    df_incid["T"] = pd.to_numeric(df_incid["T"])
-    df_incid["pop"] = pd.to_numeric(df_incid["pop"])
+
+    df_incid = df_incid.replace(",", ".", regex=True)
+    for variable in ["pop", "P", "T", "Ti", "Tp", "Td"]:
+        df_incid[variable] = pd.to_numeric(df_incid[variable])
 
     df_tests_viro = pd.read_csv(PATH + 'data/france/tests_viro-dep-quot.csv', sep=";")
+    df_tests_viro = df_tests_viro.replace(",", ".", regex=True)
+    for variable in ["P", "T", "Ti", "Tp", "Td"]:
+        df_tests_viro[variable] = pd.to_numeric(df_tests_viro[variable])
+    
     df_tests_viro["dep"] = df_tests_viro["dep"].astype('str').str.replace(r"^([1-9])$", lambda m: "0"+m.group(0), regex=True)
     
     pbar.update(2)
