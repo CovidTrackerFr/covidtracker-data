@@ -141,7 +141,7 @@ def import_data_metropoles():
     df_metro = pd.read_csv(PATH + 'data/france/donnes-incidence-metropoles.csv', sep=";")
     epci = pd.read_csv(PATH + 'data/france/metropole-epci.csv', sep=";", encoding="'windows-1252'")
     
-    df_metro = df_metro.merge(epci, left_on='epci', right_on='EPCI').drop(['EPCI'], axis=1)
+    df_metro = df_metro.merge(epci, left_on='epci2020', right_on='EPCI').drop(['EPCI'], axis=1)
     
     return df_metro
 
