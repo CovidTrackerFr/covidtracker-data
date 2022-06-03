@@ -4,7 +4,7 @@
 # # COVID-19 French Charts
 # Guillaume Rozier, 2020
 
-# In[1]:
+# In[2]:
 
 
 """
@@ -26,7 +26,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[2]:
+# In[3]:
 
 
 from multiprocessing import Pool
@@ -55,7 +55,7 @@ PATH = "../../"
 now = datetime.now()
 
 
-# In[3]:
+# In[4]:
 
 
 try:
@@ -71,7 +71,7 @@ except:
 
 # # Data download and import
 
-# In[4]:
+# In[5]:
 
 
 import time
@@ -96,13 +96,13 @@ while not success:
 
 # ## Data transformations
 
-# In[18]:
+# In[36]:
 
 
 df, df_confirmed, dates, df_new, df_tests, df_deconf, df_sursaud, df_incid, df_tests_viros = data.import_data()
 
 
-# In[19]:
+# In[7]:
 
 
 data.download_data_vue_ensemble()
@@ -114,21 +114,21 @@ df_opencovid = data.import_data_opencovid()
 df_opendata = data.download_and_import_opendata_indicateurs
 
 
-# In[20]:
+# In[8]:
 
 
 df_sexes = data.import_data_df()
 df_sexes_tot = df_sexes[df_sexes.sexe==0]
 
 
-# In[21]:
+# In[9]:
 
 
 df_incid_fra_clage = data.import_data_tests_sexe()
 df_incid_fra = df_incid_fra_clage[df_incid_fra_clage["cl_age90"]==0]
 
 
-# In[22]:
+# In[38]:
 
 
 df_new_france = df_new.groupby(["jour"]).sum().reset_index()
@@ -137,7 +137,7 @@ df_new_france = data.import_data_new().groupby("jour").sum().reset_index()
 df_clage = data.import_data_hosp_clage()
 df_clage_france = df_clage.groupby(["jour", "cl_age90"]).sum().reset_index()
 
-df_incid = df_incid.groupby(["jour", "dep"]).sum().reset_index()
+df_incid = df_incid.groupby(["jour", "dep", "regionName"]).sum().reset_index()
 
 df_incid_france = df_incid.groupby("jour").sum().reset_index()
 dates_clage = list(dict.fromkeys(list(df_clage_france['jour'].values))) 
@@ -168,19 +168,7 @@ regions = list(dict.fromkeys(list(df['regionName'].values)))
 departements_noms = list(dict.fromkeys(list(df['departmentName'].values))) 
 
 
-# In[23]:
-
-
-df_incid
-
-
-# In[24]:
-
-
-df_incid
-
-
-# In[25]:
+# In[40]:
 
 
 #Calcul sorties de réa
@@ -199,7 +187,7 @@ df_france_last15 = df_france[ df_france["jour"].isin(dates[-19:]) ]
 df_tests_tot_last15 = df_tests_tot[ df_tests_tot["jour"].isin(dates[-19:]) ]
 
 
-# In[26]:
+# In[41]:
 
 
 def nbWithSpaces(nb):
@@ -214,7 +202,7 @@ def nbWithSpaces(nb):
         return str_nb
 
 
-# In[27]:
+# In[42]:
 
 
 departements_name = {}
@@ -228,7 +216,7 @@ for dep in departements:
         departements_name[dep] = "St-Pierre-et-Miquelon"
 
 
-# In[28]:
+# In[43]:
 
 
 import random
@@ -244,7 +232,7 @@ for idx, death in enumerate(df_new_france["incid_dc"].rolling(window=7).mean().d
     
 
 
-# In[29]:
+# In[44]:
 
 
 locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
@@ -285,7 +273,7 @@ fig.update_layout(
 fig.write_image(PATH + "images/charts/france/points_deces.jpeg", scale=4, width=800, height=350)
 
 
-# In[ ]:
+# In[45]:
 
 
 def stats_dep_vague(nb_first_values):
@@ -339,7 +327,7 @@ def stats_dep_vague(nb_first_values):
 stats_dep_vague(len(dates)-1)
 
 
-# In[ ]:
+# In[46]:
 
 
 def caracterisation_valeur(valeur, valeur_j1, seuils=[1, 2, 3], step=0.02):
@@ -366,24 +354,24 @@ def caracterisation_valeur(valeur, valeur_j1, seuils=[1, 2, 3], step=0.02):
     return caract
 
 
-# In[ ]:
+# In[47]:
 
 
 df_temp = df_new[["jour", "incid_dc", "incid_hosp", "incid_rea", "departmentName", "dep", "departmentPopulation"]][ df_new["jour"] >= dates[-14]]
-df_tests_viros_departements = df_tests_viros[(df_tests_viros["jour"] >= dates_incid[-14]) & (df_tests_viros["cl_age90"]==0)].merge(df_temp[["dep", "departmentName"]], left_on="dep", right_on="dep")
+df_tests_viros_departements = df_tests_viros.groupby(["jour", "dep"]).sum().reset_index()
+df_tests_viros_departements = df_tests_viros_departements[(df_tests_viros_departements["jour"] >= dates_incid[-14])].merge(df_temp[["dep", "departmentName"]], left_on="dep", right_on="dep")
 df_tests_viros_departements = df_tests_viros_departements.groupby(["dep", "jour"]).first().reset_index()
 df_dep_tests = df_tests_viros_departements[df_tests_viros_departements["departmentName"] == "Isère"].reset_index()
-df_dep_tests["P"].values[-7:].sum()/df_dep_tests["pop"].values[0]*100000
 
 
-# In[ ]:
+# In[48]:
 
 
 data.download_data_variants_deps()
 df_variants = data.import_data_variants_deps()
 
 
-# In[ ]:
+# In[49]:
 
 
 
@@ -402,8 +390,8 @@ def incidence_deps_data():
     df_temp = df_new[["jour", "incid_dc", "incid_hosp", "incid_rea", "departmentName", "dep", "departmentPopulation"]][ df_new["jour"] >= dates[-14]]
     df_temp_lits = df[["jour", "dc", "hosp", "rea", "departmentName", "dep", "departmentPopulation"]][ df["jour"] >= dates[-8]]
 
-    df_tests_viros_departements = df_tests_viros[(df_tests_viros["jour"] >= dates_incid[-14]) & (df_tests_viros["cl_age90"]==0)].merge(df_temp[["dep", "departmentName"]], left_on="dep", right_on="dep")
-    df_tests_viros_departements = df_tests_viros_departements.groupby(["dep", "jour"]).first().reset_index()
+    #df_tests_viros_departements = df_tests_viros[(df_tests_viros["jour"] >= dates_incid[-14]) & (df_tests_viros["cl_age90"]==0)].merge(df_temp[["dep", "departmentName"]], left_on="dep", right_on="dep")
+    #df_tests_viros_departements = df_tests_viros_departements.groupby(["dep", "jour"]).first().reset_index()
 
     for dep in departements_noms:
         data_json = {"incidence_cas": 0, "incidence_hosp": 0, "lits_hosp": 0, "incidence_dc": 0, "incidence_dc_evol": 0, "lits_hosp_evol": 0, "incidence_rea": 0, "lits_rea": 0, "lits_rea_evol": 0, "population": 0, "taux_positivite": 0, "saturation_rea": incidence_departements["donnees_departements"][dep]["saturation_rea"]}
@@ -472,7 +460,7 @@ def incidence_deps_data():
 incidence_deps_data()
 
 
-# In[ ]:
+# In[56]:
 
 
 df_tests_viros_france = df_tests_viros.groupby(['jour', 'cl_age90']).sum().reset_index()
@@ -483,7 +471,7 @@ def incidence_regs_data():
     
     df_temp = df_new[["jour", "incid_dc", "incid_hosp", "incid_rea", "regionName", "departmentPopulation"]][ df_new["jour"] >= dates[-14]].groupby(["jour", "regionName"]).sum().reset_index()
     
-    df_tests_viros_regions = df_incid[(df_incid["jour"] >= dates_incid[-14]) & (df_incid["cl_age90"]==0)].groupby(["jour", "regionName"]).sum().reset_index()
+    df_tests_viros_regions = df_incid[(df_incid["jour"] >= dates_incid[-14])].groupby(["jour", "regionName"]).sum().reset_index()
     
     for reg in regions:
         data_json = {"incidence_cas": 0, "incidence_hosp": 0, "incidence_dc": 0, "population": 0}
@@ -3471,7 +3459,7 @@ fig.write_image(PATH + "images/charts/france/{}.jpeg".format(name_fig), scale=2,
 
 # ## R_effectif
 
-# In[ ]:
+# In[71]:
 
 
 #### Calcul du R_effectif
@@ -3675,16 +3663,16 @@ if show_charts:
     fig.show()
 
 
-# In[ ]:
+# In[72]:
 
 
 def traitement_val(valeur, plus_sign=False):
-    if (int(valeur) > 0) & plus_sign:
-        valeur = "+ " + str(abs(int(valeur)))
+    if (float(valeur) > 0) & plus_sign:
+        valeur = "+ " + str(abs(float(valeur)))
         
     if ("+" not in valeur):
-        if(int(valeur)<0):
-            valeur = "- " + str(abs(int(valeur)))
+        if(float(valeur)<0):
+            valeur = "- " + str(abs(float(valeur)))
         
     if len(valeur)>3:
         valeur = valeur[:len(valeur)-3] + " " + valeur[-3:]
@@ -3716,7 +3704,7 @@ for val in ["rea", "hosp", "incid_dc", "rea_new", "hosp_new"]:
     
 #####
     
-df_tests_viros_france = df_tests_viros[df_tests_viros["cl_age90"]==0].groupby(["jour"]).sum().reset_index()
+df_tests_viros_france = df_tests_viros.groupby(["jour"]).sum().reset_index()
 tests_last7 = traitement_val(str(df_tests_viros_france["P"].values[-7:].sum()), True)
 
 dict_json = {}
@@ -3773,7 +3761,7 @@ with open(PATH_STATS + 'stats.json', 'w') as outfile:
     json.dump(data_json, outfile)
 
 
-# In[ ]:
+# In[73]:
 
 
 with open(PATH_STATS + 'cas_sidep.json', 'w') as outfile:
