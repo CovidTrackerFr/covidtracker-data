@@ -71,11 +71,11 @@ data.download_data_variants_deps()
 df_variants = data.import_data_variants_deps()
 
 
-# In[6]:
+# In[26]:
 
 
 df_departements = df.groupby(["jour", "departmentName"]).sum().reset_index()
-df_incid_departements = df_incid[df_incid["cl_age90"]==0].groupby(["jour", "departmentName", "dep"]).sum().reset_index()
+df_incid_departements = df_incid.groupby(["jour", "departmentName", "dep"]).sum().reset_index()
 
 df_new_departements = df_new.groupby(["jour", "departmentName"]).sum().reset_index()
 
@@ -256,7 +256,7 @@ def cas_journ(departement):
 #cas_journ("Savoie")
 
 
-# In[16]:
+# In[10]:
 
 
 def nombre_variants(departement):
@@ -835,7 +835,7 @@ def cas_journ_departements_couvre_feu_hosp(departements):
 cas_journ_departements_couvre_feu_hosp(departements)"""
 
 
-# In[13]:
+# In[24]:
 
 
 def incid_dep(departement):
@@ -2051,7 +2051,7 @@ with open(PATH + 'images/charts/france/covidep/stats.json', 'w') as outfile:
     
 
 
-# In[17]:
+# In[ ]:
 
 
 for dep in departements:
@@ -2059,7 +2059,7 @@ for dep in departements:
     nombre_variants(dep)
 
 
-# In[24]:
+# In[ ]:
 
 
 with open(PATH_STATS + 'incidence_departements.json', 'r') as f:
@@ -2073,7 +2073,7 @@ with open(PATH_STATS + 'incidence_departements.json', 'w') as outfile:
     json.dump(incidence_departements, outfile)
 
 
-# In[25]:
+# In[ ]:
 
 
 n_tot=1
@@ -2302,7 +2302,7 @@ for i in range(0, n_tot):
             plotly.offline.plot(fig, filename = PATH + 'images/html_exports/france/evolution_deps/evolution_deps_0.html', auto_open=False)
 
 
-# In[26]:
+# In[ ]:
 
 
 #import glob
@@ -2344,7 +2344,7 @@ for (folder, n, fps) in [("evolution_deps", n_tot, 3)]:
         print("error conversion h265")
 
 
-# In[27]:
+# In[ ]:
 
 
 """for idx,dep in enumerate(departements):
@@ -2360,7 +2360,7 @@ for (folder, n, fps) in [("evolution_deps", n_tot, 3)]:
 """
 
 
-# In[28]:
+# In[ ]:
 
 
 """#print("<!-- wp:buttons --><div class=\"wp-block-buttons\">\n")
