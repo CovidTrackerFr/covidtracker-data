@@ -110,6 +110,14 @@ def download_and_import_hosp_txad_fra():
     df = pd.read_csv("https://www.data.gouv.fr/fr/datasets/r/fe3e7099-a975-4181-9fb5-2dd1b8f1b552", sep=";")
     return df
 
+def download_and_import_fra_jour_cage():
+    df = pd.read_csv("https://www.data.gouv.fr/fr/datasets/r/d349accb-56ef-4b53-b218-46c2a7f902e0", sep=";")
+    df = df.replace(",", ".", regex=True)
+    df["P"] = pd.to_numeric(df["P"])
+    df["T"] = pd.to_numeric(df["T"])
+    df["pop"] = pd.to_numeric(df["pop"])
+    return df
+
 def download_and_import_table_indicateurs():
     return pd.read_csv("https://www.data.gouv.fr/fr/datasets/r/f335f9ea-86e3-4ffa-9684-93c009d5e617")
 
@@ -210,6 +218,7 @@ def import_data_tests_sexe():
     df = df.replace(",", ".", regex=True)
     df["P"] = pd.to_numeric(df["P"])
     df["T"] = pd.to_numeric(df["T"])
+    df["pop"] = pd.to_numeric(df["pop"])
     return df
 
 def import_data_vue_ensemble():
